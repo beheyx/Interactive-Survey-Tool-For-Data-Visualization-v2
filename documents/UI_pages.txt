@@ -1,0 +1,239 @@
+################################################################################
+#
+# This defines all UI webpages
+#
+# View by selecting all text and copy/pasting to https://editor.swagger.io
+#
+################################################################################
+
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Interactive Survey Tools for Data Visualization UI Pages
+  description: none
+  
+
+paths:
+
+
+  ################################################################################
+  #
+  #         MAIN
+  #
+  ################################################################################
+
+  /:
+    get:
+      summary: Generic home page or user dashboard.
+      description: .
+      tags:
+        - Main
+      responses:
+        '200':
+          description: Success
+  
+  /login:
+    get:
+      summary: Page to login.
+      description: .
+      tags:
+        - Main
+      responses:
+        '200':
+          description: Success
+  
+  /register:
+    get:
+      summary: Page to register.
+      description: .
+      tags:
+        - Main
+      responses:
+        '200':
+          description: Success
+  
+  /visualizations:
+    get:
+      summary: Paginated list of user's visualizations.
+      description: .
+      tags:
+        - Main
+      responses:
+        '200':
+          description: Success
+  
+  /visualizations/{id}:
+    parameters:
+      - $ref: '#/components/parameters/id'
+      
+    get:
+      summary: Page to edit a visualization.
+      description: .
+      tags:
+        - Main
+      responses:
+        '200':
+          description: Success
+    
+  /surveyDesigns:
+    get:
+      summary: Paginated list of user's survey designs.
+      description: .
+      tags:
+        - Main
+      responses:
+        '200':
+          description: Success
+  
+  /surveyDesigns/{id}:
+    parameters:
+      - $ref: '#/components/parameters/id'
+      
+    get:
+      summary: Page to edit a survey design.
+      description: .
+      tags:
+        - Main
+      responses:
+        '200':
+          description: Success
+  
+  /surveyDesigns/{id}/questions:
+    parameters:
+      - $ref: '#/components/parameters/id'
+    get:
+      summary: Page to create a new question in a survey design.
+      description: .
+      tags:
+        - Main
+      responses:
+        '200':
+          description: Success
+  
+  /surveyDesigns/{id}/questions/{number}:
+    parameters:
+      - $ref: '#/components/parameters/id'
+      - name: number
+        in: path
+        description: >
+          The question number.
+        schema:
+          type: integer
+        example: "2"
+        required: true
+        
+    get:
+      summary: Page to edit a survey design's question.
+      description: .
+      tags:
+        - Main
+      responses:
+        '200':
+          description: Success
+  
+  /publishedSurveys:
+    get:
+      summary: Paginated list of user's published surveys.
+      description: .
+      tags:
+        - Main
+      responses:
+        '200':
+          description: Success
+  
+  /publishedSurveys/{id}:
+    parameters:
+      - $ref: '#/components/parameters/id'
+    get:
+      summary: Page displaying published survey info.
+      description: .
+      tags:
+        - Main
+      responses:
+        '200':
+          description: Success
+          
+  
+  ################################################################################
+  #
+  #         VISUALIZATION ENGINE
+  #
+  ################################################################################
+  
+  /{id}:
+    parameters:
+      - $ref: '#/components/parameters/id'
+      - name: editor
+        in: query
+        description: >
+          If true, enter the page as an editor. If false, enter as a participant.
+        schema:
+          type: boolean
+          default: false
+      - name: enableSelect
+        in: query
+        description: >
+          If true, allow user to select visual elements. Ignored if editor=true.
+        schema:
+          type: boolean
+          default: false
+      - name: disablePan
+        in: query
+        description: >
+          If true, prevent user from panning. Ignored if editor=true.
+        schema:
+          type: boolean
+          default: false
+      - name: disableZoom
+        in: query
+        description: >
+          If true, prevent user from zooming. Ignored if editor=true.
+        schema:
+          type: boolean
+          default: false
+        
+    get:
+      summary: Display visualization.
+      description: Loads the visualization corresponding to `id`. If the `id` is omitted, enter page in debug mode.
+      tags:
+        - Visualization Engine
+      responses:
+        '200':
+          description: Success
+  
+  
+
+################################################################################
+#
+#         PARAMETER TEMPLATES
+#
+################################################################################
+  
+components:
+  parameters:
+    id:
+      name: id
+      in: path
+      description: >
+        Unique ID of resource.
+      schema:
+        oneOf:
+          - type: integer
+      example: "123"
+      required: true
+  
+      
+      
+################################################################################
+#
+#         PAGE CATEGORIES
+#
+################################################################################
+
+tags:
+  - name: Main
+    description: >
+      Pages on the main module. Directly accessible by end user.
+  - name: Visualization Engine
+    description: >
+      Pages on the visualization engine module. Not directly accessible by end user.

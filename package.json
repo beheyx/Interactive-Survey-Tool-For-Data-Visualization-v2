@@ -1,0 +1,42 @@
+{
+  "name": "survey-web-app",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "test": "jest --forceExit",
+    "start": "concurrently \"node main/api/server.js\" \"node visualization/api/server.js\" \"node visualization/ui/server.js\" \"node main/ui/server.js\"",
+    "debug-main": "nodemon main/ui/server.js -debug",
+    "debug": "concurrently \"npm run debug-main\" \"npm run dev-visual-ui\"",
+    "dev-visual-api": "nodemon visualization/api/server.js",
+    "dev-visual-ui": "nodemon visualization/ui/server.js",
+    "dev-visual": "concurrently \"npm run dev-visual-api\" \"npm run dev-visual-ui\"",
+    "dev-main-api": "nodemon main/api/server.js",
+    "dev-main-ui": "nodemon main/ui/server.js",
+    "dev-main": "concurrently \"npm run dev-visual\" \"npm run dev-main-api\" \"npm run dev-main-ui\""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.9",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.3",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-handlebars": "^8.0.1",
+    "handlebars": "^4.7.8",
+    "json2csv": "^6.0.0-alpha.2",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.12.0",
+    "sequelize": "^6.37.5"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.9",
+    "sqlite3": "^5.1.7",
+    "supertest": "^7.0.0"
+  },
+  "description": ""
+}

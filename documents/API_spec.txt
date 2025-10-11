@@ -1,0 +1,965 @@
+################################################################################
+#
+# This defines all API endpoints and schema for database tables
+#
+# View by selecting all text and copy/pasting to https://editor.swagger.io
+#
+################################################################################
+
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Interactive Survey Tools for Data Visualization API
+  description: none
+  
+  
+
+################################################################################
+#
+#         ENDPOINTS
+#
+################################################################################
+
+paths:
+
+
+  #=============================================================================
+  #         /users
+  #=============================================================================
+  
+  /users:
+    post:
+      summary: Register a new User.
+      description: >
+        Creates a new User with specified data and adds it to the database.
+      operationId: createUser
+      tags:
+        - Users
+      requestBody:
+        $ref: '#/components/requestBodies/userCredentials'
+      responses:
+        '201':
+          $ref: '#/components/responses/201Response'
+        '400':
+          $ref: '#/components/responses/400Error'
+
+  /users/login:
+    post:
+      summary: Log in a User.
+      description: >
+        Authenticate a specific User with their email address and password.
+      operationId: authenticateUser
+      tags:
+        - Users
+      requestBody:
+        $ref: '#/components/requestBodies/userCredentials'
+      responses:
+        '200':
+          description: Success
+        '400':
+          $ref: '#/components/responses/400Error'
+        '401':
+          $ref: '#/components/responses/401Error'
+
+  /users/{id}:
+    parameters:
+      - $ref: '#/components/parameters/id'
+
+    get:
+      summary: Get info of a specific User.
+      description: >
+        Returns user info. Only an authenticated User whose ID matches `id` is authorized to access this data.
+      operationId: getUserById
+      tags:
+        - Users
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: >
+                      username
+        '403':
+          $ref: '#/components/responses/403Error'
+        '404':
+          $ref: '#/components/responses/404Error'
+          
+    patch:
+      summary: Update info of a specific User.
+      description: >
+        Updates user info. Only an authenticated User whose ID matches `id` is authorized to access this data.
+      operationId: updateUser
+      tags:
+        - Users
+      requestBody:
+        $ref: '#/components/requestBodies/userCredentials'
+      responses:
+        '200':
+          description: Success
+        '403':
+          $ref: '#/components/responses/403Error'
+        '404':
+          $ref: '#/components/responses/404Error'
+          
+    delete:
+      summary: Delete a specific User.
+      description: >
+        Removes user from database. Only an authenticated User whose ID matches `id` is authorized to access this data.
+      operationId: deleteUser
+      tags:
+        - Users
+      responses:
+        '200':
+          description: Success
+        '403':
+          $ref: '#/components/responses/403Error'
+        '404':
+          $ref: '#/components/responses/404Error'
+          
+  /users/{id}/visualizations:
+    parameters:
+      - $ref: '#/components/parameters/id'
+      - $ref: '#/components/parameters/page'
+
+    get:
+      summary: Get Visualizations of a specific User.
+      description: >
+        Returns paginated list of Visualizations belonging to User with `id`.
+        Only an authenticated User whose ID matches `id` is authorized to access
+        this data.
+      operationId: getVisualizationsOfUser
+      tags:
+        - Users
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  visualizations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Visualization'
+        '403':
+          $ref: '#/components/responses/403Error'
+        '404':
+          $ref: '#/components/responses/404Error'
+          
+  /users/{id}/surveyDesigns:
+    parameters:
+      - $ref: '#/components/parameters/id'
+      - $ref: '#/components/parameters/page'
+
+    get:
+      summary: Get Surevey Designs of a specific User.
+      description: >
+        Returns paginated list of Survey Designs belonging to User with `id`.
+        Only an authenticated User whose ID matches `id` is authorized to access
+        this data.
+      operationId: getSurveyDesignsOfUser
+      tags:
+        - Users
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  surveyDesigns:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SurveyDesign'
+        '403':
+          $ref: '#/components/responses/403Error'
+        '404':
+          $ref: '#/components/responses/404Error'
+          
+  /users/{id}/publishedSurveys:
+    parameters:
+      - $ref: '#/components/parameters/id'
+      - $ref: '#/components/parameters/page'
+
+    get:
+      summary: Get Published Surveys of a specific User.
+      description: >
+        Returns paginated list of Published Surveys belonging to User with `id`.
+        Only an authenticated User whose ID matches `id` is authorized to access
+        this data.
+      operationId: getPublishedSurveysOfUser
+      tags:
+        - Users
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  publishedSurveys:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PublishedSurvey'
+        '403':
+          $ref: '#/components/responses/403Error'
+        '404':
+          $ref: '#/components/responses/404Error'
+          
+  
+  #=============================================================================
+  #         /visualizations  (MAIN PAGE ENDPOINTS)
+  #=============================================================================
+
+  /visualizations:
+    post:
+      summary: Create a new Visualization.
+      description: >
+        Creates a new Visualization with a user-defined name and adds it to the database. Calls `POST /` to visualization engine API to generate `contentId` property. Only an authenticated User can create a new Visualization.
+      operationId: createVisualization
+      tags:
+        - Visualizations
+      requestBody:
+        $ref: '#/components/requestBodies/name'
+      responses:
+        '201':
+          $ref: '#/components/responses/201Response'
+        '400':
+          $ref: '#/components/responses/400Error'
+        '403':
+          $ref: '#/components/responses/403Error'
+  
+  /visualizations/{id}:
+    parameters:
+      - $ref: '#/components/parameters/id'
+
+    get:
+      summary: Get info of a specific Visualization.
+      description: >
+        Returns Visualization info. Only an authenticated User whose ID matches the visualization's `userId` is authorized to access this data.
+      operationId: getVisualizationById
+      tags:
+        - Visualizations
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Visualization'
+        '403':
+          $ref: '#/components/responses/403Error'
+        '404':
+          $ref: '#/components/responses/404Error'
+          
+    patch:
+      summary: Rename a Visualization.
+      description: >
+        Rename the Visualization. Only an authenticated User whose ID matches the `userId` property is authorized to access this data.
+      operationId: updateVisualization
+      tags:
+        - Visualizations
+      requestBody:
+        $ref: '#/components/requestBodies/name'
+      responses:
+        '200':
+          description: Success
+        '403':
+          $ref: '#/components/responses/403Error'
+        '404':
+          $ref: '#/components/responses/404Error'
+          
+    delete:
+      summary: Delete a specific Visualization.
+      description: >
+        Removes Visualization from database. Also calls visualization engine API to delete content corresponding to the `contentId` property. Only an authenticated User whose ID matches the `userId` property is authorized to access this data.
+      operationId: deleteVisualization
+      tags:
+        - Visualizations
+      responses:
+        '200':
+          description: Success
+        '403':
+          $ref: '#/components/responses/403Error'
+        '404':
+          $ref: '#/components/responses/404Error'
+          
+          
+  #=============================================================================
+  #         VISUALIZATION ENGINE ENDPOINTS
+  #=============================================================================
+                
+  /:
+    post:
+      summary: Create a new Visualization Content.
+      description: >
+        Creates a new Visualization and adds it to the database.
+      operationId: createVisualizationContent
+      tags:
+        - Visualization Engine API Endpoints
+      requestBody:
+        required: false
+        description: Optional SVG DOM element.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VisualizationContent'
+              
+      responses:
+        '201':
+          $ref: '#/components/responses/201Response'
+        '400':
+          $ref: '#/components/responses/400Error'
+  
+  /{id}:
+    parameters:
+      - $ref: '#/components/parameters/id'
+
+    get:
+      summary: Get content of a specific Visualization.
+      description: >
+        Returns Visualization SVG DOM elmennt.
+      operationId: getVisualizationContentById
+      tags:
+        - Visualization Engine API Endpoints
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VisualizationContent'
+        '404':
+          $ref: '#/components/responses/404Error'
+          
+    patch:
+      summary: Update Visualization Content.
+      description: >
+        Updates the Visualization.
+      operationId: updateVisualizationContent
+      tags:
+        - Visualization Engine API Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VisualizationContent'
+      responses:
+        '200':
+          description: Success
+        '404':
+          $ref: '#/components/responses/404Error'
+    
+    put:
+      summary: Replace Visualization Content.
+      description: >
+        Replaces SVG DOM elment of the Visualization with a new one. Functionally it should work the same as the PATCH endpoint, but this is used specifically to indicate replacement, such as when the user uploads a new base file.
+      operationId: replaceVisualizationContent
+      tags:
+        - Visualization Engine API Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VisualizationContent'
+      responses:
+        '200':
+          description: Success
+        '404':
+          $ref: '#/components/responses/404Error'
+          
+    delete:
+      summary: Delete Visualization Content.
+      description: >
+        Removes Visualization from database.
+      operationId: deleteVisualizationContent
+      tags:
+        - Visualization Engine API Endpoints
+      responses:
+        '200':
+          description: Success
+        '404':
+          $ref: '#/components/responses/404Error'
+          
+  
+  #=============================================================================
+  #         /surveyDesigns
+  #=============================================================================
+
+  /surveyDesigns:
+    post:
+      summary: Create a new Survey Design.
+      description: >
+        Creates a new Survey Design with a user-defined name and adds it to the database. Only an authenticated User can create a new Survey Design.
+      operationId: createSurveyDesign
+      tags:
+        - Survey Designs
+      requestBody:
+        $ref: '#/components/requestBodies/name'
+      responses:
+        '201':
+          $ref: '#/components/responses/201Response'
+        '400':
+          $ref: '#/components/responses/400Error'
+        '403':
+          $ref: '#/components/responses/403Error'
+  
+  /surveyDesigns/{id}:
+    parameters:
+      - $ref: '#/components/parameters/id'
+
+    get:
+      summary: Get info of a specific Survey Design.
+      description: >
+        Returns Survey Design info. Only an authenticated User whose ID matches the visualization's `userId` is authorized to access this data.
+      operationId: getSurveyDesignById
+      tags:
+        - Survey Designs
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SurveyDesign'
+        '403':
+          $ref: '#/components/responses/403Error'
+        '404':
+          $ref: '#/components/responses/404Error'
+          
+    patch:
+      summary: Rename a Survey Design.
+      description: >
+        Rename the Visualization. Only an authenticated User whose ID matches the `userId` property is authorized to access this data.
+      operationId: updateSurveyDesign
+      tags:
+        - Survey Designs
+      requestBody:
+        $ref: '#/components/requestBodies/name'
+      responses:
+        '200':
+          description: Success
+        '403':
+          $ref: '#/components/responses/403Error'
+        '404':
+          $ref: '#/components/responses/404Error'
+          
+    delete:
+      summary: Delete a specific Survey Design.
+      description: >
+        Removes Survey Design from database. Deletes all Questions that belong to it as well. Only an authenticated User whose ID matches the `userId` property is authorized to access this data.
+      operationId: deleteSurveyDesign
+      tags:
+        - Survey Designs
+      responses:
+        '200':
+          description: Success
+        '403':
+          $ref: '#/components/responses/403Error'
+        '404':
+          $ref: '#/components/responses/404Error'
+    
+  /surveyDesigns/{id}/questions:
+    parameters:
+      - $ref: '#/components/parameters/id'
+      
+    post:
+      summary: Create a new Question for the specific Survey Design.
+      description: >
+        Creates a new Question and adds it to the database. Only an authenticated User whose ID matches the Survey Design's `userId` property is authorized to access this data.
+      operationId: createSurveyQuestion
+      tags:
+        - Survey Designs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Question'
+              
+      responses:
+        '201':
+          $ref: '#/components/responses/201Response'
+        '400':
+          $ref: '#/components/responses/400Error'
+        '403':
+          $ref: '#/components/responses/403Error'
+        '404':
+          $ref: '#/components/responses/404Error'
+
+    get:
+      summary: Get list of Questions of a specific Survey Design.
+      description: >
+        Returns Questions of the specific Survey Design. Only an authenticated User whose ID matches the Survey Design's `userId` is authorized to access this data.
+      operationId: getSurveyDesignQuestions
+      tags:
+        - Survey Designs
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  questions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Question'
+        '403':
+          $ref: '#/components/responses/403Error'
+        '404':
+          $ref: '#/components/responses/404Error'
+  
+  
+  #=============================================================================
+  #         /questions
+  #=============================================================================
+
+  /questions/{id}:
+    parameters:
+      - $ref: '#/components/parameters/id'
+
+    get:
+      summary: Get info of a Question.
+      description: >
+        Returns Question info. Only an authenticated User whose ID matches the corresponding Survey Design's `userId` is authorized to access this data.
+      operationId: getQuestionById
+      tags:
+        - Questions
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Question'
+        '403':
+          $ref: '#/components/responses/403Error'
+        '404':
+          $ref: '#/components/responses/404Error'
+          
+    patch:
+      summary: Update info of a Question.
+      description: >
+        Edit the Visualization. Only an authenticated User whose ID matches the corresponding Survey Design's `userId` is authorized to access this data.
+      operationId: updateQuestion
+      tags:
+        - Questions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Question'
+      responses:
+        '200':
+          description: Success
+        '400':
+          $ref: '#/components/responses/400Error'
+        '403':
+          $ref: '#/components/responses/403Error'
+        '404':
+          $ref: '#/components/responses/404Error'
+          
+    delete:
+      summary: Delete a specific Question.
+      description: >
+        Removes Question from database. Only an authenticated User whose ID matches the corresponding Survey Design's `userId` is authorized to access this data.
+      operationId: deleteQuestion
+      tags:
+        - Questions
+      responses:
+        '200':
+          description: Success
+        '403':
+          $ref: '#/components/responses/403Error'
+        '404':
+          $ref: '#/components/responses/404Error'
+  
+  
+  
+################################################################################
+#
+#         SCHEMAS
+#
+################################################################################
+  
+components:
+  schemas:
+    User:
+      description: >
+        An object representing information about a User.
+      type: object
+      properties:
+        name:
+          type: string
+          description: username
+          example: Joe Visualization
+        password:
+          type: string
+          description: >
+            The User's plain-text password.  This is required when creating a new User and when logging in.
+          example: AVerySecurePassword
+    
+    Visualization:
+      description: >
+        An object in the main page database representing information in reference to a visualization in the visualization engine database.
+      type: object
+      properties:
+        userId:
+          type: integer
+          description: >
+            ID of the User who created the Visualization
+          example: 123
+        name:
+          type: string
+          description: >
+            User-defined name. Cannot be the same as any Visualization belonging to the same User. 
+          example: My visualization
+        contentId:
+          type: integer
+          description: >
+            The ID of the visualization in the visualization engine database that this object is referencing
+          example: 123
+          
+    VisualizationContent:
+      description: >
+        An object representing a visualization in the visualization engine database.
+      type: object
+      properties:
+        svg:
+          type: string
+          description: >
+            SVG DOM element of the visualization including all children. MySQL type TEXT.
+          
+    SurveyDesign:
+      description: >
+        An object representing a Survey Design.
+      type: object
+      properties:
+        userId:
+          type: integer
+          description: >
+            ID of the User who created the Survey Design
+          example: 123
+        name:
+          type: string
+          description: >
+            User-defined name. Cannot be the same as any Survey Design belonging to the same User. 
+          example: My survey
+        title:
+          type: string
+          description: >
+            Title that the survey participant will see. 
+          example: Welcome to my survey!
+        introText:
+          type: string
+          description: >
+            Text survey participant sees when first opening the survey. MySQL type TEXT. 
+          example: This survey is very cool!
+        conclusionText:
+          type: string
+          description: >
+            Text survey participant sees after finishing the survey. MySQL type TEXT. 
+          example: Thank you!
+    
+    Question:
+      description: >
+        An object representing a Question in a Survey Design.
+      type: object
+      properties:
+        surveyDesignId:
+          type: integer
+          description: >
+            ID of the Survey Design this question belongs to.
+          example: 123
+        number:
+          type: integer
+          description: >
+            Question number for ordering.
+          example: 2
+        text:
+          type: string
+          description: >
+            The text of the question being asked. MySQL type TEXT.
+          example: What is your name?
+        type:
+          type: string
+          description: >
+            Pre-defined string representing expected type of response from the survey participant.
+          example: Multiple Choice
+        required:
+          type: boolean
+          description: >
+            Survey Participant is required to answer question if true.
+          example: true
+        allowComment:
+          type: boolean
+          description: >
+            Survey Participant can leave on comment on the question.
+          example: true
+        min:
+          type: integer
+          description: >
+            Minimum required response input from survey participant. How this value is used depends on responseType (ex: if Multiple Choice, user must check `min` boxes) 
+          example: 2
+        max:
+          type: integer
+          description: >
+            Maximum allowed response input from survey participant. How this value is used depends on responseType (ex: if Multiple Choice, user can check up to `max` boxes) 
+          example: 5
+        choices:
+          type: string
+          description: >
+            String representing possible choices. Used only for "Multiple Choices" type. The character '|' separates the choices
+          example: red|orange|green
+        disableZoom:
+          type: boolean
+          description: >
+            If enabled, survey participant will not be allowed to zoom the visualization for this question.
+          example: false
+        disablePan:
+          type: boolean
+          description: >
+            If enabled, survey participant will not be allowed to pan the visualization for this question.
+          example: false
+        visualizationContentId:
+          type: integer
+          description: >
+            Optional ID matching a Visualization in the visualization engine database.
+          example: 123
+      
+    PublishedSurvey:
+      description: >
+        An object representing a Published Survey.
+      type: object
+      properties:
+        userId:
+          type: integer
+          description: >
+            ID of the User who published this survey.
+          example: 123
+        openDateTime:
+          type: string
+          format: date-time
+          description: >
+            Date and time this survey opens. MySQL type DATE.
+          example: "2022-06-14T17:00:00-07:00"
+        closeDateTime:
+          type: string
+          format: date-time
+          description: >
+            Date and time this survey closes. MySQL type DATE.
+          example: "2022-06-14T17:00:00-07:00"
+        status:
+          type: string
+          description: >
+            Status of the survey. May be "open", "closed", or "pending".
+          example: open
+        linkHash:
+          type: string
+          description: >
+            Hash generated for this survey's sharable link.
+          example: 89FAFB902
+        surveyDesign:
+          type: object
+          description: >
+            A Survey Design object. MySQL type JSON.
+        questions:
+          type: object
+          description: >
+            Array of Question objects from the Survey Design. MySQL type JSON.
+        results:
+          type: object
+          description: >
+            Downloadable data that compiles all Answers left by all Participants.
+        
+          
+    Participant:
+      description: >
+          An object representing a survey participant.
+      type: object
+      properties:
+        publishedSurveyId:
+            type: integer
+            description: >
+              ID of the Published Survey this participant responded to.
+            example: 123
+      
+    
+    Answer:
+      description: >
+        An object representing an answer to a question by a Participant.
+      type: object
+      properties:
+        participantId:
+          type: integer
+          description: >
+            ID of the Participant this answer was made by.
+          example: 123
+        questionNumber:
+          type: integer
+          description: >
+            Question number this answer is for.
+          example: 2
+        timeElasped:
+          type: string
+          format: date-time
+          description: >
+            How much time participant spent on the answer.
+          example: "2022-06-14T17:00:00-07:00"
+        response:
+          type: string
+          description: >
+            The response given by the participant. Format depends on the question type.
+        comment:
+          type: string
+          description: >
+            Comment left by the participant.
+          
+    Error:
+      description: >
+        An object representing an API error response.
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message.
+     
+     
+  ################################################################################
+  #
+  #         PARAMETER TEMPLATES
+  #
+  ################################################################################     
+  parameters:
+    id:
+      name: id
+      in: path
+      description: >
+        Unique ID of resource.
+      schema:
+        oneOf:
+          - type: integer
+      example: "123"
+      required: true
+    page:
+      name: page
+      in: query
+      description: >
+        Page of resources from collection to fetch.
+      schema:
+        type: integer
+        example: 3
+        default: 1
+    
+    
+    
+  ################################################################################
+  #
+  #         REQUEST BODY TEMPLATES
+  #
+  ################################################################################
+  
+  requestBodies:
+    userCredentials:
+      required: true
+      description: Credentials of a User.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/User'
+    name:
+      required: true
+      description: A custom name for the resource.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+  
+  
+  
+  ################################################################################
+  #
+  #         RESPONSE BODY TEMPLATES
+  #
+  ################################################################################  
+  
+  responses:
+    201Response:
+      description: New resource successfully added to database
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: integer
+                description: >
+                  Unique ID of new resource.
+                example: "123"
+    400Error:
+      description: >
+            Missing or invalid request body.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    401Error:
+      description: >
+            Invalid credentials.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    403Error:
+      description: >
+            User is not authenticated or is not authorized to access this data.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    404Error:
+      description: >
+            Specified resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+            
+      
+      
+################################################################################
+#
+#         ENDPOINT CATEGORIES
+#
+################################################################################
+
+tags:
+  - name: Users
+    description: >
+      API endpoints related to Users.
+  - name: Visualizations
+    description: >
+      API endpoints related to Visualizations representations in the main page database.
+  - name: Visualization Engine API Endpoints
+    description: >
+      API endpoints for the visualization engine.
+  - name: Survey Designs
+    description: >
+      API endpoints related to Survey Designs.
+  - name: Questions
+    description: >
+      API endpoints related to Questions of a Survey Design.

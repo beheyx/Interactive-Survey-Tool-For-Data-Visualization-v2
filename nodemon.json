@@ -1,0 +1,3 @@
+{
+    "ignore": ["main/ui/temp/*", "visualization/ui/uploads/*"] 
+}

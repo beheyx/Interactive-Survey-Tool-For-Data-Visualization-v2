@@ -1,0 +1,53 @@
+.popup {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+.popup-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.popup:target {
+    display: flex;
+}
+
+input[readonly] {
+    background-color: lightgray;
+}
+
+#displayedImage {
+    width: 100%;
+    border: 3px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    resize: both;
+}
+
+.visual-edit-container {
+    height: 65vh;
+    width: 65vw;
+    justify-self: center;
+    border: 3px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.help {
+    vertical-align: super;
+    font-size: 70%;
+    color: grey !important;
+    font-weight: 500;
+    margin: 3px;
+}
+
+#type-description {
+    font-weight: lighter;
+    font-size: 70%;
+}

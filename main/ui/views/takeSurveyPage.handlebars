@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Survey</title>
+
+        <script type="module" src="/src/responseRestrictions.js" charset="utf-8" defer></script>
+        <script type="module" src="/src/responseHighlightElements.js" charset="utf-8" defer></script>
+        <link rel="stylesheet" href="/takesurveystyle.css">
+    </head>
+    <body>
+        <meta id="savedResponse" response="{{response}}">
+        <meta id="questionNumber" number="{{number}}">
+        <meta id="questionTotal" total="{{total}}">
+        <div class="container">
+            {{#if visualizationContentId}}
+                <meta id="visualURL" url="{{visualURL}}">
+                
+                <div class="image-section">
+                    {{#unless DEBUG}}
+                        <iframe id="displayedImage" src="{{visualURL}}/{{visualizationContentId}}?{{visualModeLabel}}=true" height="100%" width="100%"></iframe>
+                    {{/unless}}
+                    {{#if DEBUG}}
+                        <iframe id="displayedImage" src="{{visualURL}}" height="100%" width="100%"></iframe>
+                    {{/if}}
+                </div>
+            {{/if}}
+
+            <div class="controls-section">
+                <div class="progress-percentage">
+                    <span id="progress">{{percent}}% Complete ({{progress}}/{{total}})</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width:{{percent}}%"></div>
+                </div>
+
+                <div class="box question-box">
+                    <span class="question-header"><strong>Question {{number}}.</strong>{{#if required}}<span id="required"> *required</span>{{/if}}</span>
+                    <div class="question-text-box">
+                        <span class="question-text">{{text}}</span>
+                    </div>
+                </div>
+
+                <div class="box answer-box">
+                    <meta id="requirements" number={{number}} min={{min}} max={{max}} {{#if required}}required="true"{{/if}} questionType="{{questionType}}">
+                    <span><strong>{{prompt}}</strong></span>
+                    <div class="answer-space">
+                        {{#if shortAnswer}}
+                            {{#if min}} must be at least {{min}} characters{{/if}}
+                            <textarea class="text-entry-box answer-entry-box" type="text" id="short-answer" name="short-answer">{{response}}</textarea>
+                            <span id="character-tracker"><span id="current-characters"></span>{{#if max}} / {{max}}{{/if}}</span>
+                        {{/if}}
+                        
+                        {{#if multipleChoice}}
+                            {{#each choices}}
+                                <input class="multiple-choice-box" type="checkbox" id="{{this.id}}" name="{{this.id}}" value="{{this.choice}}" {{#if this.checked}}checked{{/if}}>
+                                <label for="{{this.id}}"> {{this.choice}}</label>
+                                <br>
+                            {{/each}}
+                        {{/if}}
+
+                        {{#if radioChoice}}
+                            {{#each choices}}
+                                <input class="radio-choice" type="radio" id="{{this.id}}" name="radio" value="{{this.choice}}" {{#if this.checked}}checked{{/if}}>
+                                <label for="{{this.id}}"> {{this.choice}}</label>
+                                <br>
+                            {{/each}}
+                        {{/if}}
+
+                        {{#if writeInAnswer}}
+                            <input class="write-in-field" type="text" id="write-in" name="write-in" value="{{response}}">
+                        {{/if}}
+                    </div>
+                </div>
+
+                {{#if allowComment}}
+                    <div class="box comment-box">
+                        <strong>Comment:</strong>
+                        <textarea class="text-entry-box comment-entry-box" type="text" id="comment" name="comment">{{comment}}</textarea>
+                    </div>
+                {{/if}}
+                
+                <div class="button-container">
+                    <button id="prev-button" href="/takeSurvey/{{linkHash}}?page={{prev}}" class="nav-button">Previous Question</button>
+                    <button id="next-button" href="/takeSurvey/{{linkHash}}?page={{next}}" class="nav-button">{{nextText}}</button>
+                </div>
+
+                <span id="error-text"></span>
+            </div>
+        </div>
+    </body>
+</html> 
+ 
+ 

@@ -1,0 +1,10 @@
+.git
+.gitignore
+README.md
+LICENSE
+make_containers_NO_API.sh
+nodemon.json
+documents
+docs
+node_modules
+__tests__

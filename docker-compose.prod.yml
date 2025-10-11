@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  mysql-main:
+    image: mysql:latest
+    container_name: mysql-main
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_RANDOM_ROOT_PASSWORD: yes
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-main-data:/var/lib/mysql
+
+  mysql-visual:
+    image: mysql:latest
+    container_name: mysql-visual
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE_VE}
+      MYSQL_USER: ${MYSQL_USER_VE}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_RANDOM_ROOT_PASSWORD: yes
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql-visual-data:/var/lib/mysql
+
+  main-api:
+    build:
+      context: .
+    container_name: main-api
+    command: ["./wait-for.sh", "mysql-main:3306", "node", "main/api/server.js"]
+    ports:
+      - "5050:5050"
+    environment:
+      - MYSQL_HOST=mysql-main
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    depends_on:
+      - mysql-main
+
+  main-ui:
+    build:
+      context: .
+    container_name: main-ui
+    command: node main/ui/server.js
+    ports:
+      - "5000:5000"
+    environment:
+      - MAIN_API_URL=http://main-api:5050
+    depends_on:
+      - main-api
+
+  visual-api:
+    build:
+      context: .
+    container_name: visual-api
+    command: ["./wait-for.sh", "mysql-main:3306", "node", "visualization/api/server.js"]
+    ports:
+      - "8080:8080"
+    environment:
+      - MYSQL_HOST=mysql-visual
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=${MYSQL_DATABASE_VE}
+      - MYSQL_USER=${MYSQL_USER_VE}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    depends_on:
+      - mysql-visual
+
+  visual-ui:
+    build:
+      context: .
+    container_name: visual-ui
+    command: node visualization/ui/server.js
+    ports:
+      - "8000:8000"
+    environment:
+      - VISUAL_API_URL=http://visual-api:8080
+    depends_on:
+      - visual-api
+
+volumes:
+  mysql-main-data:
+  mysql-visual-data:

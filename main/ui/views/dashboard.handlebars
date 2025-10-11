@@ -1,0 +1,57 @@
+<h1>Hello {{name}}!</h1>
+<form action="/users/logout" method="POST"><button>logout</button></form>
+
+<h2>Visualizations<a class="help" href="/faq.html#2" target="_blank">?</a></h2>
+<a class="new-button" href="#visualizationsPopup">+ New</a>
+<section id="visualizations">
+    {{#each visualizations}}
+        {{> visualizationListItem}}
+    {{/each}}
+    <p>{{visError}}</p>     <!-- text for when an error may occur in loading visualizations -->
+</section>
+
+<h2>Survey Designs<a class="help" href="/faq.html#3" target="_blank">?</a></h2>
+<a class="new-button" href="#surveyDesignsPopup">+ New</a>
+<section id="surveyDesigns">
+    {{#each surveyDesigns}}
+        {{> surveyDesignListItem}}
+    {{/each}}
+    <p>{{surError}}</p>
+</section>
+
+<h2>Published Surveys<a class="help" href="/faq.html#4" target="_blank">?</a></h2>
+<section id="publishedSurveys">
+    {{#each publishedSurveys}}
+        {{> publishedSurveyListItem}}
+    {{/each}}
+    <p>{{pSurError}}</p>
+</section>
+
+<!-- popup windows -->
+
+<!-- some HTML referenced from https://www.geeksforgeeks.org/how-to-create-popup-box-using-html-and-css/ section "Using Display Property"-->
+<div class="popup" id="visualizationsPopup">
+    <div class="popup-content">
+        <h2>Create a New Visualization</h2>
+        <form action="/visualizations" method="POST">
+            <input type="text" name="name" placeholder="visualization name">
+            <button class="popup-create-button" id="create-visualization-button">Create</button>
+        </form>
+        <a class="popup-cancel-button" href="#">Cancel</a>
+    </div>
+</div>
+
+
+
+<div class="popup" id="surveyDesignsPopup">
+    <div class="popup-content">
+        <h2>Create a New Survey Design</h2>
+        <form action="/surveyDesigns" method="POST">
+            <input type="text" name="name" placeholder="survey design name">
+            <button class="popup-create-button" id="create-survey-design-button">Create</button>
+        </form>
+        <a class="popup-cancel-button" href="#">Cancel</a>
+    </div>
+</div>
+
+{{!-- <script src="../public/src/buttons.js"></script> --}}

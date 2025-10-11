@@ -1,0 +1,19 @@
+
+<form action="/surveyDesigns/{{id}}/DELETE" method="POST">
+    <a href="/surveyDesigns/{{id}}">{{name}}</a>
+    <button class="delete-button">Delete</button>
+    <a class="rename-button" href="#surveyDesignsRenamePopup{{id}}">Rename</a>
+</form>
+
+<!-- Rename popup -->
+<div class="popup rename-popup" id="surveyDesignsRenamePopup{{id}}">
+    <div class="popup-content">
+        <h2>Rename "{{name}}"</h2>
+        <form action="/surveyDesigns/{{id}}/PATCH" method="POST">
+            <input type="text" name="name" placeholder="new name" class="rename-input">
+            <p class="rename-error" hidden></p>
+            <button class="popup-rename-button">Rename</button>
+        </form>
+        <a class="popup-cancel-button" href="#">Cancel</a>
+    </div>
+</div>

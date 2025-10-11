@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Question {{number}}</title>
+
+        <script type="module" src="/src/questionEdit.js" charset="utf-8" defer></script>
+        <link rel="stylesheet" href="/style.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sakura.css/css/sakura.css" type="text/css">
+        <!-- The above link is to a CSS library called sakura which can be found here: https://oxal.org/projects/sakura/
+        It is licensed under MIT:
+        
+            MIT License
+
+            Copyright (c) 2016 Mitesh Shah
+
+            Permission is hereby granted, free of charge, to any person obtaining a copy
+            of this software and associated documentation files (the "Software"), to deal
+            in the Software without restriction, including without limitation the rights
+            to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+            copies of the Software, and to permit persons to whom the Software is
+            furnished to do so, subject to the following conditions:
+
+            The above copyright notice and this permission notice shall be included in all
+            copies or substantial portions of the Software.
+
+            THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+            IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+            FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+            AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+            LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+            OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+            SOFTWARE.
+
+        -->
+    </head>
+    <body>
+
+
+
+<h1>Question {{number}}</h1>
+<a class="new-button" href="/surveyDesigns/{{surveyDesignId}}">↵ Return to survey overview</a>
+<br>
+
+<form action="/questions/{{id}}/PATCH" method="POST">
+    <h5><label for="text">Question Text<a class="help" href="/faq.html#9" target="_blank">?</a></label>
+    <textarea type="text" id="text" name="text" rows="4" cols="50" placeholder="Your question here">{{text}}</textarea>
+    </h5>
+
+    <h5>
+        <label for="type">Question Type:<a class="help" href="/faq.html#10" target="_blank">?</a></label>
+        <select name="type" id="type">
+            {{#each questionTypes}}
+                <option value="{{this.name}}" id="{{this.name}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+            {{/each}}
+        </select>
+        <p><small id="type-description"></small></p>
+    </h5>
+
+    <section id="multiple-choice-section">
+        <br>
+        <div><label for="choices">Choices: </label></div>
+        <p>All possible choices for a multiple choice question. Separate Choices using the | character.</p>
+        <textarea type="text" id="choices" name="choices" rows="4" cols="50" placeholder="Write|Choices|Like|This">{{choices}}</textarea>
+        <br>
+    </section>
+
+    <br>
+
+    <div><label for="allowComment">Allow comment?<a class="help" href="/faq.html#11" target="_blank">?</a></label>
+    <input type="checkbox" id="allowComment" name="allowComment" value="true" {{#if allowComment}}checked{{/if}}>
+    </div>
+
+    <div id="required-line"><label for="required">Required?<a class="help" href="/faq.html#12" target="_blank">?</a></label>
+    <input type="checkbox" id="required" name="required" {{#if required}}checked{{/if}}>
+    </div>
+
+    <div id="min-line"><label for="min" id="min-label">min: </label>
+    <input type="text" id="min" name="min" value="{{min}}">
+    </div>
+
+    <div id="max-line"><label for="max" id="max-label">max: </label>
+    <input type="text" id="max" name="max" value="{{max}}">
+    </div>
+
+    <br>
+
+    <h5>
+        <label for="visualizationId">Import visualization:<a class="help" href="/faq.html#13" target="_blank">?</a></label>
+        <select id="visualizationId" name="visualizationId">
+            <option value="">Select One</option>
+            {{#each visualizations}}
+                <option value={{this.id}}>{{this.name}}</option>
+            {{/each}}
+            <option value="-1" hidden>Delete</option>
+        </select>
+        <button class="import-visualization-button">Import</button>
+    </h5>
+
+    {{#if visualizationContentId}}
+        {{#unless DEBUG}}
+            <iframe id="displayedImage" src="{{visualURL}}/{{visualizationContentId}}?editor=true" height="360" width="480"></iframe>
+        {{/unless}}
+        {{#if DEBUG}}
+            <iframe id="displayedImage" src="{{visualURL}}" height="360" width="480"></iframe>
+        {{/if}}
+        <br>
+        <button class="remove-visualization-button">Remove</button>
+        <br>
+    {{/if}}    
+
+    <br>
+    <button class="save-question-button">Save Changes</button>
+</form>
+
+
+
+
+
+    </body>
+</html>

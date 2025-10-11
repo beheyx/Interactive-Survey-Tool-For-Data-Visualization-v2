@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Visualizer</title>
+    
+    <script type="module" src="src/visualizer.js" charset="utf-8" defer></script>
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body id="body">
+    <div id="wrapper" class={{role}}>
+      <div id="help-window" hidden>
+        <button id="close-help-window-button">X</button>
+        <iframe height="90%" width="90%" src="/help.html"></iframe>
+      </div>
+
+      <button id = "zoom-in" class="zoom-button">+</button>
+      <button id = "zoom-out" class="zoom-button">−</button>
+      <button id = "editor-button" hidden>editor mode</button>
+      <button id = "participant-button" hidden>participant mode</button>
+      <div id="uploader-container" hidden>
+        <input 
+        type="file" 
+        id="svg-uploader" 
+        accept=".svg, .jpg, .png" 
+        style="margin: 10px;"
+        />
+      </div>
+      
+      <div id="button-header">
+
+        <small id="save-status"></small>
+        
+        <div class="file dropdown" hidden>
+          File
+          <div class="dropdown-buttons file-buttons">
+          </div>
+        </div>
+        <div class="options dropdown" hidden>
+          Options
+          <div class="dropdown-buttons option-buttons">
+          </div>
+        </div>
+        <div class="tools dropdown" hidden>
+          Tools
+          <div class="dropdown-buttons tool-buttons">
+          </div>
+        </div>
+
+        <button id="help-button" hidden>?</button>
+
+      </div>
+      
+      <div id="visual-container">{{{svg}}}</div>
+      
+    </div>
+    
+  </body>
+</html>

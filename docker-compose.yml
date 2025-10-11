@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  mysql-main:
+    image: mysql:latest
+    container_name: mysql-main
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_RANDOM_ROOT_PASSWORD: yes
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-main-data:/var/lib/mysql
+
+  mysql-visual:
+    image: mysql:latest
+    container_name: mysql-visual
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE_VE}
+      MYSQL_USER: ${MYSQL_USER_VE}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_RANDOM_ROOT_PASSWORD: yes
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql-visual-data:/var/lib/mysql
+
+  main-api:
+    build: .
+    container_name: main-api
+    command: ["./wait-for.sh", "mysql-main:3306", "node", "main/api/server.js"]
+    ports:
+      - "${MAIN_API_PORT}:5050"
+    volumes:
+      - .:/app
+    environment:
+      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_PORT=${MYSQL_PORT}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    depends_on:
+      - mysql-main
+
+  main-ui:
+    build: .
+    container_name: main-ui
+    command: node main/ui/server.js
+    ports:
+      - "${MAIN_UI_PORT}:5000"
+    volumes:
+      - .:/app
+    depends_on:
+      - main-api
+
+  visual-api:
+    build: .
+    container_name: visual-api
+    command: ["./wait-for.sh", "mysql-visual:3306", "node", "visualization/api/server.js"]
+    ports:
+      - "${VISUAL_API_PORT}:8080"
+    volumes:
+      - .:/app
+    environment:
+      - MYSQL_HOST=${MYSQL_HOST_VE}
+      - MYSQL_PORT=${MYSQL_PORT_VE}
+      - MYSQL_DATABASE=${MYSQL_DATABASE_VE}
+      - MYSQL_USER=${MYSQL_USER_VE}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    depends_on:
+      - mysql-visual
+
+  visual-ui:
+    build: .
+    container_name: visual-ui
+    command: node visualization/ui/server.js
+    ports:
+      - "${VISUAL_UI_PORT}:8000"
+    volumes:
+      - .:/app
+    depends_on:
+      - visual-api
+
+volumes:
+  mysql-main-data:
+  mysql-visual-data:
