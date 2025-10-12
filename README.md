@@ -52,6 +52,15 @@ Note: the command `sed -i 's/\r$//' wait-for.sh` may be helpful if you have trou
 ### Cleaning
 Run `docker compose down` to clean up after you've tested.
 
+# Branching and Reviews
+We follow a simple workflow to manage development and ensure code quality:
+
+- **Branching:** New work is done in `feature/` branches (e.g., `feature/tools`).
+- **Pull Requests (PRs):** Changes are pushed to a feature branch, then a PR is opened targeting `main`.
+- **Review:** At least one teammate reviews and approves the PR before it is merged.
+- **Template:** PRs use the template in `.github/PULL_REQUEST_TEMPLATE.md` to include description, checklist, and testing notes.
+
+
 # More Info
 Please refer to this repository's wiki page for help:
 https://github.com/seanmccoyOSU/Interactive-Survey-Tools-For-Data-Visualizations/wiki
