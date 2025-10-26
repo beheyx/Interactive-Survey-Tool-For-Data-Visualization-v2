@@ -49,22 +49,6 @@ jobs:
         run: |
           docker compose up --build -d
 
-      - name: Wait for MySQL
-        run: |
-          for i in $(seq 1 60); do
-            if docker compose exec -T $SERVICE_NAME sh -c 'mysqladmin ping -h 127.0.0.1 -uroot -p"${MYSQL_ROOT_PASSWORD:-root}" 2>/dev/null' >/dev/null 2>&1; then
-              echo "MySQL is ready!"
-              break
-            fi
-            echo "MySQL is waiting... ($i)"
-            sleep 2
-            if [ $i -eq 60 ]; then
-              echo "MySQL did not start in time"
-              docker compose logs --no-color $SERVICE_NAME || true
-              exit 1
-            fi
-          done
-
       # Tests can go here but this is just to check if it builds.
       
       - name: Tear down compose
