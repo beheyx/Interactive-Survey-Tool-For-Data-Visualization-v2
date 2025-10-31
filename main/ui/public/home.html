@@ -1,47 +1,158 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>FAQ - Interactive Survey Tools</title>
+/* === Interactive Survey Tools — layout + theme === */
 
-        <link rel="stylesheet" href="/style.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sakura.css/css/sakura.css" type="text/css">
-        <!-- The above link is to a CSS library called sakura which can be found here: https://oxal.org/projects/sakura/
-        It is licensed under MIT:
-        
-            MIT License
+:root {
+  --ink: #111;
+  --line: #9aa0a6;
+  --panel: #eeeeee;
+  --bg: #ffffff;
+}
 
-            Copyright (c) 2016 Mitesh Shah
+/* Reset-ish */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font: 20px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  color: var(--ink);
+  background: var(--bg);
+}
 
-            Permission is hereby granted, free of charge, to any person obtaining a copy
-            of this software and associated documentation files (the "Software"), to deal
-            in the Software without restriction, including without limitation the rights
-            to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-            copies of the Software, and to permit persons to whom the Software is
-            furnished to do so, subject to the following conditions:
+/* Wrapper */
+.wrap {
+  max-width: 1200px;
+  margin: 18px auto;
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 36px);
+}
 
-            The above copyright notice and this permission notice shall be included in all
-            copies or substantial portions of the Software.
+/* Title banner */
+.title {
+  border: 2px solid var(--line);
+  background: var(--panel);
+  border-radius: 14px;
+  text-align: center;
+  padding: 12px 16px;
+  font-weight: 600;
+  box-shadow: 0 1px 0 rgba(0,0,0,.04) inset;
+}
+.title h1 {
+  margin: 0;
+  font-size: 34px;
+  letter-spacing: .2px;
+}
 
-            THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-            IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-            FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-            AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-            LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-            OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-            SOFTWARE.
+/* Top navigation pills */
+.nav {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 14px;
+}
+.pill {
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  padding: 8px 48px;
+  background: #e9eaec;
+  font-weight: 600;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 1px 0 rgba(0,0,0,.05) inset;
+  transition: transform .08s ease, filter .12s ease;
+}
+.pill:hover { transform: translateY(-1px); filter: brightness(0.98); }
+.pill:active { transform: translateY(0); }
 
-        -->
-    </head>
-    <body>
+/* Big empty stage (spacing for hero area) */
+.stage { flex: 1; }
 
-<h1>Interactive Survey Tools for Data Visualizations</h1>
-<p>An interactive survey platform that integrates dynamic visuals, real-time feedback, and flexible question types</p>
-<h4><a href="/register">Register</a> • <a href="/login">Login</a></h4>
-<br>
-<p><a href="/faq.html">FAQ</a></p>
+/* Auth buttons */
+.auth {
+  display: grid;
+  place-items: center;
+  gap: 14px;
+  margin: 8px 0 24px;
+}
+.btn {
+  width: 260px;
+  text-align: center;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 0;
+  background: #e9eaec;
+  font-weight: 700;
+  font-size: 22px;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 1px 0 rgba(0,0,0,.05) inset;
+}
+.btn:hover { filter: brightness(0.98); }
 
-    </body>
-</html>
+/* Responsive tweaks */
+@media (max-width: 600px) {
+  .pill { padding: 8px 24px; }
+  .title h1 { font-size: 24px; }
+  .btn { width: 220px; font-size: 20px; }
+}
 
+/* === Popups / Visual editor (merged) === */
+
+.popup {
+  display: none;
+  position: fixed;
+  inset: 0; /* shorthand for top/left/right/bottom: 0 */
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* above page content */
+}
+.popup:target { display: flex; }
+
+.popup-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: auto;
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+}
+
+/* Inputs */
+input[readonly] { background-color: lightgray; }
+
+/* Visual / image work area */
+#displayedImage {
+  width: 100%;
+  border: 3px solid #ddd;
+  border-radius: 10px;
+  overflow: hidden;
+  resize: both;
+}
+
+.visual-edit-container {
+  height: 65vh;
+  width: 65vw;
+  justify-self: center;
+  border: 3px solid #ddd;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Small helpers */
+.help {
+  vertical-align: super;
+  font-size: 70%;
+  color: grey !important;
+  font-weight: 500;
+  margin: 3px;
+}
+
+#type-description {
+  font-weight: lighter;
+  font-size: 70%;
+}
