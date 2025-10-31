@@ -1,158 +1,229 @@
-/* === Interactive Survey Tools — layout + theme === */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Interactive Survey Tools for Data Visualizations</title>
+  <style>
+    :root{
+      --ink:#111; --line:#9aa0a6; --panel:#eee; --white:#fff;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font: 20px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--ink);
+      background:#fff;
+    }
+    .wrap{
+      max-width:1200px; margin:18px auto; padding:0 16px;
+      display:flex; flex-direction:column; min-height:calc(100vh - 36px);
+    }
 
-:root {
-  --ink: #111;
-  --line: #9aa0a6;
-  --panel: #eeeeee;
-  --bg: #ffffff;
-}
+    /* title banner */
+    .title{
+      border:2px solid var(--line);
+      background:var(--panel);
+      border-radius:14px;
+      text-align:center;
+      padding:12px 16px;
+      font-weight:600;
+      box-shadow:0 1px 0 rgba(0,0,0,.04) inset;
+    }
+    .title h1{margin:0; font-size:34px; letter-spacing:.2px;}
 
-/* Reset-ish */
-* { box-sizing: border-box; }
-html, body { height: 100%; }
-body {
-  margin: 0;
-  font: 20px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-  color: var(--ink);
-  background: var(--bg);
-}
+    /* top nav pills */
+    .nav{
+      display:flex; justify-content:center; gap:24px; margin-top:14px;
+    }
+    .pill{
+      border:2px solid var(--line);
+      border-radius:10px;
+      padding:8px 48px;
+      background:#e9eaec;
+      font-weight:600;
+      cursor:pointer;
+      text-decoration:none; color:inherit;
+      box-shadow:0 1px 0 rgba(0,0,0,.05) inset;
+    }
 
-/* Wrapper */
-.wrap {
-  max-width: 1200px;
-  margin: 18px auto;
-  padding: 0 16px;
-  display: flex;
-  flex-direction: column;
-  min-height: calc(100vh - 36px);
-}
+    /* ====== Mixed-media carousel in the stage ====== */
+    .stage{flex:1; display:flex; align-items:center; justify-content:center;}
 
-/* Title banner */
-.title {
-  border: 2px solid var(--line);
-  background: var(--panel);
-  border-radius: 14px;
-  text-align: center;
-  padding: 12px 16px;
-  font-weight: 600;
-  box-shadow: 0 1px 0 rgba(0,0,0,.04) inset;
-}
-.title h1 {
-  margin: 0;
-  font-size: 34px;
-  letter-spacing: .2px;
-}
+    .carousel{
+        position:relative;
+        width:100%;
+        max-width:1000px;
+        aspect-ratio: 16 / 9;   /* replaces fixed height */
+        border:2px solid var(--line);
+        border-radius:14px;
+        overflow:hidden;
+        background:#000;
+        box-shadow:0 6px 20px rgba(0,0,0,.08);
+    }
+    .track{
+      display:flex;
+      height:100%;
+      transition: transform .6s ease-in-out;
+    }
+    .slide{
+      min-width:100%;
+      height:100%;
+      position:relative;
+      display:grid;
+      place-items:center;
+      background:#111;
+    }
+    .slide img,
+    .slide video{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
 
-/* Top navigation pills */
-.nav {
-  display: flex;
-  justify-content: center;
-  gap: 24px;
-  margin-top: 14px;
-}
-.pill {
-  border: 2px solid var(--line);
-  border-radius: 10px;
-  padding: 8px 48px;
-  background: #e9eaec;
-  font-weight: 600;
-  text-decoration: none;
-  color: inherit;
-  box-shadow: 0 1px 0 rgba(0,0,0,.05) inset;
-  transition: transform .08s ease, filter .12s ease;
-}
-.pill:hover { transform: translateY(-1px); filter: brightness(0.98); }
-.pill:active { transform: translateY(0); }
+    /* Controls */
+    .ctrl{
+      position:absolute; top:50%; transform:translateY(-50%);
+      background:rgba(255,255,255,.85);
+      border:2px solid var(--line);
+      border-radius:999px;
+      width:42px; height:42px;
+      display:grid; place-items:center;
+      cursor:pointer; user-select:none;
+    }
+    .ctrl:hover{ background:#fff; }
+    .prev{ left:10px; }
+    .next{ right:10px; }
 
-/* Big empty stage (spacing for hero area) */
-.stage { flex: 1; }
+    /* Dots */
+    .dots{
+      position:absolute; left:0; right:0; bottom:10px;
+      display:flex; justify-content:center; gap:10px;
+    }
+    .dot{
+      width:10px; height:10px; border-radius:50%;
+      border:2px solid #e5e7eb; background:transparent;
+      cursor:pointer;
+    }
+    .dot.active{ background:#e5e7eb; }
 
-/* Auth buttons */
-.auth {
-  display: grid;
-  place-items: center;
-  gap: 14px;
-  margin: 8px 0 24px;
-}
-.btn {
-  width: 260px;
-  text-align: center;
-  border: 2px solid var(--line);
-  border-radius: 10px;
-  padding: 10px 0;
-  background: #e9eaec;
-  font-weight: 700;
-  font-size: 22px;
-  text-decoration: none;
-  color: inherit;
-  box-shadow: 0 1px 0 rgba(0,0,0,.05) inset;
-}
-.btn:hover { filter: brightness(0.98); }
+    /* auth buttons near bottom */
+    .auth{
+      display:grid; place-items:center; gap:14px; margin:18px 0 24px;
+    }
+    .btn{
+      width:260px; text-align:center;
+      border:2px solid var(--line);
+      border-radius:10px;
+      padding:10px 0;
+      background:#e9eaec;
+      font-weight:700; font-size:22px;
+      text-decoration:none; color:inherit;
+    }
 
-/* Responsive tweaks */
-@media (max-width: 600px) {
-  .pill { padding: 8px 24px; }
-  .title h1 { font-size: 24px; }
-  .btn { width: 220px; font-size: 20px; }
-}
+    @media (max-width:600px){
+      .pill{padding:8px 24px}
+      .title h1{font-size:24px}
+      .btn{width:220px; font-size:20px}
+      .carousel{height:300px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="title">
+      <h1>Interactive Survey Tools for Data Visualizations</h1>
+    </div>
 
-/* === Popups / Visual editor (merged) === */
+    <nav class="nav" aria-label="Site">
+      <a class="pill" href="/home">Home</a>
+      <a class="pill" href="/faq">FAQ</a>
+      <a class="pill" href="/about">About Us</a>
+    </nav>
 
-.popup {
-  display: none;
-  position: fixed;
-  inset: 0; /* shorthand for top/left/right/bottom: 0 */
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  justify-content: center;
-  align-items: center;
-  z-index: 1000; /* above page content */
-}
-.popup:target { display: flex; }
+    <!-- Stage: scrolling multimedia carousel -->
+    <div class="stage">
+      <div class="carousel" id="heroCarousel" aria-label="Showcase">
+        <div class="track">
+          <!-- Slide 1: image -->
+          <div class="slide">
+            <img src="/media/brain-diagram.png" alt="Color-coded brain regions example" />
+          </div>
+          <!-- Slide 2: video (muted + autoplay + loop for UX) -->
+          <div class="slide">
+            <video src="/media/hypergraph-demo.mp4" autoplay muted loop playsinline aria-label="Hypergraph demo"></video>
+          </div>
+          <!-- Slide 3: image -->
+          <div class="slide">
+            <img src="/media/polygon-selection.png" alt="Polygon selection on image" />
+          </div>
+          <!-- Slide 4: video -->
+          <div class="slide">
+            <video src="/media/survey-flow.mp4" autoplay muted loop playsinline aria-label="Survey flow walkthrough"></video>
+          </div>
+        </div>
 
-.popup-content {
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  text-align: center;
-  max-width: 90vw;
-  max-height: 90vh;
-  overflow: auto;
-  box-shadow: 0 10px 30px rgba(0,0,0,.25);
-}
+        <!-- Controls -->
+        <button class="ctrl prev" aria-label="Previous slide">‹</button>
+        <button class="ctrl next" aria-label="Next slide">›</button>
 
-/* Inputs */
-input[readonly] { background-color: lightgray; }
+        <!-- Dots -->
+        <div class="dots" role="tablist" aria-label="Slide indicators">
+          <button class="dot" aria-label="Slide 1"></button>
+          <button class="dot" aria-label="Slide 2"></button>
+          <button class="dot" aria-label="Slide 3"></button>
+          <button class="dot" aria-label="Slide 4"></button>
+        </div>
+      </div>
+    </div>
 
-/* Visual / image work area */
-#displayedImage {
-  width: 100%;
-  border: 3px solid #ddd;
-  border-radius: 10px;
-  overflow: hidden;
-  resize: both;
-}
+    <div class="auth">
+      <a class="btn" href="/register">Register</a>
+      <a class="btn" href="/login">Login</a>
+    </div>
+  </div>
 
-.visual-edit-container {
-  height: 65vh;
-  width: 65vw;
-  justify-self: center;
-  border: 3px solid #ddd;
-  border-radius: 10px;
-  overflow: hidden;
-}
+  <script>
+    // Minimal carousel logic (auto-advance + controls)
+    (function () {
+      const root = document.getElementById('heroCarousel');
+      const track = root.querySelector('.track');
+      const slides = Array.from(track.children);
+      const prev = root.querySelector('.prev');
+      const next = root.querySelector('.next');
+      const dots = Array.from(root.querySelectorAll('.dot'));
 
-/* Small helpers */
-.help {
-  vertical-align: super;
-  font-size: 70%;
-  color: grey !important;
-  font-weight: 500;
-  margin: 3px;
-}
+      let index = 0;
+      let timer = null;
 
-#type-description {
-  font-weight: lighter;
-  font-size: 70%;
-}
+      function go(i) {
+        index = (i + slides.length) % slides.length;
+        track.style.transform = `translateX(-${index * 100}%)`;
+        dots.forEach((d, k) => d.classList.toggle('active', k === index));
+      }
+
+      function start() { stop(); timer = setInterval(() => go(index + 1), 30000); }
+      function stop() { if (timer) clearInterval(timer); timer = null; }
+
+      prev.addEventListener('click', () => { go(index - 1); start(); });
+      next.addEventListener('click', () => { go(index + 1); start(); });
+      dots.forEach((d, k) => d.addEventListener('click', () => { go(k); start(); }));
+
+      root.addEventListener('mouseenter', stop);
+      root.addEventListener('mouseleave', start);
+
+      // Keyboard support
+      root.tabIndex = 0;
+      root.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') { go(index - 1); start(); }
+        if (e.key === 'ArrowRight') { go(index + 1); start(); }
+      });
+
+      // Initialize
+      go(0); start();
+    })();
+  </script>
+</body>
+</html>
