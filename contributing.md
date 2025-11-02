@@ -3,7 +3,12 @@ How to set up, code, test, review, and release so contributions meet our Definit
 of Done.
   
 ## Code of Conduct
-Reference the project/community behavior expectations and reporting process.
+Definition of Done (DoD):
+- Meet acceptance criteria and not regress exisitng behavior.
+- Include tests (unit + integration).
+- Pass all CI quality gates (lint, types, tests, a11y, perf, deps, etc.)
+- Update docs (README, API docs, CHANGELOG) and screenshots for UI.
+- Be reviewed and approved per Pull Requests & Reviews guidelines.
 
 ## Getting Started
 List prerequisites, setup steps, environment variables/secrets handling, and how to
