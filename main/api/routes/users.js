@@ -25,13 +25,34 @@ router.get('/', requireAuthentication, handleErrors( async (req, res, next) => {
 }))
 
 // Register a new user
-router.post('/', handleErrors( async (req, res, next) => {
-	// create new user entry in database
-	const user = await User.create(req.body, UserClientFields)
-	// send authentication
-	const token = generateAuthToken(user.id)
-	res.status(201).send({ id: user.id, token: token })
-}))
+router.post('/', handleErrors(async (req, res, next) => {
+    const { name, password, confirm_password } = req.body;
+
+    // Basic validation
+    if (!name || !password || !confirm_password) {
+        return res.status(400).send({ error: "All fields are required." });
+    }
+
+    if (password !== confirm_password) {
+        return res.status(400).send({ error: "Passwords do not match." });
+    }
+
+    // Prevent duplicate username
+    const existingUser = await User.findOne({ where: { name } });
+    if (existingUser) {
+        return res.status(409).send({ error: "User already exists." });
+    }
+
+    // Create user (only name + password are stored)
+    const user = await User.create({ name, password }, UserClientFields);
+
+    // Generate token
+    const token = generateAuthToken(user.id);
+
+    // Respond
+    res.status(201).send({ id: user.id, token });
+}));
+
 
 // Login user
 router.post('/login', handleErrors( async (req, res, next) => {

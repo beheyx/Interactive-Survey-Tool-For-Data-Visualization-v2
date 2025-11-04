@@ -1,7 +1,7 @@
 /* === Interactive Survey Tools — layout + theme === */
 
 :root {
-  --ink: #111;
+  --ink: #000000;
   --line: #9aa0a6;
   --panel: #eeeeee;
   --bg: #ffffff;
@@ -15,16 +15,17 @@ body {
   font: 20px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
   color: var(--ink);
   background: var(--bg);
+  max-width: 100% !important;
 }
 
 /* Wrapper */
 .wrap {
-  max-width: 1200px;
+  width: 100%;
   margin: 18px auto;
   padding: 0 16px;
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 36px);
+  min-height: 100vh;
 }
 
 /* Title banner */
@@ -33,10 +34,12 @@ body {
   background: var(--panel);
   border-radius: 14px;
   text-align: center;
-  padding: 12px 16px;
+  padding: 12px 20px;
   font-weight: 600;
   box-shadow: 0 1px 0 rgba(0,0,0,.04) inset;
+  margin: 5px 25px;
 }
+
 .title h1 {
   margin: 0;
   font-size: 34px;
@@ -57,7 +60,7 @@ body {
   background: #e9eaec;
   font-weight: 600;
   text-decoration: none;
-  color: inherit;
+  color: var(--ink);
   box-shadow: 0 1px 0 rgba(0,0,0,.05) inset;
   transition: transform .08s ease, filter .12s ease;
 }
@@ -84,7 +87,7 @@ body {
   font-weight: 700;
   font-size: 22px;
   text-decoration: none;
-  color: inherit;
+  color: var(--ink);;
   box-shadow: 0 1px 0 rgba(0,0,0,.05) inset;
 }
 .btn:hover { filter: brightness(0.98); }
@@ -113,14 +116,14 @@ body {
 
 .popup-content {
   background: #fff;
-  padding: 20px;
-  border-radius: 8px;
+  padding: 28px 36px;
+  border-radius: 10px;
   text-align: center;
-  max-width: 90vw;
-  max-height: 90vh;
-  overflow: auto;
+  width: 600px;         /* fixed size for consistency */
+  max-width: 90vw;      /* prevent overflow on small screens */
   box-shadow: 0 10px 30px rgba(0,0,0,.25);
 }
+
 
 /* Inputs */
 input[readonly] { background-color: lightgray; }
