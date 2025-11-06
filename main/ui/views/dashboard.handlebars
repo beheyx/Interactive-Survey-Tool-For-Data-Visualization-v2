@@ -1,57 +1,105 @@
-<h1>Hello {{name}}!</h1>
-<form action="/users/logout" method="POST"><button>logout</button></form>
+<!-- Title bar -->
+<header class="app-header" role="banner">
+  <h1>Interactive Survey Tools for Data Visualizations</h1>
+</header>
 
-<h2>Visualizations<a class="help" href="/faq.html#2" target="_blank">?</a></h2>
-<a class="new-button" href="#visualizationsPopup">+ New</a>
-<section id="visualizations">
-    {{#each visualizations}}
-        {{> visualizationListItem}}
-    {{/each}}
-    <p>{{visError}}</p>     <!-- text for when an error may occur in loading visualizations -->
+<!-- Top nav -->
+<nav class="top-nav" aria-label="Primary">
+  <div class="nav-left">
+  </div>
+  <ul class="nav-actions">
+    <li><a class="pill" href="/">Home</a></li>
+    <li><a class="pill" href="/faq.html" target="_blank" rel="noopener">FAQ</a></li>
+    <li><a class="pill" href="/about">About Us</a></li>
+  </ul>
+  <div class="nav-right">
+    <form action="/users/logout" method="POST">
+      <button class="pill" type="submit">Logout</button>
+    </form>
+  </div>
+</nav>
+
+<!-- Cards row -->
+<main class="cards" role="main">
+  <!-- Card 1: Create/Edit Images (Visualizations) -->
+  <section class="card">
+  <h2>Create/Edit Images</h2>
+  <p class="sub-links">
+    <a href="#visualizationsPopup">New</a>
+    <span aria-hidden="true"> | </span>
+    <a href="/existing-visualizations">Existing</a>
+  </p>
 </section>
 
-<h2>Survey Designs<a class="help" href="/faq.html#3" target="_blank">?</a></h2>
-<a class="new-button" href="#surveyDesignsPopup">+ New</a>
-<section id="surveyDesigns">
+<section class="card">
+  <h2>Design Surveys</h2>
+  <p class="sub-links">
+    <a href="#surveyDesignsPopup">New</a>
+    <span aria-hidden="true"> | </span>
+    <a href="/existing-survey-designs">Existing</a>
+  </p>
+</section>
+
+<section class="card">
+  <h2>Published Surveys</h2>
+  <p class="sub-links">
+    <a href="/existing-published-surveys">Existing</a>
+  </p>
+</section>
+</main>
+
+<!-- Existing lists (kept below, jump-linked from the cards) -->
+<section id="visualizations-list" class="list-block">
+  <h3>Visualizations</h3>
+  <a class="new-button" href="#visualizationsPopup">+ New</a>
+  <div id="visualizations">
+    {{#each visualizations}}
+      {{> visualizationListItem}}
+    {{/each}}
+    <p>{{visError}}</p>
+  </div>
+</section>
+
+<section id="survey-designs-list" class="list-block">
+  <h3>Survey Designs</h3>
+  <a class="new-button" href="#surveyDesignsPopup">+ New</a>
+  <div id="surveyDesigns">
     {{#each surveyDesigns}}
-        {{> surveyDesignListItem}}
+      {{> surveyDesignListItem}}
     {{/each}}
     <p>{{surError}}</p>
+  </div>
 </section>
 
-<h2>Published Surveys<a class="help" href="/faq.html#4" target="_blank">?</a></h2>
-<section id="publishedSurveys">
+<section id="published-surveys-list" class="list-block">
+  <h3>Published Surveys</h3>
+  <div id="publishedSurveys">
     {{#each publishedSurveys}}
-        {{> publishedSurveyListItem}}
+      {{> publishedSurveyListItem}}
     {{/each}}
     <p>{{pSurError}}</p>
+  </div>
 </section>
 
-<!-- popup windows -->
-
-<!-- some HTML referenced from https://www.geeksforgeeks.org/how-to-create-popup-box-using-html-and-css/ section "Using Display Property"-->
+<!-- Popups (unchanged except for title copy) -->
 <div class="popup" id="visualizationsPopup">
-    <div class="popup-content">
-        <h2>Create a New Visualization</h2>
-        <form action="/visualizations" method="POST">
-            <input type="text" name="name" placeholder="visualization name">
-            <button class="popup-create-button" id="create-visualization-button">Create</button>
-        </form>
-        <a class="popup-cancel-button" href="#">Cancel</a>
-    </div>
+  <div class="popup-content">
+    <h2>Create a New Visualization</h2>
+    <form action="/visualizations" method="POST">
+      <input type="text" name="name" placeholder="visualization name" />
+      <button class="popup-create-button" id="create-visualization-button">Create</button>
+    </form>
+    <a class="popup-cancel-button" href="#">Cancel</a>
+  </div>
 </div>
-
-
 
 <div class="popup" id="surveyDesignsPopup">
-    <div class="popup-content">
-        <h2>Create a New Survey Design</h2>
-        <form action="/surveyDesigns" method="POST">
-            <input type="text" name="name" placeholder="survey design name">
-            <button class="popup-create-button" id="create-survey-design-button">Create</button>
-        </form>
-        <a class="popup-cancel-button" href="#">Cancel</a>
-    </div>
+  <div class="popup-content">
+    <h2>Create a New Survey Design</h2>
+    <form action="/surveyDesigns" method="POST">
+      <input type="text" name="name" placeholder="survey design name" />
+      <button class="popup-create-button" id="create-survey-design-button">Create</button>
+    </form>
+    <a class="popup-cancel-button" href="#">Cancel</a>
+  </div>
 </div>
-
-{{!-- <script src="../public/src/buttons.js"></script> --}}
