@@ -1,7 +1,34 @@
-<h1>{{name}}</h1>
-<br>
-<div class="visual-edit-container">
-    <iframe src="{{visualURL}}/{{id}}?editor=true" height="100%" width="100%"></iframe>
-</div>
-<br>
-<a href="/">↵ Go Home</a>
+<!-- Title bar -->
+<header class="app-header" role="banner">
+  <h1>Interactive Survey Tools for Data Visualizations</h1>
+</header>
+
+<!-- Top nav -->
+<nav class="top-nav" aria-label="Primary">
+  <div class="nav-left"></div>
+  <ul class="nav-actions">
+    <li><a class="pill" href="/">Home</a></li>
+    <li><a class="pill" href="/faq.html" target="_blank" rel="noopener">FAQ</a></li>
+    <li><a class="pill" href="/about">About Us</a></li>
+  </ul>
+  <div class="nav-right">
+    <form action="/users/logout" method="POST">
+      <button class="pill" type="submit">Logout</button>
+    </form>
+  </div>
+</nav>
+
+<!-- Centered name below nav -->
+<div class="page-title"><h2>{{name}}</h2></div>
+
+<main class="content-wrap">
+  <div class="visual-edit-container" style="height: calc(100vh - 260px);">
+    <iframe
+      src="{{visualURL}}/{{id}}?editor=true"
+      height="100%"
+      width="100%"
+      title="Visualization Editor"
+      style="border: 1px solid #e5e7eb; border-radius: 12px;"
+    ></iframe>
+  </div>
+</main>

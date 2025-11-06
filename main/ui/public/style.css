@@ -159,3 +159,57 @@ input[readonly] { background-color: lightgray; }
   font-weight: lighter;
   font-size: 70%;
 }
+
+:root{
+  --ink:#111; --panel:#eee; --line:#c9c9c9; --white:#fff;
+}
+*{box-sizing:border-box}
+body{margin:0; font:20px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial}
+
+.app-header{
+  background:#eaeaea; border:1px solid var(--line); border-radius:8px;
+  margin:8px; padding:10px 14px; text-align:center;
+}
+.app-header h1{margin:0; font-size:28px; font-weight:600}
+
+.top-nav{
+  display:grid; grid-template-columns:1fr auto 1fr; align-items:center;
+  gap:12px; margin:10px 8px 28px;
+}
+.nav-left, .nav-right{display:flex; justify-content:flex-start}
+.nav-right{justify-content:flex-end}
+.nav-actions{display:flex; gap:12px; list-style:none; margin:0; padding:0}
+
+.pill{
+  display:inline-block; padding:8px 18px; background:#f5f5f5; border:1px solid var(--line);
+  border-radius:10px; color:inherit; text-decoration:none; cursor:pointer;
+}
+.pill-ghost{background:#f5f5f5}
+.top-nav form{margin:0}
+
+.cards{
+  display:grid; grid-template-columns:repeat(3, 1fr); gap:48px;
+  max-width:1200px; margin:0 auto; padding:20px;
+}
+.card{
+  background:#eee; border:1px solid var(--line); border-radius:28px;
+  min-height:220px; display:flex; flex-direction:column; justify-content:center; align-items:center;
+  text-align:center; padding:28px;
+}
+.card h2{margin:0 0 16px 0; font-size:28px; font-weight:600}
+.card .sub-links a{color:inherit; text-decoration:none; font-size:22px}
+.card .sub-links a:hover{text-decoration:underline}
+
+.list-block{max-width:1200px; margin:48px auto 24px; padding:0 20px}
+.list-block h3{margin:0 0 8px}
+.new-button{display:inline-block; margin-bottom:8px}
+
+.page-title {
+  text-align: center;
+  margin: 12px 0 16px;
+}
+.page-title h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+}
