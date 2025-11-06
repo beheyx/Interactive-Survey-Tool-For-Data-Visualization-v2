@@ -1,6 +1,21 @@
-<h1>Editing Survey Design "{{name}}"</h1>
-<a href="/">↵ Go Home</a>
-<br><br>
+<br>
+Editing {{name}}
+<div class="row row-cols-md-3 mb-3">
+    <div class="col">
+        <a href="/" class="btn btn-info" style="width:fit-content">
+            ↵ Back To Surveys
+        </a>
+    </div>
+    <div class="col">
+        <button type="submit" form="survey-settings" class="btn btn-primary save-survey-button" style="width:fit-content">
+            Save Changes
+        </button>
+        <a class="btn btn-success"style="width:fit-content" href="#publishSurveyPopup">
+            Publish
+        </a>
+        <a class="help" href="/faq.html#14" target="_blank">?</a>
+    </div>
+</div>
 
 <h2>Questions<a class="help" href="/faq.html#7" target="_blank">?</a></h2>
     {{#each questions}}
@@ -12,7 +27,7 @@
 </form>
 <br>
 
-<form action="/surveyDesigns/{{id}}/PATCH" method="POST">
+<form id="survey-settings" action="/surveyDesigns/{{id}}/PATCH" method="POST">
     <h2>Survey Details<a class="help" href="/faq.html#7" target="_blank">?</a></h2>
     <h3>Survey Title</h3>
     <p>This is the title that is visible to participants.</p>
@@ -25,14 +40,7 @@
     <h3>Conclusion Text</h3>
     <p>This is the text the participant sees after completing the survey.</p>
     <textarea type="text" id="conclusionText" name="conclusionText" rows="4" cols="50" placeholder="Your conclusion text here">{{conclusionText}}</textarea>
-
-    <br>
-    <br>
-    <button class="save-survey-button">Save Changes</button>
 </form>
-
-<br>
-<a href="#publishSurveyPopup">Publish<a class="help" href="/faq.html#14" target="_blank">?</a></a>
 
 <!-- popup windows -->
 
