@@ -48,20 +48,22 @@ Editing {{name}}
 <!-- some HTML referenced from https://www.geeksforgeeks.org/how-to-create-popup-box-using-html-and-css/ section "Using Display Property"-->
 <div class="popup" id="publishSurveyPopup">
     <div class="popup-content">
-        <h2>Publish your survey</h2>
+        <h2>Publish {{name}}</h2>
+        <br>
         <form action="/surveyDesigns/{{id}}/publishedSurveys" method="POST">
             
-            <label for="openDateTime">Open time:<a class="help" href="/faq.html#15" target="_blank">?</a></label>
-            <input type="datetime-local" id="openDateTime" name="openDateTime" value="{{today}}" min="{{today}}"/>
-
-            <label for="closeDateTime">Close time:<a class="help" href="/faq.html#15" target="_blank">?</a></label>
-            <input type="datetime-local" id="closeDateTime" name="closeDateTime" value="{{tomorrow}}" min="{{today}}"/>
-
-            <label for="name">Name:<a class="help" href="/faq.html#8" target="_blank">?</a></label>
-            <input type="text" name="name" placeholder="survey name" value="{{name}}">
-
-            <button class="popup-create-button" id="publish-survey-button">Publish</button>
+            <label for="openDateTime">Open time<a class="help" href="/faq.html#15" target="_blank">?</a>:</label>
+            <input class="form-control" type="datetime-local" id="openDateTime" name="openDateTime" value="{{today}}" min="{{today}}"/>
+            <br>
+            <label for="closeDateTime">Close time<a class="help" href="/faq.html#15" target="_blank">?</a>:</label>
+            <input class="form-control" type="datetime-local" id="closeDateTime" name="closeDateTime" value="{{tomorrow}}" min="{{today}}"/>
+            <br>
+            <label for="name">Name<a class="help" href="/faq.html#8" target="_blank">?</a>:</label>
+            <input class="form-control" type="text" name="name" placeholder="survey name" value="{{name}}">
+            <br><br>
+            <button class="popup-create-button btn btn-primary" id="publish-survey-button">Publish</button>
         </form>
+        <br>
         <a class="popup-cancel-button" href="#">Cancel</a>
     </div>
 </div>
