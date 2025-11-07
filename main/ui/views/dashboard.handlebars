@@ -48,39 +48,6 @@
 </section>
 </main>
 
-<!-- Existing lists (kept below, jump-linked from the cards) -->
-<section id="visualizations-list" class="list-block">
-  <h3>Visualizations</h3>
-  <a class="new-button" href="#visualizationsPopup">+ New</a>
-  <div id="visualizations">
-    {{#each visualizations}}
-      {{> visualizationListItem}}
-    {{/each}}
-    <p>{{visError}}</p>
-  </div>
-</section>
-
-<section id="survey-designs-list" class="list-block">
-  <h3>Survey Designs</h3>
-  <a class="new-button" href="#surveyDesignsPopup">+ New</a>
-  <div id="surveyDesigns">
-    {{#each surveyDesigns}}
-      {{> surveyDesignListItem}}
-    {{/each}}
-    <p>{{surError}}</p>
-  </div>
-</section>
-
-<section id="published-surveys-list" class="list-block">
-  <h3>Published Surveys</h3>
-  <div id="publishedSurveys">
-    {{#each publishedSurveys}}
-      {{> publishedSurveyListItem}}
-    {{/each}}
-    <p>{{pSurError}}</p>
-  </div>
-</section>
-
 <!-- Popups (unchanged except for title copy) -->
 <div class="popup" id="visualizationsPopup">
   <div class="popup-content">

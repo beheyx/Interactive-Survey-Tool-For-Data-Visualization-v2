@@ -125,6 +125,90 @@ app.get('/login', (req, res) => {
     res.render("login")
 });
 
+// existing visualizations page
+app.get('/existing-visualizations', async (req, res, next) => {
+    try {
+        const userResponse = await api.get('/users', withAuth(req.cookies.access_token))
+        const user = userResponse.data
+
+        let userVisualizations
+        let visError = ""
+
+        try {
+            userVisualizations = await api.get(`/users/${user.id}/visualizations`, withAuth(req.cookies.access_token))
+        } catch {
+            visError = "Unable to load visualizations."
+        }
+
+        res.render("existingVisualizations", {
+            visualizations: userVisualizations?.data.visualizations,
+            visError: visError
+        })
+    } catch (error) {
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+            res.redirect('/login')
+        } else {
+            next(error)
+        }
+    }
+});
+
+// existing survey designs page
+app.get('/existing-survey-designs', async (req, res, next) => {
+    try {
+        const userResponse = await api.get('/users', withAuth(req.cookies.access_token))
+        const user = userResponse.data
+
+        let userSurveyDesigns
+        let surError = ""
+
+        try {
+            userSurveyDesigns = await api.get(`/users/${user.id}/surveyDesigns`, withAuth(req.cookies.access_token))
+        } catch {
+            surError = "Unable to load survey designs."
+        }
+
+        res.render("existingSurveyDesigns", {
+            surveyDesigns: userSurveyDesigns?.data.surveyDesigns,
+            surError: surError
+        })
+    } catch (error) {
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+            res.redirect('/login')
+        } else {
+            next(error)
+        }
+    }
+});
+
+// existing published surveys page
+app.get('/existing-published-surveys', async (req, res, next) => {
+    try {
+        const userResponse = await api.get('/users', withAuth(req.cookies.access_token))
+        const user = userResponse.data
+
+        let userPublishedSurveys
+        let pSurError = ""
+
+        try {
+            userPublishedSurveys = await api.get(`/users/${user.id}/publishedSurveys`, withAuth(req.cookies.access_token))
+        } catch {
+            pSurError = "Unable to load published surveys."
+        }
+
+        res.render("existingPublishedSurveys", {
+            publishedSurveys: userPublishedSurveys?.data.publishedSurveys,
+            pSurError: pSurError
+        })
+    } catch (error) {
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+            res.redirect('/login')
+        } else {
+            next(error)
+        }
+    }
+});
+
 
 // app.post('/users(/*)?', async (req, res, next) => {
 //   const apiPageNames = {

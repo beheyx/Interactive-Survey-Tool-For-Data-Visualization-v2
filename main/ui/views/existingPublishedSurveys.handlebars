@@ -1,0 +1,69 @@
+<!-- Title bar -->
+<header class="app-header" role="banner">
+  <h1>Interactive Survey Tools for Data Visualizations</h1>
+</header>
+
+<!-- Top nav -->
+<nav class="top-nav" aria-label="Primary">
+  <div class="nav-left">
+  </div>
+  <ul class="nav-actions">
+    <li><a class="pill" href="/">Home</a></li>
+    <li><a class="pill" href="/faq.html" target="_blank" rel="noopener">FAQ</a></li>
+    <li><a class="pill" href="/about">About Us</a></li>
+  </ul>
+  <div class="nav-right">
+    <form action="/users/logout" method="POST">
+      <button class="pill" type="submit">Logout</button>
+    </form>
+  </div>
+</nav>
+
+<!-- Page content -->
+<main class="existing-page">
+  <div class="page-header">
+    <h2>Your Published Surveys</h2>
+  </div>
+
+  <div class="table-container">
+    {{#if publishedSurveys}}
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Opens</th>
+            <th>Closes</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each publishedSurveys}}
+            <tr>
+              <td>
+                <a href="/publishedSurveys/{{id}}" class="table-link">{{name}}</a>
+              </td>
+              <td>
+                <span class="survey-status status-{{status}}">{{status}}</span>
+              </td>
+              <td>{{openDateTime}}</td>
+              <td>{{closeDateTime}}</td>
+              <td class="actions-cell">
+                <a class="table-btn view-btn" href="/publishedSurveys/{{id}}">View</a>
+              </td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    {{else}}
+      <div class="empty-state">
+        <p>No published surveys yet. Publish a survey design to see it here!</p>
+        <a class="action-button" href="/">Go to Dashboard</a>
+      </div>
+    {{/if}}
+
+    {{#if pSurError}}
+      <p class="error-message">{{pSurError}}</p>
+    {{/if}}
+  </div>
+</main>
