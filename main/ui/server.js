@@ -326,7 +326,8 @@ app.get('/surveyDesigns/:id', async (req, res, next) => {
                 questions: questionResponse.data.questions,
                 conclusionText: response.data.conclusionText,
                 today: today.toISOString().substring(0, 16),
-                tomorrow: tomorrow.toISOString().substring(0, 16)
+                tomorrow: tomorrow.toISOString().substring(0, 16),
+                visualURL: process.env.VISUAL_UI_URL
             })
         } catch (error) {
             res.render("editsurveydesign", {
@@ -337,7 +338,8 @@ app.get('/surveyDesigns/:id', async (req, res, next) => {
                 questionError: "Unable to load questions",
                 conclusionText: response.data.conclusionText,
                 today: today.toISOString().substring(0, 16),
-                tomorrow: tomorrow.toISOString().substring(0, 16)
+                tomorrow: tomorrow.toISOString().substring(0, 16),
+                visualURL: process.env.VISUAL_UI_URL
             })
         }
     }

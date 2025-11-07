@@ -1,10 +1,39 @@
-<h3>
-    <form action="/questions/{{id}}/DELETE" method="POST">
-        <a href="/questions/{{id}}">Question {{number}}</a>
-        <button class="delete-button">Delete</button>
+{{#if text}}
+    <div class="bg-light d-flex">
+{{else}}
+    <div class="bg-secondary d-flex text-white">
+{{/if}}
+    <form class="card-body" action="/questions/{{id}}/DELETE" method="POST">
+        <div class="row clearfix">
+            <div class="col float-left">
+                <h3 class="card-title">{{number}} | 
+                    {{#if text}}
+                        {{text}}
+                    {{else}}
+                        Empty Question
+                    {{/if}}
+                </h3>
+                {{#if required}}<b>Required</b>{{/if}}
+                {{#if text}}
+                    <p>{{type}}</p>
+                {{/if}}
+            </div>
+            <div class="col float-right">
+                {{#if visualizationContentId}}
+                    <iframe
+                    src="{{visualURL}}/{{visualizationContentId}}?highlight=true"
+                    title="Visualization Editor"
+                    style="border: 1px solid #e5e7eb; border-radius: 12px;"
+                    ></iframe>
+                {{/if}}
+            </div>
+        </div>
+        <div class="clearfix">
+            <a class="col btn btn-primary float-left" style="width:fit-content" href="/questions/{{id}}">Edit</a>
+            <button class="col delete-button btn btn-danger float-right" style="width:fit-content">Delete</button>
+        </div>
     </form>
-</h3>
-<p><strong>Question Text:</strong> {{text}}</p>
+</div>
 
 <!-- Shifting buttons, to be implemented
 <h4>Change order: </h4>
