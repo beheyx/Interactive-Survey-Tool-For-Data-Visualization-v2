@@ -213,3 +213,480 @@ body{margin:0; font:20px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Rob
   font-size: 28px;
   font-weight: 600;
 }
+
+/* Enhanced Dashboard List Sections */
+.list-section {
+  max-width: 1200px;
+  margin: 60px auto 24px;
+  padding: 0 20px;
+  scroll-margin-top: 80px; /* offset for smooth scrolling to anchor */
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--line);
+}
+
+.list-header h3 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.action-button {
+  display: inline-block;
+  padding: 10px 24px;
+  background: #4a90e2;
+  color: white;
+  border: 2px solid #3a7bc8;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.action-button:hover {
+  background: #3a7bc8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.action-button:active {
+  transform: translateY(0);
+}
+
+.list-content {
+  display: grid;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 20px;
+  color: #666;
+  font-size: 18px;
+  background: #f9f9f9;
+  border: 2px dashed var(--line);
+  border-radius: 12px;
+  margin: 0;
+}
+
+.error-message {
+  text-align: center;
+  padding: 16px 20px;
+  color: #d32f2f;
+  font-size: 16px;
+  background: #ffebee;
+  border: 2px solid #ef5350;
+  border-radius: 8px;
+  margin: 8px 0 0 0;
+}
+
+/* Card enhancements */
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+/* Improve card link styling */
+.card .sub-links {
+  margin: 8px 0 0 0;
+}
+
+.card .sub-links a {
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.card .sub-links a:hover {
+  color: #4a90e2;
+}
+
+/* List Item Styling */
+.list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: #f9f9f9;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  margin: 0;
+}
+
+.list-item:hover {
+  background: #f0f0f0;
+  border-color: #4a90e2;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.item-name {
+  flex: 1;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.item-name:hover {
+  color: #4a90e2;
+  text-decoration: underline;
+}
+
+.item-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.rename-button, .delete-button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.rename-button {
+  background: #fff;
+  color: #4a90e2;
+  border-color: #4a90e2;
+}
+
+.rename-button:hover {
+  background: #4a90e2;
+  color: white;
+}
+
+.delete-button {
+  background: #fff;
+  color: #e53935;
+  border-color: #e53935;
+}
+
+.delete-button:hover {
+  background: #e53935;
+  color: white;
+}
+
+/* Published Survey Item */
+.published-survey-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.survey-status {
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.status-open {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #66bb6a;
+}
+
+.status-closed {
+  background: #ffebee;
+  color: #c62828;
+  border: 1px solid #ef5350;
+}
+
+.status-scheduled, .status-pending {
+  background: #fff3e0;
+  color: #ef6c00;
+  border: 1px solid #ffa726;
+}
+
+/* Popup improvements for rename */
+.popup-rename-button, .popup-create-button {
+  padding: 10px 24px;
+  background: #4a90e2;
+  color: white;
+  border: 2px solid #3a7bc8;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 12px;
+}
+
+.popup-rename-button:hover, .popup-create-button:hover {
+  background: #3a7bc8;
+  transform: translateY(-1px);
+}
+
+.popup-cancel-button {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 8px 16px;
+  color: #666;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.popup-cancel-button:hover {
+  color: #333;
+  text-decoration: underline;
+}
+
+.rename-input, input[type="text"] {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  font-size: 16px;
+  margin-top: 8px;
+  transition: border-color 0.2s ease;
+}
+
+.rename-input:focus, input[type="text"]:focus {
+  outline: none;
+  border-color: #4a90e2;
+}
+
+/* Existing Pages Layout */
+.existing-page {
+  max-width: 1400px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 3px solid var(--line);
+}
+
+.page-header h2 {
+  margin: 0;
+  font-size: 36px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* Table Styles */
+.table-container {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 16px;
+}
+
+.data-table thead {
+  background: #f5f5f5;
+  border-bottom: 2px solid var(--line);
+}
+
+.data-table th {
+  padding: 16px 20px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--ink);
+  text-transform: uppercase;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+.data-table tbody tr {
+  border-bottom: 1px solid #e0e0e0;
+  transition: background-color 0.2s ease;
+}
+
+.data-table tbody tr:hover {
+  background: #f9f9f9;
+}
+
+.data-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.data-table td {
+  padding: 18px 20px;
+  color: var(--ink);
+}
+
+.table-link {
+  color: #4a90e2;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 18px;
+  transition: color 0.2s ease;
+}
+
+.table-link:hover {
+  color: #3a7bc8;
+  text-decoration: underline;
+}
+
+.actions-cell {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.table-btn {
+  display: inline-block;
+  padding: 8px 16px;
+  margin-left: 8px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.rename-btn {
+  color: #4a90e2;
+  border-color: #4a90e2;
+}
+
+.rename-btn:hover {
+  background: #4a90e2;
+  color: white;
+}
+
+.delete-btn {
+  color: #e53935;
+  border-color: #e53935;
+}
+
+.delete-btn:hover {
+  background: #e53935;
+  color: white;
+}
+
+.view-btn {
+  color: #43a047;
+  border-color: #43a047;
+}
+
+.view-btn:hover {
+  background: #43a047;
+  color: white;
+}
+
+/* Empty state for tables */
+.table-container .empty-state {
+  text-align: center;
+  padding: 80px 40px;
+  color: #666;
+  font-size: 18px;
+  background: #fafafa;
+  border-radius: 12px;
+}
+
+.table-container .empty-state p {
+  margin: 0 0 20px 0;
+  font-size: 20px;
+}
+
+.table-container .empty-state .action-button {
+  margin-top: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .cards {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .list-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .action-button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .list-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .item-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .published-survey-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .page-header h2 {
+    font-size: 28px;
+  }
+
+  /* Make tables scroll horizontally on mobile */
+  .table-container {
+    overflow-x: auto;
+  }
+
+  .data-table {
+    min-width: 600px;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  .table-link {
+    font-size: 16px;
+  }
+
+  .table-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+    margin-left: 4px;
+  }
+}

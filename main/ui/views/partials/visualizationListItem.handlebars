@@ -1,7 +1,9 @@
-<form action="/visualizations/{{id}}/DELETE" method="POST">
-    <a href="/visualizations/{{id}}">{{name}}</a>
-    <button class="delete-button">Delete</button>
-    <a class="rename-button" href="#visualizationsRenamePopup{{id}}">Rename</a>
+<form action="/visualizations/{{id}}/DELETE" method="POST" class="list-item">
+    <a href="/visualizations/{{id}}" class="item-name">{{name}}</a>
+    <div class="item-actions">
+        <a class="rename-button" href="#visualizationsRenamePopup{{id}}">Rename</a>
+        <button class="delete-button" type="submit">Delete</button>
+    </div>
 </form>
 
 <!-- Rename popup -->
