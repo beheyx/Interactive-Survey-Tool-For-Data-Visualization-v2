@@ -1,13 +1,54 @@
-<h1>Login</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login — Interactive Survey Tools</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <!-- Banner -->
+    <div class="title">
+      <h1>Interactive Survey Tools for Data Visualizations</h1>
+    </div>
 
-<form action="/users/login" method="POST">
-    <input type="text" name="name"
-        placeholder="username">
-    <input type="password" name="password" 
-        placeholder="password">
-    <button>login</button>
-</form>
+    <!-- Navigation -->
+    <nav class="nav" aria-label="Site">
+      <a class="pill" href="/home">Home</a>
+      <a class="pill" href="/faq">FAQ</a>
+      <a class="pill" href="/about">About Us</a>
+    </nav>
 
-<p> {{error}} </p>
+    <!-- Stage -->
+    <div class="stage">
+      <form id="loginForm" action="/users/login" method="POST"
+            style="margin:auto; width:100%; max-width:600px; background:transparent; text-align:center;">
+        <h2 style="font-size:34px; font-weight:500; color:#555; margin:40px 0;">Login</h2>
 
-<a href="/">↵ Go Home</a>
+        <div style="display:grid; grid-template-columns:180px 1fr; align-items:center; gap:14px; margin-bottom:18px;">
+            <label for="name" style="text-align:right; font-weight:500; font-size:20px; color:#555;">Email Address:</label>
+            <input type="text" id="email" name="name" placeholder="name"
+                value="{{name}}"
+                style="padding:10px; font-size:18px; border:2px solid var(--line); border-radius:8px; background:#f3f3f3; width:350px;">
+        </div>
+
+        <div style="display:grid; grid-template-columns:180px 1fr; align-items:center; gap:14px; margin-bottom:32px;">
+            <label for="password" style="text-align:right; font-weight:500; font-size:20px; color:#555;">Password:</label>
+            <input type="password" id="password" name="password" placeholder="password"
+            value="{{password}}"
+            style="padding:10px; font-size:18px; border:2px solid var(--line); border-radius:8px; background:#f3f3f3; width:350px;">       
+        </div>
+
+        <button class="btn" type="submit" style="margin-top:6px;">Login</button>
+        <p style="margin-top:16px; font-size:16px; color:#c00;">{{error}}</p>
+      </form>
+    </div>
+
+    <!-- Auth links below -->
+    <div class="auth" style="margin-top:-12px;">
+      <p style="font-size:16px; color:#555;">Don't have an account? <a href="/register" style="color:#1a73e8; text-decoration:none;">Register here</a></p>
+    </div>
+  </div>
+</body>
+</html>
