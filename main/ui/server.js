@@ -44,6 +44,11 @@ app.engine("handlebars", exphbs.engine({
     defaultLayout: "main.handlebars",
     layoutsDir: path.join(app.get('views'), 'layouts'),
     partialsDir: path.join(app.get('views'), 'partials'),
+    helpers: {
+        eq: function(a, b) {
+            return a === b;
+        }
+    }
 }))
 app.set("view engine", "handlebars")
 
@@ -109,7 +114,8 @@ app.get('/', async (req, res, next) => {
             publishedSurveys: userPublishedSurveys?.data.publishedSurveys,
             visError: visError,
             surError: surError,
-            pSurError: pSurError
+            pSurError: pSurError,
+            activePage: 'home'
         })
     }
     
@@ -142,7 +148,8 @@ app.get('/existing-visualizations', async (req, res, next) => {
 
         res.render("existingVisualizations", {
             visualizations: userVisualizations?.data.visualizations,
-            visError: visError
+            visError: visError,
+            activePage: 'home'
         })
     } catch (error) {
         if (error.response && (error.response.status === 401 || error.response.status === 403)) {
@@ -170,7 +177,8 @@ app.get('/existing-survey-designs', async (req, res, next) => {
 
         res.render("existingSurveyDesigns", {
             surveyDesigns: userSurveyDesigns?.data.surveyDesigns,
-            surError: surError
+            surError: surError,
+            activePage: 'home'
         })
     } catch (error) {
         if (error.response && (error.response.status === 401 || error.response.status === 403)) {
@@ -198,7 +206,8 @@ app.get('/existing-published-surveys', async (req, res, next) => {
 
         res.render("existingPublishedSurveys", {
             publishedSurveys: userPublishedSurveys?.data.publishedSurveys,
-            pSurError: pSurError
+            pSurError: pSurError,
+            activePage: 'home'
         })
     } catch (error) {
         if (error.response && (error.response.status === 401 || error.response.status === 403)) {
@@ -375,7 +384,8 @@ app.get('/visualizations/:id', async (req, res, next) => {
         res.render("visualization", {
             name: response.data.name,
             id: response.data.contentId,
-            visualURL: process.env.VISUAL_UI_URL
+            visualURL: process.env.VISUAL_UI_URL,
+            activePage: 'home'
         })
 
     } catch (error) {
@@ -411,7 +421,8 @@ app.get('/surveyDesigns/:id', async (req, res, next) => {
                 conclusionText: response.data.conclusionText,
                 today: today.toISOString().substring(0, 16),
                 tomorrow: tomorrow.toISOString().substring(0, 16),
-                visualURL: process.env.VISUAL_UI_URL
+                visualURL: process.env.VISUAL_UI_URL,
+                activePage: 'home'
             })
         } catch (error) {
             res.render("editsurveydesign", {
@@ -423,7 +434,8 @@ app.get('/surveyDesigns/:id', async (req, res, next) => {
                 conclusionText: response.data.conclusionText,
                 today: today.toISOString().substring(0, 16),
                 tomorrow: tomorrow.toISOString().substring(0, 16),
-                visualURL: process.env.VISUAL_UI_URL
+                visualURL: process.env.VISUAL_UI_URL,
+                activePage: 'home'
             })
         }
     }

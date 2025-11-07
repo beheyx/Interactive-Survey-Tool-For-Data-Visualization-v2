@@ -1,24 +1,24 @@
-<br>
-<h3>Editing {{name}}</h3>
-<hr>
-<div class="row">
-    <div class="col">
-        <a href="/" class="btn btn-info" style="width:fit-content">
-            ↵ Back To Surveys
-        </a>
+<!-- Breadcrumb navigation -->
+<div class="breadcrumb">
+  <a href="/">Dashboard</a>
+  <span class="breadcrumb-separator">›</span>
+  <a href="/existing-survey-designs">Survey Designs</a>
+  <span class="breadcrumb-separator">›</span>
+  <span class="breadcrumb-current">{{name}}</span>
+</div>
+
+<div class="editor-header">
+    <div class="editor-title">
+        <h2>Editing {{name}}</h2>
     </div>
-    <div class="col d-flex justify-content-end">
-        <button type="submit" form="survey-settings" class="btn btn-primary save-survey-button" style="width:fit-content">
-            Save Changes
-        </button>
-        <span style="margin-right:0.25em;"></span>
-        <a class="btn btn-success"style="width:fit-content" href="#publishSurveyPopup">
-            Publish
-        </a>
+    <div class="editor-actions">
+        <a href="/existing-survey-designs" class="back-button">← Back to Survey Designs</a>
+        <button type="submit" form="survey-settings" class="action-button">Save Changes</button>
+        <a class="action-button action-button-success" href="#publishSurveyPopup">Publish</a>
         <a class="help" href="/faq.html#14" target="_blank">?</a>
     </div>
 </div>
-<hr>
+<hr style="margin: 16px 0;">
 <ul class="nav nav-tabs" role="tablist">
   <li class="nav-item">
     <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#questions" role="tab">
@@ -41,7 +41,7 @@
     {{/each}}
     <p>{{questionError}}</p>
     <form action="/surveyDesigns/{{id}}/questions" method="POST">
-        <button class="btn btn-info add-question-button">+ Add Question</button>
+        <button class="action-button" type="submit">+ Add Question</button>
     </form>
   </div>
 
@@ -85,7 +85,7 @@
             <label for="name">Name<a class="help" href="/faq.html#8" target="_blank">?</a>:</label>
             <input class="form-control" type="text" name="name" placeholder="survey name" value="{{name}}">
             <br><br>
-            <button class="popup-create-button btn btn-primary" id="publish-survey-button">Publish</button>
+            <button class="popup-create-button" id="publish-survey-button" type="submit">Publish</button>
         </form>
         <br>
         <button type="button" class="popup-cancel-button" onclick="window.location.hash=''">Cancel</button>

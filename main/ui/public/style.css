@@ -94,6 +94,238 @@ select:focus-visible,
   outline-offset: 2px;
 }
 
+.pill-active {
+  background: #4a90e2 !important;
+  color: white !important;
+  border-color: #3a7bc8 !important;
+  box-shadow: 0 2px 8px rgba(74, 144, 226, 0.4) !important;
+}
+
+/* Breadcrumb navigation */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  margin: 12px 20px 0;
+  background: #f9f9f9;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.breadcrumb a {
+  color: #4a90e2;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.breadcrumb a:hover {
+  color: #3a7bc8;
+  text-decoration: underline;
+}
+
+.breadcrumb-separator {
+  color: #9aa0a6;
+  user-select: none;
+}
+
+.breadcrumb-current {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* Editor Header */
+.editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 12px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.editor-title h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.editor-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.action-button-success {
+  background: #43a047 !important;
+  border-color: #388e3c !important;
+  color: white !important;
+}
+
+.action-button-success:hover {
+  background: #388e3c !important;
+}
+
+.action-button-secondary {
+  background: white;
+  color: #4a90e2;
+  border-color: #4a90e2;
+}
+
+.action-button-secondary:hover {
+  background: #4a90e2;
+  color: white;
+}
+
+.action-button-danger {
+  background: white;
+  color: #e53935;
+  border-color: #e53935;
+}
+
+.action-button-danger:hover {
+  background: #e53935;
+  color: white;
+}
+
+/* Published Survey Detail View */
+.published-survey-header {
+  padding: 24px 20px;
+  margin: 20px 0;
+  background: #f9f9f9;
+  border-radius: 12px;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.header-content h1 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 600;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.published-survey-details {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.detail-card {
+  background: white;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--line);
+}
+
+.detail-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.detail-content {
+  padding: 8px 0;
+}
+
+.detail-value {
+  font-size: 18px;
+  color: var(--ink);
+  margin: 0;
+  font-weight: 500;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.survey-url-container {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.survey-url-input {
+  flex: 1;
+  min-width: 250px;
+  padding: 12px;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  font-size: 14px;
+  background: #f9f9f9;
+  color: var(--ink);
+  font-family: monospace;
+}
+
+.survey-url-link {
+  color: #4a90e2;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 16px;
+  transition: color 0.2s ease;
+}
+
+.survey-url-link:hover {
+  color: #3a7bc8;
+  text-decoration: underline;
+}
+
+/* Responsive adjustments for editor header */
+@media (max-width: 768px) {
+  .editor-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .editor-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .survey-url-container {
+    flex-direction: column;
+  }
+
+  .survey-url-input {
+    width: 100%;
+  }
+}
+
 /* Big empty stage (spacing for hero area) */
 .stage { flex: 1; }
 
@@ -559,6 +791,37 @@ body{margin:0; font:20px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Rob
   max-width: 1400px;
   margin: 40px auto;
   padding: 0 20px;
+}
+
+.page-nav {
+  margin-bottom: 16px;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: white;
+  color: #4a90e2;
+  border: 2px solid #4a90e2;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.back-button:hover {
+  background: #4a90e2;
+  color: white;
+  transform: translateX(-2px);
+}
+
+.back-button:focus {
+  outline: 3px solid #4a90e2;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.2);
 }
 
 .page-header {

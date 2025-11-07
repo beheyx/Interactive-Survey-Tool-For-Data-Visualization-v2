@@ -8,9 +8,9 @@
   <div class="nav-left">
   </div>
   <ul class="nav-actions">
-    <li><a class="pill" href="/">Home</a></li>
-    <li><a class="pill" href="/faq.html" target="_blank" rel="noopener">FAQ</a></li>
-    <li><a class="pill" href="/about">About Us</a></li>
+    <li><a class="pill {{#if (eq activePage 'home')}}pill-active{{/if}}" href="/">Home</a></li>
+    <li><a class="pill {{#if (eq activePage 'faq')}}pill-active{{/if}}" href="/faq.html" target="_blank" rel="noopener">FAQ</a></li>
+    <li><a class="pill {{#if (eq activePage 'about')}}pill-active{{/if}}" href="/about">About Us</a></li>
   </ul>
   <div class="nav-right">
     <form action="/users/logout" method="POST">
@@ -21,6 +21,9 @@
 
 <!-- Page content -->
 <main class="existing-page">
+  <div class="page-nav">
+    <a href="/" class="back-button">← Back to Dashboard</a>
+  </div>
   <div class="page-header">
     <h2>Your Visualizations</h2>
     <a class="action-button" href="#visualizationsPopup">+ New Visualization</a>

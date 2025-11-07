@@ -1,18 +1,81 @@
-<h1>Viewing Survey "{{name}}"</h1>
-<a href="/">↵ Go Home</a>
-<br>
+<!-- Breadcrumb navigation -->
+<div class="breadcrumb">
+  <a href="/">Dashboard</a>
+  <span class="breadcrumb-separator">›</span>
+  <a href="/existing-published-surveys">Published Surveys</a>
+  <span class="breadcrumb-separator">›</span>
+  <span class="breadcrumb-current">{{name}}</span>
+</div>
 
-<h5>Opens: </h5>
-<p>{{openDateTime}}</p>
+<!-- Page header -->
+<div class="published-survey-header">
+  <div class="header-content">
+    <h1>{{name}}</h1>
+    <span class="survey-status status-{{status}}">{{status}}</span>
+  </div>
+  <div class="header-actions">
+    <a href="/existing-published-surveys" class="back-button">← Back to Published Surveys</a>
+    <a href="?downloadCSV=true" class="action-button">Download CSV</a>
+  </div>
+</div>
 
-<h5>Closes: </h5>
-<p>{{closeDateTime}}</p>
+<!-- Survey Details -->
+<div class="published-survey-details">
+  <div class="detail-card">
+    <div class="detail-header">
+      <h3>Survey Link</h3>
+      <a class="help" href="/faq.html#16" target="_blank">?</a>
+    </div>
+    <div class="detail-content">
+      <div class="survey-url-container">
+        <input type="text" readonly value="{{url}}" class="survey-url-input" id="surveyUrl">
+        <button class="action-button action-button-secondary" onclick="copyToClipboard()">Copy Link</button>
+      </div>
+      <a href="{{url}}" target="_blank" class="survey-url-link">Open Survey in New Tab →</a>
+    </div>
+  </div>
 
-<h5>Status:<a class="help" href="/faq.html#16" target="_blank">?</a></h5>
-<p>{{status}}</p>
+  <div class="detail-grid">
+    <div class="detail-card">
+      <div class="detail-header">
+        <h3>Opens</h3>
+      </div>
+      <div class="detail-content">
+        <p class="detail-value">{{openDateTime}}</p>
+      </div>
+    </div>
 
-<h5>URL to Survey: </h5>
-<p><a href="{{url}}">{{url}}</a></p>
+    <div class="detail-card">
+      <div class="detail-header">
+        <h3>Closes</h3>
+      </div>
+      <div class="detail-content">
+        <p class="detail-value">{{closeDateTime}}</p>
+      </div>
+    </div>
+  </div>
+</div>
 
-<h5>Results: </h5>
-<p><a href="?downloadCSV=true">Download as CSV</a></p>
+<script>
+function copyToClipboard() {
+  const urlInput = document.getElementById('surveyUrl');
+  urlInput.select();
+  urlInput.setSelectionRange(0, 99999); // For mobile devices
+  document.execCommand('copy');
+
+  // Visual feedback
+  const button = event.target;
+  const originalText = button.textContent;
+  button.textContent = 'Copied!';
+  button.style.background = '#43a047';
+  button.style.borderColor = '#388e3c';
+  button.style.color = 'white';
+
+  setTimeout(() => {
+    button.textContent = originalText;
+    button.style.background = '';
+    button.style.borderColor = '';
+    button.style.color = '';
+  }, 2000);
+}
+</script>
