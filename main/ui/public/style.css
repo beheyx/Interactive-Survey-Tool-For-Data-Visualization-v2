@@ -18,6 +18,29 @@ body {
   max-width: 100% !important;
 }
 
+/* Global focus indicators for accessibility */
+a:focus,
+button:focus,
+input:focus,
+textarea:focus,
+select:focus,
+[tabindex]:focus {
+  outline: 3px solid #4a90e2;
+  outline-offset: 2px;
+}
+
+/* High contrast focus for better visibility */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid #4a90e2;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.2);
+}
+
 /* Wrapper */
 .wrap {
   width: 100%;
@@ -66,6 +89,10 @@ body {
 }
 .pill:hover { transform: translateY(-1px); filter: brightness(0.98); }
 .pill:active { transform: translateY(0); }
+.pill:focus {
+  outline: 3px solid #4a90e2;
+  outline-offset: 2px;
+}
 
 /* Big empty stage (spacing for hero area) */
 .stage { flex: 1; }
@@ -262,6 +289,12 @@ body{margin:0; font:20px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Rob
   transform: translateY(0);
 }
 
+.action-button:focus {
+  outline: 3px solid #2a5f9e;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.3);
+}
+
 .list-content {
   display: grid;
   gap: 16px;
@@ -301,18 +334,64 @@ body{margin:0; font:20px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Rob
   box-shadow: 0 6px 16px rgba(0,0,0,0.12);
 }
 
-/* Improve card link styling */
-.card .sub-links {
-  margin: 8px 0 0 0;
+/* Card action buttons */
+.card-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
-.card .sub-links a {
+.card-button {
+  display: inline-block;
+  padding: 12px 28px;
+  border-radius: 10px;
+  font-size: 18px;
   font-weight: 600;
-  transition: color 0.2s ease;
+  text-decoration: none;
+  border: 2px solid;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
+  text-align: center;
 }
 
-.card .sub-links a:hover {
+.card-button-primary {
+  background: #4a90e2;
+  color: white;
+  border-color: #3a7bc8;
+}
+
+.card-button-primary:hover {
+  background: #3a7bc8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(74, 144, 226, 0.3);
+}
+
+.card-button-primary:focus {
+  outline: 3px solid #2a5f9e;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.3);
+}
+
+.card-button-secondary {
+  background: white;
   color: #4a90e2;
+  border-color: #4a90e2;
+}
+
+.card-button-secondary:hover {
+  background: #4a90e2;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(74, 144, 226, 0.3);
+}
+
+.card-button-secondary:focus {
+  outline: 3px solid #4a90e2;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.3);
 }
 
 /* List Item Styling */
@@ -443,15 +522,21 @@ body{margin:0; font:20px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Rob
 .popup-cancel-button {
   display: inline-block;
   margin-top: 12px;
-  padding: 8px 16px;
+  padding: 10px 24px;
+  background: white;
   color: #666;
-  text-decoration: none;
+  border: 2px solid #9aa0a6;
+  border-radius: 8px;
   font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .popup-cancel-button:hover {
+  background: #f5f5f5;
   color: #333;
-  text-decoration: underline;
+  border-color: #666;
 }
 
 .rename-input, input[type="text"] {
@@ -552,6 +637,12 @@ body{margin:0; font:20px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Rob
   text-decoration: underline;
 }
 
+.table-link:focus {
+  outline: 3px solid #4a90e2;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 .actions-cell {
   text-align: right;
   white-space: nowrap;
@@ -599,6 +690,12 @@ body{margin:0; font:20px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Rob
 .view-btn:hover {
   background: #43a047;
   color: white;
+}
+
+.table-btn:focus {
+  outline: 3px solid #4a90e2;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.2);
 }
 
 /* Empty state for tables */

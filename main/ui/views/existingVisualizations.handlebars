@@ -60,7 +60,7 @@
                   <p class="rename-error" hidden></p>
                   <button class="popup-rename-button">Rename</button>
                 </form>
-                <a class="popup-cancel-button" href="#">Cancel</a>
+                <button type="button" class="popup-cancel-button" onclick="window.location.hash=''">Cancel</button>
               </div>
             </div>
           {{/each}}
@@ -87,6 +87,6 @@
       <input type="text" name="name" placeholder="visualization name" />
       <button class="popup-create-button" id="create-visualization-button">Create</button>
     </form>
-    <a class="popup-cancel-button" href="#">Cancel</a>
+    <button type="button" class="popup-cancel-button" onclick="window.location.hash=''">Cancel</button>
   </div>
 </div>
