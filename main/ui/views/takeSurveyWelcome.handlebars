@@ -1,25 +1,88 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{{title}}</title>
 
-        <link rel="stylesheet" href="/takesurveystyle.css">
-    </head>
-    <body>
-        <div class="container title-container">
-            <div class="box welcome-box">
-                <h2 class="survey-title">{{title}}</h2>
-                <div class="question-text-box">
-                    <span class="intro-text">{{introText}}</span>
-                </div>
-            </div>
-            <div class="button-container title-button-container">
-                <a href="/takeSurvey/{{linkHash}}?page=1" class="nav-button">Start Survey!</a>
-            </div>
+<style>
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* full screen height */
+    margin: 0;
+  }
+
+  header, nav {
+    flex-shrink: 0; /* keep title/nav fixed at top */
+  }
+
+
+  .stage-container {
+    flex: 1; /* take remaining vertical space */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* start from top, but with top padding */
+    align-items: center;
+    text-align: center;
+    padding-top: 180px; /* push everything lower on the page */
+  }
+
+  .welcome-text {
+    font-size: 22px;
+    font-weight: 400;
+    color: #5090ee;
+    margin-bottom: 30px;
+  }
+
+  .survey-title {
+    font-size: 34px;
+    font-weight: 500;
+    color: #000000;
+    margin-bottom: 100px;
+    margin-bottom: 20px; /* space between title and introText */
+  }
+
+  .intro-text {
+    font-size: 18px;
+    color: #000000;
+    max-width: 600px;
+    line-height: 1.6;
+    margin-bottom: 60px; /* space before button */
+    display: block;
+  }
+
+  .stage {
+    text-align: center;
+  }
+</style>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+
+</head>
+    
+<body>
+    <!-- Title bar -->
+    <header class="app-header" role="banner">
+        <h1>Interactive Survey Tools for Data Visualizations</h1>
+    </header>
+    
+    <!-- Survey title -->
+    <div class="stage-container">
+        <p class="welcome-text">You are invited to take this survey:</p>
+
+        <div class="class=stage">
+            <h2 class="survey-title">{{title}}</h2>
+            <span class="intro-text">{{introText}}</span>
         </div>
-    </body>
+
+
+
+        <div class="button-container title-button-container">
+            <a href="/takeSurvey/{{linkHash}}?page=1" class="card-button card-button-secondary">Start Survey!</a>
+        </div>
+    </div>
+</body>
+
 </html> 
  
  
