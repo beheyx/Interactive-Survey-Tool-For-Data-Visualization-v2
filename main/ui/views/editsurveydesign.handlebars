@@ -1,59 +1,94 @@
-<h1>Editing Survey Design "{{name}}"</h1>
-<a href="/">↵ Go Home</a>
-<br><br>
+<!-- Breadcrumb navigation -->
+<div class="breadcrumb">
+  <a href="/">Dashboard</a>
+  <span class="breadcrumb-separator">›</span>
+  <a href="/existing-survey-designs">Survey Designs</a>
+  <span class="breadcrumb-separator">›</span>
+  <span class="breadcrumb-current">{{name}}</span>
+</div>
 
-<h2>Questions<a class="help" href="/faq.html#7" target="_blank">?</a></h2>
+<div class="editor-header">
+    <div class="editor-title">
+        <h2>Editing {{name}}</h2>
+    </div>
+    <div class="editor-actions">
+        <a href="/existing-survey-designs" class="back-button">← Back to Survey Designs</a>
+        <button type="submit" form="survey-settings" class="action-button">Save Changes</button>
+        <a class="action-button action-button-success" href="#publishSurveyPopup">Publish</a>
+        <a class="help" href="/faq.html#14" target="_blank">?</a>
+    </div>
+</div>
+<hr style="margin: 16px 0;">
+<ul class="nav nav-tabs" role="tablist">
+  <li class="nav-item">
+    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#questions" role="tab">
+      Survey Questions
+    </button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#settings" role="tab">
+      Survey Settings
+    </button>
+  </li>
+</ul>
+
+<div class="tab-content mt-3">
+    <!--QUESTIONS-->
+  <div class="tab-pane fade show active" id="questions" role="tabpanel">
+    <h2>Questions<a class="help" href="/faq.html#7" target="_blank">?</a></h2>
     {{#each questions}}
-        {{> questionListItem}}
+        {{> questionListItem visualURL=../visualURL}}
     {{/each}}
     <p>{{questionError}}</p>
-<form action="/surveyDesigns/{{id}}/questions" method="POST">
-    <button class="add-question-button">+ Add</button>
-</form>
+    <form action="/surveyDesigns/{{id}}/questions" method="POST">
+        <button class="action-button" type="submit">+ Add Question</button>
+    </form>
+  </div>
+
+    <!--SETTINGS-->
+  <div class="tab-pane fade" id="settings" role="tabpanel">
+    <form id="survey-settings" action="/surveyDesigns/{{id}}/PATCH" method="POST">
+        <h2>Survey Details<a class="help" href="/faq.html#7" target="_blank">?</a></h2>
+        <h3>Survey Title</h3>
+        <p>This is the title that is visible to participants.</p>
+        <input type="text" id="title" name="title" value="{{title}}">
+
+        <h3>Introduction Text</h3>
+        <p>This is the text the participant sees before starting the survey.</p>
+        <textarea type="text" id="introText" name="introText" rows="4" cols="50" placeholder="Your introduction text here">{{introText}}</textarea>
+
+        <h3>Conclusion Text</h3>
+        <p>This is the text the participant sees after completing the survey.</p>
+        <textarea type="text" id="conclusionText" name="conclusionText" rows="4" cols="50" placeholder="Your conclusion text here">{{conclusionText}}</textarea>
+    </form>
+  </div>
+</div>
+
 <br>
 
-<form action="/surveyDesigns/{{id}}/PATCH" method="POST">
-    <h2>Survey Details<a class="help" href="/faq.html#7" target="_blank">?</a></h2>
-    <h3>Survey Title</h3>
-    <p>This is the title that is visible to participants.</p>
-    <input type="text" id="title" name="title" value="{{title}}">
-
-    <h3>Introduction Text</h3>
-    <p>This is the text the participant sees before starting the survey.</p>
-    <textarea type="text" id="introText" name="introText" rows="4" cols="50" placeholder="Your introduction text here">{{introText}}</textarea>
-
-    <h3>Conclusion Text</h3>
-    <p>This is the text the participant sees after completing the survey.</p>
-    <textarea type="text" id="conclusionText" name="conclusionText" rows="4" cols="50" placeholder="Your conclusion text here">{{conclusionText}}</textarea>
-
-    <br>
-    <br>
-    <button class="save-survey-button">Save Changes</button>
-</form>
-
-<br>
-<a href="#publishSurveyPopup">Publish<a class="help" href="/faq.html#14" target="_blank">?</a></a>
 
 <!-- popup windows -->
 
 <!-- some HTML referenced from https://www.geeksforgeeks.org/how-to-create-popup-box-using-html-and-css/ section "Using Display Property"-->
 <div class="popup" id="publishSurveyPopup">
     <div class="popup-content">
-        <h2>Publish your survey</h2>
+        <h2>Publish {{name}}</h2>
+        <br>
         <form action="/surveyDesigns/{{id}}/publishedSurveys" method="POST">
             
-            <label for="openDateTime">Open time:<a class="help" href="/faq.html#15" target="_blank">?</a></label>
-            <input type="datetime-local" id="openDateTime" name="openDateTime" value="{{today}}" min="{{today}}"/>
-
-            <label for="closeDateTime">Close time:<a class="help" href="/faq.html#15" target="_blank">?</a></label>
-            <input type="datetime-local" id="closeDateTime" name="closeDateTime" value="{{tomorrow}}" min="{{today}}"/>
-
-            <label for="name">Name:<a class="help" href="/faq.html#8" target="_blank">?</a></label>
-            <input type="text" name="name" placeholder="survey name" value="{{name}}">
-
-            <button class="popup-create-button" id="publish-survey-button">Publish</button>
+            <label for="openDateTime">Open time<a class="help" href="/faq.html#15" target="_blank">?</a>:</label>
+            <input class="form-control" type="datetime-local" id="openDateTime" name="openDateTime" value="{{today}}" min="{{today}}"/>
+            <br>
+            <label for="closeDateTime">Close time<a class="help" href="/faq.html#15" target="_blank">?</a>:</label>
+            <input class="form-control" type="datetime-local" id="closeDateTime" name="closeDateTime" value="{{tomorrow}}" min="{{today}}"/>
+            <br>
+            <label for="name">Name<a class="help" href="/faq.html#8" target="_blank">?</a>:</label>
+            <input class="form-control" type="text" name="name" placeholder="survey name" value="{{name}}">
+            <br><br>
+            <button class="popup-create-button" id="publish-survey-button" type="submit">Publish</button>
         </form>
-        <a class="popup-cancel-button" href="#">Cancel</a>
+        <br>
+        <button type="button" class="popup-cancel-button" onclick="window.location.hash=''">Cancel</button>
     </div>
 </div>
 

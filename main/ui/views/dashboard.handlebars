@@ -8,9 +8,9 @@
   <div class="nav-left">
   </div>
   <ul class="nav-actions">
-    <li><a class="pill" href="/">Home</a></li>
-    <li><a class="pill" href="/faq.html" target="_blank" rel="noopener">FAQ</a></li>
-    <li><a class="pill" href="/about">About Us</a></li>
+    <li><a class="pill {{#if (eq activePage 'home')}}pill-active{{/if}}" href="/">Home</a></li>
+    <li><a class="pill {{#if (eq activePage 'faq')}}pill-active{{/if}}" href="/faq.html" target="_blank" rel="noopener">FAQ</a></li>
+    <li><a class="pill {{#if (eq activePage 'about')}}pill-active{{/if}}" href="/about">About Us</a></li>
   </ul>
   <div class="nav-right">
     <form action="/users/logout" method="POST">
@@ -24,62 +24,27 @@
   <!-- Card 1: Create/Edit Images (Visualizations) -->
   <section class="card">
   <h2>Create/Edit Images</h2>
-  <p class="sub-links">
-    <a href="#visualizationsPopup">New</a>
-    <span aria-hidden="true"> | </span>
-    <a href="/existing-visualizations">Existing</a>
-  </p>
+  <div class="card-actions">
+    <a href="#visualizationsPopup" class="card-button card-button-primary">New</a>
+    <a href="/existing-visualizations" class="card-button card-button-secondary">Existing</a>
+  </div>
 </section>
 
 <section class="card">
   <h2>Design Surveys</h2>
-  <p class="sub-links">
-    <a href="#surveyDesignsPopup">New</a>
-    <span aria-hidden="true"> | </span>
-    <a href="/existing-survey-designs">Existing</a>
-  </p>
+  <div class="card-actions">
+    <a href="#surveyDesignsPopup" class="card-button card-button-primary">New</a>
+    <a href="/existing-survey-designs" class="card-button card-button-secondary">Existing</a>
+  </div>
 </section>
 
 <section class="card">
   <h2>Published Surveys</h2>
-  <p class="sub-links">
-    <a href="/existing-published-surveys">Existing</a>
-  </p>
+  <div class="card-actions">
+    <a href="/existing-published-surveys" class="card-button card-button-secondary">View All</a>
+  </div>
 </section>
 </main>
-
-<!-- Existing lists (kept below, jump-linked from the cards) -->
-<section id="visualizations-list" class="list-block">
-  <h3>Visualizations</h3>
-  <a class="new-button" href="#visualizationsPopup">+ New</a>
-  <div id="visualizations">
-    {{#each visualizations}}
-      {{> visualizationListItem}}
-    {{/each}}
-    <p>{{visError}}</p>
-  </div>
-</section>
-
-<section id="survey-designs-list" class="list-block">
-  <h3>Survey Designs</h3>
-  <a class="new-button" href="#surveyDesignsPopup">+ New</a>
-  <div id="surveyDesigns">
-    {{#each surveyDesigns}}
-      {{> surveyDesignListItem}}
-    {{/each}}
-    <p>{{surError}}</p>
-  </div>
-</section>
-
-<section id="published-surveys-list" class="list-block">
-  <h3>Published Surveys</h3>
-  <div id="publishedSurveys">
-    {{#each publishedSurveys}}
-      {{> publishedSurveyListItem}}
-    {{/each}}
-    <p>{{pSurError}}</p>
-  </div>
-</section>
 
 <!-- Popups (unchanged except for title copy) -->
 <div class="popup" id="visualizationsPopup">
@@ -89,7 +54,7 @@
       <input type="text" name="name" placeholder="visualization name" />
       <button class="popup-create-button" id="create-visualization-button">Create</button>
     </form>
-    <a class="popup-cancel-button" href="#">Cancel</a>
+    <button type="button" class="popup-cancel-button" onclick="window.location.hash=''">Cancel</button>
   </div>
 </div>
 
@@ -100,6 +65,6 @@
       <input type="text" name="name" placeholder="survey design name" />
       <button class="popup-create-button" id="create-survey-design-button">Create</button>
     </form>
-    <a class="popup-cancel-button" href="#">Cancel</a>
+    <button type="button" class="popup-cancel-button" onclick="window.location.hash=''">Cancel</button>
   </div>
 </div>

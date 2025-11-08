@@ -40,7 +40,7 @@
 
 
 <h1>Question {{number}}</h1>
-<a class="new-button" href="/surveyDesigns/{{surveyDesignId}}">↵ Return to survey overview</a>
+<a class="back-button" href="/surveyDesigns/{{surveyDesignId}}">← Return to survey overview</a>
 <br>
 
 <form action="/questions/{{id}}/PATCH" method="POST">
@@ -95,7 +95,7 @@
             {{/each}}
             <option value="-1" hidden>Delete</option>
         </select>
-        <button class="import-visualization-button">Import</button>
+        <button class="action-button action-button-secondary" type="button">Import</button>
     </h5>
 
     {{#if visualizationContentId}}
@@ -106,12 +106,12 @@
             <iframe id="displayedImage" src="{{visualURL}}" height="360" width="480"></iframe>
         {{/if}}
         <br>
-        <button class="remove-visualization-button">Remove</button>
+        <button class="action-button action-button-danger" type="button">Remove</button>
         <br>
     {{/if}}    
 
     <br>
-    <button class="save-question-button">Save Changes</button>
+    <button class="action-button" type="submit">Save Changes</button>
 </form>
 
 

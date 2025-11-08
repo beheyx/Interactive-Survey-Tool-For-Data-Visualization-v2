@@ -44,6 +44,11 @@ app.engine("handlebars", exphbs.engine({
     defaultLayout: "main.handlebars",
     layoutsDir: path.join(app.get('views'), 'layouts'),
     partialsDir: path.join(app.get('views'), 'partials'),
+    helpers: {
+        eq: function(a, b) {
+            return a === b;
+        }
+    }
 }))
 app.set("view engine", "handlebars")
 
@@ -109,7 +114,8 @@ app.get('/', async (req, res, next) => {
             publishedSurveys: userPublishedSurveys?.data.publishedSurveys,
             visError: visError,
             surError: surError,
-            pSurError: pSurError
+            pSurError: pSurError,
+            activePage: 'home'
         })
     }
     
@@ -123,6 +129,93 @@ app.get('/register', (req, res) => {
 // login page
 app.get('/login', (req, res) => {
     res.render("login")
+});
+
+// existing visualizations page
+app.get('/existing-visualizations', async (req, res, next) => {
+    try {
+        const userResponse = await api.get('/users', withAuth(req.cookies.access_token))
+        const user = userResponse.data
+
+        let userVisualizations
+        let visError = ""
+
+        try {
+            userVisualizations = await api.get(`/users/${user.id}/visualizations`, withAuth(req.cookies.access_token))
+        } catch {
+            visError = "Unable to load visualizations."
+        }
+
+        res.render("existingVisualizations", {
+            visualizations: userVisualizations?.data.visualizations,
+            visError: visError,
+            activePage: 'home'
+        })
+    } catch (error) {
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+            res.redirect('/login')
+        } else {
+            next(error)
+        }
+    }
+});
+
+// existing survey designs page
+app.get('/existing-survey-designs', async (req, res, next) => {
+    try {
+        const userResponse = await api.get('/users', withAuth(req.cookies.access_token))
+        const user = userResponse.data
+
+        let userSurveyDesigns
+        let surError = ""
+
+        try {
+            userSurveyDesigns = await api.get(`/users/${user.id}/surveyDesigns`, withAuth(req.cookies.access_token))
+        } catch {
+            surError = "Unable to load survey designs."
+        }
+
+        res.render("existingSurveyDesigns", {
+            surveyDesigns: userSurveyDesigns?.data.surveyDesigns,
+            surError: surError,
+            activePage: 'home'
+        })
+    } catch (error) {
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+            res.redirect('/login')
+        } else {
+            next(error)
+        }
+    }
+});
+
+// existing published surveys page
+app.get('/existing-published-surveys', async (req, res, next) => {
+    try {
+        const userResponse = await api.get('/users', withAuth(req.cookies.access_token))
+        const user = userResponse.data
+
+        let userPublishedSurveys
+        let pSurError = ""
+
+        try {
+            userPublishedSurveys = await api.get(`/users/${user.id}/publishedSurveys`, withAuth(req.cookies.access_token))
+        } catch {
+            pSurError = "Unable to load published surveys."
+        }
+
+        res.render("existingPublishedSurveys", {
+            publishedSurveys: userPublishedSurveys?.data.publishedSurveys,
+            pSurError: pSurError,
+            activePage: 'home'
+        })
+    } catch (error) {
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+            res.redirect('/login')
+        } else {
+            next(error)
+        }
+    }
 });
 
 
@@ -291,7 +384,8 @@ app.get('/visualizations/:id', async (req, res, next) => {
         res.render("visualization", {
             name: response.data.name,
             id: response.data.contentId,
-            visualURL: process.env.VISUAL_UI_URL
+            visualURL: process.env.VISUAL_UI_URL,
+            activePage: 'home'
         })
 
     } catch (error) {
@@ -326,7 +420,9 @@ app.get('/surveyDesigns/:id', async (req, res, next) => {
                 questions: questionResponse.data.questions,
                 conclusionText: response.data.conclusionText,
                 today: today.toISOString().substring(0, 16),
-                tomorrow: tomorrow.toISOString().substring(0, 16)
+                tomorrow: tomorrow.toISOString().substring(0, 16),
+                visualURL: process.env.VISUAL_UI_URL,
+                activePage: 'home'
             })
         } catch (error) {
             res.render("editsurveydesign", {
@@ -337,7 +433,9 @@ app.get('/surveyDesigns/:id', async (req, res, next) => {
                 questionError: "Unable to load questions",
                 conclusionText: response.data.conclusionText,
                 today: today.toISOString().substring(0, 16),
-                tomorrow: tomorrow.toISOString().substring(0, 16)
+                tomorrow: tomorrow.toISOString().substring(0, 16),
+                visualURL: process.env.VISUAL_UI_URL,
+                activePage: 'home'
             })
         }
     }
@@ -550,7 +648,6 @@ app.get('/takeSurvey/:hash', async (req, res, next) => {
             }
         } else if (!req.query.page || req.query.page == 0) {
             res.render("takeSurveyWelcome", {
-                layout: false,
                 linkHash: response.data.linkHash,
                 title: response.data.surveyDesign.title,
                 introText: response.data.surveyDesign.introText

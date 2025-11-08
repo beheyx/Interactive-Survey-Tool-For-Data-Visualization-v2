@@ -1,0 +1,95 @@
+<!-- Title bar -->
+<header class="app-header" role="banner">
+  <h1>Interactive Survey Tools for Data Visualizations</h1>
+</header>
+
+<!-- Top nav -->
+<nav class="top-nav" aria-label="Primary">
+  <div class="nav-left">
+  </div>
+  <ul class="nav-actions">
+    <li><a class="pill {{#if (eq activePage 'home')}}pill-active{{/if}}" href="/">Home</a></li>
+    <li><a class="pill {{#if (eq activePage 'faq')}}pill-active{{/if}}" href="/faq.html" target="_blank" rel="noopener">FAQ</a></li>
+    <li><a class="pill {{#if (eq activePage 'about')}}pill-active{{/if}}" href="/about">About Us</a></li>
+  </ul>
+  <div class="nav-right">
+    <form action="/users/logout" method="POST">
+      <button class="pill" type="submit">Logout</button>
+    </form>
+  </div>
+</nav>
+
+<!-- Page content -->
+<main class="existing-page">
+  <div class="page-nav">
+    <a href="/" class="back-button">← Back to Dashboard</a>
+  </div>
+  <div class="page-header">
+    <h2>Your Survey Designs</h2>
+    <a class="action-button" href="#surveyDesignsPopup">+ New Survey Design</a>
+  </div>
+
+  <div class="table-container">
+    {{#if surveyDesigns}}
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each surveyDesigns}}
+            <tr>
+              <td>
+                <a href="/surveyDesigns/{{id}}" class="table-link">{{name}}</a>
+              </td>
+              <td>{{createdAt}}</td>
+              <td class="actions-cell">
+                <a class="table-btn rename-btn" href="#surveyDesignsRenamePopup{{id}}">Rename</a>
+                <form action="/surveyDesigns/{{id}}/DELETE" method="POST" style="display: inline;">
+                  <button class="table-btn delete-btn" type="submit">Delete</button>
+                </form>
+              </td>
+            </tr>
+
+            <!-- Rename popup for each item -->
+            <div class="popup rename-popup" id="surveyDesignsRenamePopup{{id}}">
+              <div class="popup-content">
+                <h2>Rename "{{name}}"</h2>
+                <form action="/surveyDesigns/{{id}}/PATCH" method="POST">
+                  <input type="text" name="name" placeholder="new name" class="rename-input">
+                  <p class="rename-error" hidden></p>
+                  <button class="popup-rename-button">Rename</button>
+                </form>
+                <button type="button" class="popup-cancel-button" onclick="window.location.hash=''">Cancel</button>
+              </div>
+            </div>
+          {{/each}}
+        </tbody>
+      </table>
+    {{else}}
+      <div class="empty-state">
+        <p>No survey designs yet. Create your first one!</p>
+        <a class="action-button" href="#surveyDesignsPopup">+ New Survey Design</a>
+      </div>
+    {{/if}}
+
+    {{#if surError}}
+      <p class="error-message">{{surError}}</p>
+    {{/if}}
+  </div>
+</main>
+
+<!-- New Survey Design Popup -->
+<div class="popup" id="surveyDesignsPopup">
+  <div class="popup-content">
+    <h2>Create a New Survey Design</h2>
+    <form action="/surveyDesigns" method="POST">
+      <input type="text" name="name" placeholder="survey design name" />
+      <button class="popup-create-button" id="create-survey-design-button">Create</button>
+    </form>
+    <button type="button" class="popup-cancel-button" onclick="window.location.hash=''">Cancel</button>
+  </div>
+</div>

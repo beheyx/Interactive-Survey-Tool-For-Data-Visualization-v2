@@ -1,62 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
+
+<style>
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* full screen height */
+    margin: 0;
+  }
+
+  header, nav {
+    flex-shrink: 0; /* keep title/nav fixed at top */
+  }
+
+  /* Wrap form + login link together */
+  .stage-container {
+    flex: 1; /* take remaining vertical space */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* center vertically */
+    align-items: center; /* center horizontally */
+  }
+
+  .stage {
+    text-align: center;
+  }
+</style>
+
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Register — Interactive Survey Tools</title>
-  <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-  <div class="wrap">
-    <!-- Banner -->
-    <div class="title">
-      <h1>Interactive Survey Tools for Data Visualizations</h1>
+  <!-- Title bar -->
+  <header class="app-header" role="banner">
+    <h1>Interactive Survey Tools for Data Visualizations</h1>
+  </header>
+
+  <!-- Top nav -->
+  <nav class="top-nav" aria-label="Primary">
+    <div class="nav-left">
     </div>
+    <ul class="nav-actions">
+      <li><a class="pill {{#if (eq activePage 'home')}}pill-active{{/if}}" href="/">Home</a></li>
+      <li><a class="pill {{#if (eq activePage 'faq')}}pill-active{{/if}}" href="/faq.html" target="_blank" rel="noopener">FAQ</a></li>
+      <li><a class="pill {{#if (eq activePage 'about')}}pill-active{{/if}}" href="/about">About Us</a></li>
+    </ul>
+  </nav>
 
-    <!-- Navigation -->
-    <nav class="nav" aria-label="Site">
-      <a class="pill" href="/home">Home</a>
-      <a class="pill" href="/faq">FAQ</a>
-      <a class="pill" href="/about">About Us</a>
-    </nav>
-
-    <!-- Stage -->
+    <!-- Centered main section -->
+  <div class="stage-container">
     <div class="stage">
       <form id="registerForm" action="/users" method="POST"
             style="margin:auto; width:100%; max-width:600px; background:transparent; text-align:center;">
         <h2 style="font-size:34px; font-weight:500; color:#555; margin:40px 0;">Create Account</h2>
 
-
+        <!-- your input fields here -->
         <div style="display:grid; grid-template-columns:180px 1fr; align-items:center; gap:14px; margin-bottom:18px;">
-            <label for="name" style="text-align:right; font-weight:500; font-size:20px; color:#555;">Email Address:</label>
-            <input type="text" id="email" name="name" placeholder="name"
+          <label for="name" style="text-align:right; font-weight:500; font-size:20px; color:#555;">Email Address:</label>
+          <input type="text" id="email" name="name" placeholder="required"
                 value="{{name}}"
                 style="padding:10px; font-size:18px; border:2px solid var(--line); border-radius:8px; background:#f3f3f3; width:350px;">
         </div>
 
         <div style="display:grid; grid-template-columns:180px 1fr; align-items:center; gap:14px; margin-bottom:18px;">
-            <label for="password" style="text-align:right; font-weight:500; font-size:20px; color:#555;">Password:</label>
-            <input type="password" id="password" name="password" placeholder="password"
+          <label for="password" style="text-align:right; font-weight:500; font-size:20px; color:#555;">Password:</label>
+          <input type="password" id="password" name="password" placeholder="required"
             value="{{password}}"
             style="padding:10px; font-size:18px; border:2px solid var(--line); border-radius:8px; background:#f3f3f3; width:350px;">       
         </div>
 
         <div style="display:grid; grid-template-columns:180px 1fr; align-items:center; gap:14px; margin-bottom:32px;">
-            <label for="confirm" style="text-align:right; font-weight:500; font-size:20px; color:#555;">Confirm Password:</label>
-            <input type="password" id="confirm" name="confirm_password" placeholder="confirm password"
+          <label for="confirm" style="text-align:right; font-weight:500; font-size:20px; color:#555;">Confirm Password:</label>
+          <input type="password" id="confirm" name="confirm_password" placeholder="required"
             value="{{confirm_password}}"
             style="padding:10px; font-size:18px; border:2px solid var(--line); border-radius:8px; background:#f3f3f3; width:350px;">       
         </div>
 
-        <button class="btn" type="submit" style="margin-top:6px;">Register</button>
+        <button type="submit" class="card-button card-button-secondary">Register</button>
         <p style="margin-top:16px; font-size:16px; color:#c00;">{{error}}</p>
       </form>
     </div>
 
     <!-- Auth links below -->
-    <div class="auth" style="margin-top:-12px;">
+    <div class="auth" style="margin-top:16px;">
+      <p style="font-size:16px; color:#555;">Already have an Account?
+        <a href="/login" style="color:#1a73e8; text-decoration:none;">Login here</a>
+      </p>
     </div>
   </div>
+
 
   <!-- Success Popup -->
   <div id="successPopup" class="popup">
