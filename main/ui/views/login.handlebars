@@ -1,26 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
+
+<style>
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* full screen height */
+    margin: 0;
+  }
+
+  header, nav {
+    flex-shrink: 0; /* keep title/nav fixed at top */
+  }
+
+  /* Wrap form + login link together */
+  .stage-container {
+    flex: 1; /* take remaining vertical space */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* center vertically */
+    align-items: center; /* center horizontally */
+  }
+
+  .stage {
+    text-align: center;
+  }
+</style>
+
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Login — Interactive Survey Tools</title>
-  <link rel="stylesheet" href="/style.css" />
+  <title>Register — Interactive Survey Tools</title>
 </head>
 <body>
-  <div class="wrap">
-    <!-- Banner -->
-    <div class="title">
-      <h1>Interactive Survey Tools for Data Visualizations</h1>
+  <!-- Title bar -->
+  <header class="app-header" role="banner">
+    <h1>Interactive Survey Tools for Data Visualizations</h1>
+  </header>
+
+  <!-- Top nav -->
+  <nav class="top-nav" aria-label="Primary">
+    <div class="nav-left">
     </div>
+    <ul class="nav-actions">
+      <li><a class="pill {{#if (eq activePage 'home')}}pill-active{{/if}}" href="/">Home</a></li>
+      <li><a class="pill {{#if (eq activePage 'faq')}}pill-active{{/if}}" href="/faq.html" target="_blank" rel="noopener">FAQ</a></li>
+      <li><a class="pill {{#if (eq activePage 'about')}}pill-active{{/if}}" href="/about">About Us</a></li>
+    </ul>
+  </nav>
 
-    <!-- Navigation -->
-    <nav class="nav" aria-label="Site">
-      <a class="pill" href="/home">Home</a>
-      <a class="pill" href="/faq">FAQ</a>
-      <a class="pill" href="/about">About Us</a>
-    </nav>
-
-    <!-- Stage -->
+  <!-- Centered main section -->
+  <div class="stage-container">
     <div class="stage">
       <form id="loginForm" action="/users/login" method="POST"
             style="margin:auto; width:100%; max-width:600px; background:transparent; text-align:center;">
@@ -40,15 +71,16 @@
             style="padding:10px; font-size:18px; border:2px solid var(--line); border-radius:8px; background:#f3f3f3; width:350px;">       
         </div>
 
-        <button class="btn" type="submit" style="margin-top:6px;">Login</button>
+        <button type="submit" class="card-button card-button-secondary">Login</button>
         <p style="margin-top:16px; font-size:16px; color:#c00;">{{error}}</p>
       </form>
     </div>
 
     <!-- Auth links below -->
-    <div class="auth" style="margin-top:-12px;">
+    <div class="auth" style="margin-top:16px;">
       <p style="font-size:16px; color:#555;">Don't have an account? <a href="/register" style="color:#1a73e8; text-decoration:none;">Register here</a></p>
     </div>
   </div>
+
 </body>
 </html>
