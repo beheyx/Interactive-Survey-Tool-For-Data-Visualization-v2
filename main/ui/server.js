@@ -708,7 +708,6 @@ app.get('/takeSurvey/:hash', async (req, res, next) => {
             }
         } else if (!req.query.page || req.query.page == 0) {
             res.render("takeSurveyWelcome", {
-                layout: false,
                 linkHash: response.data.linkHash,
                 title: response.data.surveyDesign.title,
                 introText: response.data.surveyDesign.introText
