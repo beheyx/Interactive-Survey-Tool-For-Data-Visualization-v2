@@ -3,226 +3,164 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Interactive Survey Tools for Data Visualizations</title>
-  <style>
-    :root{
-      --ink:#111; --line:#9aa0a6; --panel:#eee; --white:#fff;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font: 20px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-      color:var(--ink);
-      background:#fff;
-    }
-    .wrap{
-      max-width:1200px; margin:18px auto; padding:0 16px;
-      display:flex; flex-direction:column; min-height:calc(100vh - 36px);
-    }
-
-    /* title banner */
-    .title{
-      border:2px solid var(--line);
-      background:var(--panel);
-      border-radius:14px;
-      text-align:center;
-      padding:12px 16px;
-      font-weight:600;
-      box-shadow:0 1px 0 rgba(0,0,0,.04) inset;
-    }
-    .title h1{margin:0; font-size:34px; letter-spacing:.2px;}
-
-    /* top nav pills */
-    .nav{
-      display:flex; justify-content:center; gap:24px; margin-top:14px;
-    }
-    .pill{
-      border:2px solid var(--line);
-      border-radius:10px;
-      padding:8px 48px;
-      background:#e9eaec;
-      font-weight:600;
-      cursor:pointer;
-      text-decoration:none; color:inherit;
-      box-shadow:0 1px 0 rgba(0,0,0,.05) inset;
-    }
-
-    /* ====== Mixed-media carousel in the stage ====== */
-    .stage{flex:1; display:flex; align-items:center; justify-content:center;}
-
-    .carousel{
-        position:relative;
-        width:100%;
-        max-width:1000px;
-        aspect-ratio: 16 / 9;   /* replaces fixed height */
-        border:2px solid var(--line);
-        border-radius:14px;
-        overflow:hidden;
-        background:#000;
-        box-shadow:0 6px 20px rgba(0,0,0,.08);
-    }
-    .track{
-      display:flex;
-      height:100%;
-      transition: transform .6s ease-in-out;
-    }
-    .slide{
-      min-width:100%;
-      height:100%;
-      position:relative;
-      display:grid;
-      place-items:center;
-      background:#111;
-    }
-    .slide img,
-    .slide video{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:block;
-    }
-
-    /* Controls */
-    .ctrl{
-      position:absolute; top:50%; transform:translateY(-50%);
-      background:rgba(255,255,255,.85);
-      border:2px solid var(--line);
-      border-radius:999px;
-      width:42px; height:42px;
-      display:grid; place-items:center;
-      cursor:pointer; user-select:none;
-    }
-    .ctrl:hover{ background:#fff; }
-    .prev{ left:10px; }
-    .next{ right:10px; }
-
-    /* Dots */
-    .dots{
-      position:absolute; left:0; right:0; bottom:10px;
-      display:flex; justify-content:center; gap:10px;
-    }
-    .dot{
-      width:10px; height:10px; border-radius:50%;
-      border:2px solid #e5e7eb; background:transparent;
-      cursor:pointer;
-    }
-    .dot.active{ background:#e5e7eb; }
-
-    /* auth buttons near bottom */
-    .auth{
-      display:grid; place-items:center; gap:14px; margin:18px 0 24px;
-    }
-    .btn{
-      width:260px; text-align:center;
-      border:2px solid var(--line);
-      border-radius:10px;
-      padding:10px 0;
-      background:#e9eaec;
-      font-weight:700; font-size:22px;
-      text-decoration:none; color:inherit;
-    }
-
-    @media (max-width:600px){
-      .pill{padding:8px 24px}
-      .title h1{font-size:24px}
-      .btn{width:220px; font-size:20px}
-      .carousel{height:300px;}
-    }
-  </style>
+  <title>Interactive Survey Tools</title>
+  <link rel="stylesheet" href="/style.css" />
 </head>
-<body>
-  <div class="wrap">
-    <div class="title">
-      <h1>Interactive Survey Tools for Data Visualizations</h1>
+<body class="landing-page">
+  <!-- Simple Header -->
+  <header class="landing-header">
+    <div class="landing-container">
+      <h1 class="landing-logo">Interactive Survey Tools</h1>
+      <nav class="landing-nav">
+        <a href="/login" class="landing-btn-secondary">Login</a>
+        <a href="/register" class="landing-btn-primary">Sign Up</a>
+      </nav>
     </div>
+  </header>
 
-    <nav class="nav" aria-label="Site">
-      <a class="pill" href="/home">Home</a>
-      <a class="pill" href="/faq">FAQ</a>
-      <a class="pill" href="/about">About Us</a>
-    </nav>
-
-    <!-- Stage: scrolling multimedia carousel -->
-    <div class="stage">
-      <div class="carousel" id="heroCarousel" aria-label="Showcase">
-        <div class="track">
-          <!-- Slide 1: image -->
-          <div class="slide">
-            <img src="/media/brain-diagram.png" alt="Color-coded brain regions example" />
-          </div>
-          <!-- Slide 2: video (muted + autoplay + loop for UX) -->
-          <div class="slide">
-            <video src="/media/hypergraph-demo.mp4" autoplay muted loop playsinline aria-label="Hypergraph demo"></video>
-          </div>
-          <!-- Slide 3: image -->
-          <div class="slide">
-            <img src="/media/polygon-selection.png" alt="Polygon selection on image" />
-          </div>
-          <!-- Slide 4: video -->
-          <div class="slide">
-            <video src="/media/survey-flow.mp4" autoplay muted loop playsinline aria-label="Survey flow walkthrough"></video>
-          </div>
-        </div>
-
-        <!-- Controls -->
-        <button class="ctrl prev" aria-label="Previous slide">‹</button>
-        <button class="ctrl next" aria-label="Next slide">›</button>
-
-        <!-- Dots -->
-        <div class="dots" role="tablist" aria-label="Slide indicators">
-          <button class="dot" aria-label="Slide 1"></button>
-          <button class="dot" aria-label="Slide 2"></button>
-          <button class="dot" aria-label="Slide 3"></button>
-          <button class="dot" aria-label="Slide 4"></button>
+  <!-- Hero Section -->
+  <section class="landing-hero">
+    <div class="landing-container">
+      <div class="hero-content">
+        <h2 class="hero-title">Create Surveys with Interactive Visualizations</h2>
+        <p class="hero-subtitle">Design surveys that let participants interact with images and data visualizations. Perfect for research and data collection.</p>
+        <div class="hero-actions">
+          <a href="/register" class="hero-btn-primary">Get Started Free</a>
         </div>
       </div>
     </div>
+  </section>
 
-    <div class="auth">
-      <a class="btn" href="/register">Register</a>
-      <a class="btn" href="/login">Login</a>
+  <!-- Features Section -->
+  <section id="features" class="landing-features">
+    <div class="landing-container">
+      <h2 class="section-title">Key Features</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+          </div>
+          <h3>Interactive Visualizations</h3>
+          <p>Upload images and let participants interact with them in your surveys</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+          </div>
+          <h3>Custom Surveys</h3>
+          <p>Build surveys with multiple question types and flexible designs</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          </div>
+          <h3>Export Results</h3>
+          <p>View and download survey responses in CSV format</p>
+        </div>
+      </div>
     </div>
-  </div>
+  </section>
+
+  <!-- Examples Section -->
+  <section id="examples" class="landing-showcase">
+    <div class="landing-container">
+      <h2 class="section-title">Examples</h2>
+
+      <div class="showcase-carousel">
+        <div class="carousel-container">
+          <div class="carousel-track" id="carouselTrack">
+            <!-- Slide 1 -->
+            <div class="carousel-slide">
+              <img src="/media/brain-diagram.png" alt="Brain diagram visualization" />
+              <div class="carousel-caption">
+                <h3>Medical Research</h3>
+                <p>Collect feedback on anatomical diagrams</p>
+              </div>
+            </div>
+            <!-- Slide 2 -->
+            <div class="carousel-slide">
+              <video src="/media/hypergraph-demo.mp4" autoplay muted loop playsinline></video>
+              <div class="carousel-caption">
+                <h3>Data Visualization</h3>
+                <p>Interactive network graphs</p>
+              </div>
+            </div>
+            <!-- Slide 3 -->
+            <div class="carousel-slide">
+              <img src="/media/polygon-selection.png" alt="Polygon selection" />
+            </div>
+          </div>
+          <button class="carousel-btn carousel-prev" aria-label="Previous">‹</button>
+          <button class="carousel-btn carousel-next" aria-label="Next">›</button>
+        </div>
+        <div class="carousel-dots" id="carouselDots"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="landing-footer">
+    <div class="landing-container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <h3>Interactive Survey Tools</h3>
+          <p>Create surveys with data visualizations</p>
+        </div>
+        <div class="footer-links">
+          <h4>Links</h4>
+          <a href="/faq.html" target="_blank">FAQ</a>
+          <a href="/about">About</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Interactive Survey Tools</p>
+      </div>
+    </div>
+  </footer>
 
   <script>
-    // Minimal carousel logic (auto-advance + controls)
-    (function () {
-      const root = document.getElementById('heroCarousel');
-      const track = root.querySelector('.track');
+    // Smooth scrolling
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    // Carousel
+    (function() {
+      const track = document.getElementById('carouselTrack');
+      const dotsContainer = document.getElementById('carouselDots');
       const slides = Array.from(track.children);
-      const prev = root.querySelector('.prev');
-      const next = root.querySelector('.next');
-      const dots = Array.from(root.querySelectorAll('.dot'));
+      const prevBtn = document.querySelector('.carousel-prev');
+      const nextBtn = document.querySelector('.carousel-next');
 
-      let index = 0;
-      let timer = null;
+      let currentIndex = 0;
 
-      function go(i) {
-        index = (i + slides.length) % slides.length;
-        track.style.transform = `translateX(-${index * 100}%)`;
-        dots.forEach((d, k) => d.classList.toggle('active', k === index));
-      }
-
-      function start() { stop(); timer = setInterval(() => go(index + 1), 30000); }
-      function stop() { if (timer) clearInterval(timer); timer = null; }
-
-      prev.addEventListener('click', () => { go(index - 1); start(); });
-      next.addEventListener('click', () => { go(index + 1); start(); });
-      dots.forEach((d, k) => d.addEventListener('click', () => { go(k); start(); }));
-
-      root.addEventListener('mouseenter', stop);
-      root.addEventListener('mouseleave', start);
-
-      // Keyboard support
-      root.tabIndex = 0;
-      root.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowLeft') { go(index - 1); start(); }
-        if (e.key === 'ArrowRight') { go(index + 1); start(); }
+      // Create dots
+      slides.forEach((_, index) => {
+        const dot = document.createElement('button');
+        dot.classList.add('carousel-dot');
+        if (index === 0) dot.classList.add('active');
+        dot.addEventListener('click', () => goToSlide(index));
+        dotsContainer.appendChild(dot);
       });
 
-      // Initialize
-      go(0); start();
+      const dots = Array.from(dotsContainer.children);
+
+      function goToSlide(index) {
+        currentIndex = (index + slides.length) % slides.length;
+        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+        dots.forEach((dot, i) => {
+          dot.classList.toggle('active', i === currentIndex);
+        });
+      }
+
+      prevBtn.addEventListener('click', () => goToSlide(currentIndex - 1));
+      nextBtn.addEventListener('click', () => goToSlide(currentIndex + 1));
     })();
   </script>
 </body>

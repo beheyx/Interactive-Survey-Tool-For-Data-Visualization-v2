@@ -149,12 +149,12 @@ app.get('/', async (req, res, next) => {
 
 // register page
 app.get('/register', (req, res) => {
-    res.render("register")
+    res.render("register", { layout: false })
 });
 
 // login page
 app.get('/login', (req, res) => {
-    res.render("login")
+    res.render("login", { layout: false })
 });
 
 // existing visualizations page
@@ -374,6 +374,7 @@ app.post('/users', async (req, res, next) => {
   } catch (error) {
     if (error.response) {
       res.render('register', {
+        layout: false,
         error: error.response.data.error,
         name: req.body.name,
         password: req.body.password,
