@@ -1,10 +1,6 @@
-<!-- Breadcrumb navigation -->
-<div class="breadcrumb">
-  <a href="/">Dashboard</a>
-  <span class="breadcrumb-separator">›</span>
-  <a href="/existing-published-surveys">Published Surveys</a>
-  <span class="breadcrumb-separator">›</span>
-  <span class="breadcrumb-current">{{name}}</span>
+<!-- Published Survey Detail Page -->
+<div class="page-actions">
+  <a href="/existing-published-surveys" class="back-button">← Back to Published Surveys</a>
 </div>
 
 <!-- Page header -->
@@ -14,7 +10,6 @@
     <span class="survey-status status-{{status}}">{{status}}</span>
   </div>
   <div class="header-actions">
-    <a href="/existing-published-surveys" class="back-button">← Back to Published Surveys</a>
     <a href="?downloadCSV=true" class="action-button">Download CSV</a>
   </div>
 </div>

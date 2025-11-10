@@ -52,6 +52,29 @@ app.engine("handlebars", exphbs.engine({
 }))
 app.set("view engine", "handlebars")
 
+// Middleware to add authentication status and breadcrumbs to all renders
+app.use(async (req, res, next) => {
+    // Store original render function
+    const originalRender = res.render;
+
+    // Override render to inject common data
+    res.render = function(view, options = {}, callback) {
+        // Check if user is authenticated by checking for access token
+        const isAuthenticated = !!req.cookies.access_token;
+
+        // Merge authentication status with options
+        const renderOptions = {
+            isAuthenticated,
+            ...options
+        };
+
+        // Call original render with merged options
+        originalRender.call(this, view, renderOptions, callback);
+    };
+
+    next();
+});
+
 
 
 // some browsers request this automatically, ignoring for now
@@ -115,7 +138,10 @@ app.get('/', async (req, res, next) => {
             visError: visError,
             surError: surError,
             pSurError: pSurError,
-            activePage: 'home'
+            activePage: 'home',
+            breadcrumbs: [
+                { label: 'Home', url: '/' }
+            ]
         })
     }
     
@@ -149,7 +175,11 @@ app.get('/existing-visualizations', async (req, res, next) => {
         res.render("existingVisualizations", {
             visualizations: userVisualizations?.data.visualizations,
             visError: visError,
-            activePage: 'home'
+            activePage: 'visualizations',
+            breadcrumbs: [
+                { label: 'Home', url: '/' },
+                { label: 'Visualizations', url: '/existing-visualizations' }
+            ]
         })
     } catch (error) {
         if (error.response && (error.response.status === 401 || error.response.status === 403)) {
@@ -178,7 +208,11 @@ app.get('/existing-survey-designs', async (req, res, next) => {
         res.render("existingSurveyDesigns", {
             surveyDesigns: userSurveyDesigns?.data.surveyDesigns,
             surError: surError,
-            activePage: 'home'
+            activePage: 'surveys',
+            breadcrumbs: [
+                { label: 'Home', url: '/' },
+                { label: 'Survey Designs', url: '/existing-survey-designs' }
+            ]
         })
     } catch (error) {
         if (error.response && (error.response.status === 401 || error.response.status === 403)) {
@@ -207,7 +241,11 @@ app.get('/existing-published-surveys', async (req, res, next) => {
         res.render("existingPublishedSurveys", {
             publishedSurveys: userPublishedSurveys?.data.publishedSurveys,
             pSurError: pSurError,
-            activePage: 'home'
+            activePage: 'published',
+            breadcrumbs: [
+                { label: 'Home', url: '/' },
+                { label: 'Published Surveys', url: '/existing-published-surveys' }
+            ]
         })
     } catch (error) {
         if (error.response && (error.response.status === 401 || error.response.status === 403)) {
@@ -385,7 +423,12 @@ app.get('/visualizations/:id', async (req, res, next) => {
             name: response.data.name,
             id: response.data.contentId,
             visualURL: process.env.VISUAL_UI_URL,
-            activePage: 'home'
+            activePage: 'visualizations',
+            breadcrumbs: [
+                { label: 'Home', url: '/' },
+                { label: 'Visualizations', url: '/existing-visualizations' },
+                { label: response.data.name, url: `/visualizations/${req.params.id}` }
+            ]
         })
 
     } catch (error) {
@@ -422,7 +465,12 @@ app.get('/surveyDesigns/:id', async (req, res, next) => {
                 today: today.toISOString().substring(0, 16),
                 tomorrow: tomorrow.toISOString().substring(0, 16),
                 visualURL: process.env.VISUAL_UI_URL,
-                activePage: 'home'
+                activePage: 'surveys',
+                breadcrumbs: [
+                    { label: 'Home', url: '/' },
+                    { label: 'Survey Designs', url: '/existing-survey-designs' },
+                    { label: response.data.name, url: `/surveyDesigns/${req.params.id}` }
+                ]
             })
         } catch (error) {
             res.render("editsurveydesign", {
@@ -435,7 +483,12 @@ app.get('/surveyDesigns/:id', async (req, res, next) => {
                 today: today.toISOString().substring(0, 16),
                 tomorrow: tomorrow.toISOString().substring(0, 16),
                 visualURL: process.env.VISUAL_UI_URL,
-                activePage: 'home'
+                activePage: 'surveys',
+                breadcrumbs: [
+                    { label: 'Home', url: '/' },
+                    { label: 'Survey Designs', url: '/existing-survey-designs' },
+                    { label: response.data.name, url: `/surveyDesigns/${req.params.id}` }
+                ]
             })
         }
     }
@@ -549,7 +602,13 @@ app.get('/publishedSurveys/:id', async (req, res, next) => {
                 openDateTime: openDateTime,
                 closeDateTime: closeDateTime,
                 status: response.data.status,
-                url: process.env.MAIN_UI_URL + '/takeSurvey/' + response.data.linkHash
+                url: process.env.MAIN_UI_URL + '/takeSurvey/' + response.data.linkHash,
+                activePage: 'published',
+                breadcrumbs: [
+                    { label: 'Home', url: '/' },
+                    { label: 'Published Surveys', url: '/existing-published-surveys' },
+                    { label: response.data.name, url: `/publishedSurveys/${req.params.id}` }
+                ]
             })
         }
 

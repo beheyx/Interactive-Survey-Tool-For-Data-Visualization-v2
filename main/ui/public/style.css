@@ -797,6 +797,11 @@ body{margin:0; font:20px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Rob
   margin-bottom: 16px;
 }
 
+/* Page Actions - Consistent back button placement */
+.page-actions {
+  margin-bottom: 20px;
+}
+
 .back-button {
   display: inline-flex;
   align-items: center;
@@ -1048,5 +1053,246 @@ body{margin:0; font:20px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Rob
     padding: 6px 12px;
     font-size: 13px;
     margin-left: 4px;
+  }
+}
+
+/* === Qualtrics-style Layout === */
+
+/* Main Layout Grid */
+.qualtrics-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  grid-template-rows: 60px 1fr;
+  grid-template-areas:
+    "header header"
+    "sidebar main";
+  min-height: 100vh;
+  background: #f9f9f9;
+}
+
+/* Top Header Bar */
+.qualtrics-header {
+  grid-area: header;
+  background: #ffffff;
+  border-bottom: 1px solid #e1e4e8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  z-index: 100;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.header-logo {
+  font-size: 20px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-link {
+  color: #4a5568;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.header-link:hover {
+  color: #2563eb;
+}
+
+.header-link-btn {
+  background: none;
+  border: none;
+  color: #4a5568;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.header-link-btn:hover {
+  color: #2563eb;
+}
+
+/* Sidebar Navigation */
+.qualtrics-sidebar {
+  grid-area: sidebar;
+  background: #ffffff;
+  border-right: 1px solid #e1e4e8;
+  padding: 20px 0;
+  overflow-y: auto;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  color: #4a5568;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  transition: background-color 0.2s, color 0.2s;
+  border-left: 3px solid transparent;
+}
+
+.sidebar-item:hover {
+  background-color: #f7fafc;
+  color: #2563eb;
+}
+
+.sidebar-item-active {
+  background-color: #eff6ff;
+  color: #2563eb;
+  border-left-color: #2563eb;
+  font-weight: 600;
+}
+
+.sidebar-icon {
+  margin-right: 12px;
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sidebar-icon svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+.sidebar-text {
+  flex: 1;
+}
+
+.sidebar-divider {
+  height: 1px;
+  background: #e1e4e8;
+  margin: 12px 20px;
+}
+
+/* Main Content Area */
+.qualtrics-main {
+  grid-area: main;
+  padding: 24px;
+  overflow-y: auto;
+  background: #f9f9f9;
+}
+
+.content-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Breadcrumb Navigation */
+.breadcrumb-nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+  padding: 12px 20px;
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e1e4e8;
+  font-size: 14px;
+}
+
+.breadcrumb-link {
+  color: #2563eb;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.breadcrumb-link:hover {
+  color: #1e40af;
+  text-decoration: underline;
+}
+
+.breadcrumb-separator {
+  margin: 0 8px;
+  color: #9ca3af;
+}
+
+.breadcrumb-current {
+  color: #4a5568;
+  font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .qualtrics-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: 60px auto 1fr;
+    grid-template-areas:
+      "header"
+      "sidebar"
+      "main";
+  }
+
+  .qualtrics-sidebar {
+    border-right: none;
+    border-bottom: 1px solid #e1e4e8;
+    padding: 12px 0;
+  }
+
+  .sidebar-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 0 12px;
+  }
+
+  .sidebar-item {
+    flex-direction: column;
+    padding: 8px 16px;
+    min-width: 80px;
+    text-align: center;
+    border-left: none;
+    border-bottom: 3px solid transparent;
+  }
+
+  .sidebar-item-active {
+    border-left-color: transparent;
+    border-bottom-color: #2563eb;
+  }
+
+  .sidebar-icon {
+    margin-right: 0;
+    margin-bottom: 4px;
+  }
+
+  .sidebar-divider {
+    width: 1px;
+    height: 40px;
+    margin: 0 8px;
+  }
+
+  .header-logo {
+    font-size: 16px;
+  }
+
+  .qualtrics-main {
+    padding: 16px;
   }
 }

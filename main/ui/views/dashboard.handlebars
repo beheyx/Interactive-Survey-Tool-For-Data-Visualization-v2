@@ -1,29 +1,8 @@
-<!-- Title bar -->
-<header class="app-header" role="banner">
-  <h1>Interactive Survey Tools for Data Visualizations</h1>
-</header>
-
-<!-- Top nav -->
-<nav class="top-nav" aria-label="Primary">
-  <div class="nav-left">
-  </div>
-  <ul class="nav-actions">
-    <li><a class="pill {{#if (eq activePage 'home')}}pill-active{{/if}}" href="/">Home</a></li>
-    <li><a class="pill {{#if (eq activePage 'faq')}}pill-active{{/if}}" href="/faq.html" target="_blank" rel="noopener">FAQ</a></li>
-    <li><a class="pill {{#if (eq activePage 'about')}}pill-active{{/if}}" href="/about">About Us</a></li>
-  </ul>
-  <div class="nav-right">
-    <form action="/users/logout" method="POST">
-      <button class="pill" type="submit">Logout</button>
-    </form>
-  </div>
-</nav>
-
-<!-- Cards row -->
+<!-- Dashboard Page -->
 <main class="cards" role="main">
-  <!-- Card 1: Create/Edit Images (Visualizations) -->
+  <!-- Card 1: Visualizations -->
   <section class="card">
-  <h2>Create/Edit Images</h2>
+  <h2>Visualizations</h2>
   <div class="card-actions">
     <a href="#visualizationsPopup" class="card-button card-button-primary">New</a>
     <a href="/existing-visualizations" class="card-button card-button-secondary">Existing</a>
