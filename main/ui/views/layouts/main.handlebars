@@ -49,8 +49,8 @@
                 </div>
                 <div class="header-right">
                     <a href="/profile" class="header-link" title="Profile">Profile</a>
-                    <form action="/users/logout" method="POST" style="display: inline;">
-                        <button class="header-link-btn" type="submit">Logout</button>
+                    <form action="/users/logout" method="POST" style="display: inline;" id="logoutForm">
+                        <button class="header-link-btn" type="button" onclick="showLogoutConfirm()">Logout</button>
                     </form>
                 </div>
             </header>
@@ -123,6 +123,41 @@
         <div class="container" style="max-width: 48rem;">
             {{{body}}}
         </div>
+        {{/if}}
+
+        {{#if isAuthenticated}}
+        <!-- Logout Confirmation Modal -->
+        <div id="logoutModal" class="logout-modal" style="display: none;">
+            <div class="logout-modal-content">
+                <h3>Confirm Logout</h3>
+                <p>Are you sure you want to log out?</p>
+                <div class="logout-modal-buttons">
+                    <button type="button" class="logout-btn-cancel" onclick="hideLogoutConfirm()">Cancel</button>
+                    <button type="button" class="logout-btn-confirm" onclick="confirmLogout()">Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        function showLogoutConfirm() {
+            document.getElementById('logoutModal').style.display = 'flex';
+        }
+
+        function hideLogoutConfirm() {
+            document.getElementById('logoutModal').style.display = 'none';
+        }
+
+        function confirmLogout() {
+            document.getElementById('logoutForm').submit();
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('logoutModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideLogoutConfirm();
+            }
+        });
+        </script>
         {{/if}}
     </body>
 </html>
