@@ -1,49 +1,76 @@
-<!-- Title bar -->
-<header class="app-header" role="banner">
-  <h1>Interactive Survey Tools for Data Visualizations</h1>
-</header>
+<!-- Dashboard Page -->
+<main class="existing-page">
+  <div class="page-header">
+    <div>
+      <h2>Dashboard</h2>
+      <p class="dashboard-subtitle">Manage your visualizations, surveys, and published content</p>
+    </div>
+  </div>
 
-<!-- Top nav -->
-<nav class="top-nav" aria-label="Primary">
-  <div class="nav-left">
-  </div>
-  <ul class="nav-actions">
-    <li><a class="pill {{#if (eq activePage 'home')}}pill-active{{/if}}" href="/">Home</a></li>
-    <li><a class="pill {{#if (eq activePage 'faq')}}pill-active{{/if}}" href="/faq.html" target="_blank" rel="noopener">FAQ</a></li>
-    <li><a class="pill {{#if (eq activePage 'about')}}pill-active{{/if}}" href="/about">About Us</a></li>
-  </ul>
-  <div class="nav-right">
-    <form action="/users/logout" method="POST">
-      <button class="pill" type="submit">Logout</button>
-    </form>
-  </div>
-</nav>
+  <div class="dashboard-grid">
+  <!-- Card 1: Visualizations -->
+  <section class="dashboard-card">
+    <div class="dashboard-card-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+        <polyline points="21 15 16 10 5 21"></polyline>
+      </svg>
+    </div>
+    <h2 class="dashboard-card-title">Visualizations</h2>
+    <p class="dashboard-card-description">Create and manage interactive data visualizations for your surveys</p>
+    <div class="dashboard-card-actions">
+      <a href="#visualizationsPopup" class="dashboard-btn dashboard-btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Create New
+      </a>
+      <a href="/existing-visualizations" class="dashboard-btn dashboard-btn-secondary">View All</a>
+    </div>
+  </section>
 
-<!-- Cards row -->
-<main class="cards" role="main">
-  <!-- Card 1: Create/Edit Images (Visualizations) -->
-  <section class="card">
-  <h2>Create/Edit Images</h2>
-  <div class="card-actions">
-    <a href="#visualizationsPopup" class="card-button card-button-primary">New</a>
-    <a href="/existing-visualizations" class="card-button card-button-secondary">Existing</a>
-  </div>
-</section>
+  <!-- Card 2: Survey Designs -->
+  <section class="dashboard-card">
+    <div class="dashboard-card-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+        <polyline points="10 9 9 9 8 9"></polyline>
+      </svg>
+    </div>
+    <h2 class="dashboard-card-title">Survey Designs</h2>
+    <p class="dashboard-card-description">Design surveys with interactive questions and visualizations</p>
+    <div class="dashboard-card-actions">
+      <a href="#surveyDesignsPopup" class="dashboard-btn dashboard-btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Create New
+      </a>
+      <a href="/existing-survey-designs" class="dashboard-btn dashboard-btn-secondary">View All</a>
+    </div>
+  </section>
 
-<section class="card">
-  <h2>Design Surveys</h2>
-  <div class="card-actions">
-    <a href="#surveyDesignsPopup" class="card-button card-button-primary">New</a>
-    <a href="/existing-survey-designs" class="card-button card-button-secondary">Existing</a>
+  <!-- Card 3: Published Surveys -->
+  <section class="dashboard-card">
+    <div class="dashboard-card-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polyline points="12 6 12 12 16 14"></polyline>
+      </svg>
+    </div>
+    <h2 class="dashboard-card-title">Published Surveys</h2>
+    <p class="dashboard-card-description">View and manage your live surveys and collect responses</p>
+    <div class="dashboard-card-actions">
+      <a href="/existing-published-surveys" class="dashboard-btn dashboard-btn-secondary">View All</a>
+    </div>
+  </section>
   </div>
-</section>
-
-<section class="card">
-  <h2>Published Surveys</h2>
-  <div class="card-actions">
-    <a href="/existing-published-surveys" class="card-button card-button-secondary">View All</a>
-  </div>
-</section>
 </main>
 
 <!-- Popups (unchanged except for title copy) -->

@@ -1,29 +1,5 @@
-<!-- Title bar -->
-<header class="app-header" role="banner">
-  <h1>Interactive Survey Tools for Data Visualizations</h1>
-</header>
-
-<!-- Top nav -->
-<nav class="top-nav" aria-label="Primary">
-  <div class="nav-left">
-  </div>
-  <ul class="nav-actions">
-    <li><a class="pill {{#if (eq activePage 'home')}}pill-active{{/if}}" href="/">Home</a></li>
-    <li><a class="pill {{#if (eq activePage 'faq')}}pill-active{{/if}}" href="/faq.html" target="_blank" rel="noopener">FAQ</a></li>
-    <li><a class="pill {{#if (eq activePage 'about')}}pill-active{{/if}}" href="/about">About Us</a></li>
-  </ul>
-  <div class="nav-right">
-    <form action="/users/logout" method="POST">
-      <button class="pill" type="submit">Logout</button>
-    </form>
-  </div>
-</nav>
-
-<!-- Page content -->
+<!-- Published Surveys Page -->
 <main class="existing-page">
-  <div class="page-nav">
-    <a href="/" class="back-button">← Back to Dashboard</a>
-  </div>
   <div class="page-header">
     <h2>Your Published Surveys</h2>
   </div>
@@ -33,24 +9,28 @@
       <table class="data-table">
         <thead>
           <tr>
-            <th>Name</th>
+            <th class="col-name">Name</th>
             <th>Status</th>
+            <th>Responses</th>
             <th>Opens</th>
             <th>Closes</th>
-            <th>Actions</th>
+            <th>Last Modified</th>
+            <th class="actions-header">Actions</th>
           </tr>
         </thead>
         <tbody>
           {{#each publishedSurveys}}
             <tr>
-              <td>
+              <td class="col-name">
                 <a href="/publishedSurveys/{{id}}" class="table-link">{{name}}</a>
               </td>
               <td>
                 <span class="survey-status status-{{status}}">{{status}}</span>
               </td>
+              <td class="table-meta">{{responseCount}}</td>
               <td>{{openDateTime}}</td>
               <td>{{closeDateTime}}</td>
+              <td>{{updatedAt}}</td>
               <td class="actions-cell">
                 <a class="table-btn view-btn" href="/publishedSurveys/{{id}}">View</a>
               </td>

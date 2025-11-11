@@ -1,40 +1,13 @@
-<!-- Title bar -->
-<header class="app-header" role="banner">
-  <h1>Interactive Survey Tools for Data Visualizations</h1>
-</header>
-
-<!-- Top nav -->
-<nav class="top-nav" aria-label="Primary">
-  <div class="nav-left"></div>
-  <ul class="nav-actions">
-    <li><a class="pill {{#if (eq activePage 'home')}}pill-active{{/if}}" href="/">Home</a></li>
-    <li><a class="pill {{#if (eq activePage 'faq')}}pill-active{{/if}}" href="/faq.html" target="_blank" rel="noopener">FAQ</a></li>
-    <li><a class="pill {{#if (eq activePage 'about')}}pill-active{{/if}}" href="/about">About Us</a></li>
-  </ul>
-  <div class="nav-right">
-    <form action="/users/logout" method="POST">
-      <button class="pill" type="submit">Logout</button>
-    </form>
-  </div>
-</nav>
-
-<!-- Breadcrumb navigation -->
-<div class="breadcrumb">
-  <a href="/">Dashboard</a>
-  <span class="breadcrumb-separator">›</span>
-  <a href="/existing-visualizations">Visualizations</a>
-  <span class="breadcrumb-separator">›</span>
-  <span class="breadcrumb-current">{{name}}</span>
+<!-- Edit Visualization Page -->
+<div class="page-actions">
+  <a href="/existing-visualizations" class="back-button">← Back to Visualizations</a>
+  <form action="/visualizations/{{id}}/DELETE" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this visualization? This action cannot be undone.');">
+    <button type="submit" class="action-button action-button-danger">Delete Visualization</button>
+  </form>
 </div>
 
-<!-- Centered name below nav -->
-<div class="page-title"><h2>{{name}}</h2></div>
-
 <main class="content-wrap">
-  <div class="page-nav">
-    <a href="/existing-visualizations" class="back-button">← Back to Visualizations</a>
-  </div>
-  <div class="visual-edit-container" style="height: calc(100vh - 260px);">
+  <div class="visual-edit-container" style="height: calc(100vh - 180px);">
     <iframe
       src="{{visualURL}}/{{id}}?editor=true"
       height="100%"
