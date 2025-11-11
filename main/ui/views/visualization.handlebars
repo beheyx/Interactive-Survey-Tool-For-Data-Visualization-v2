@@ -1,6 +1,9 @@
 <!-- Edit Visualization Page -->
 <div class="page-actions">
   <a href="/existing-visualizations" class="back-button">← Back to Visualizations</a>
+  <form action="/visualizations/{{id}}/DELETE" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this visualization? This action cannot be undone.');">
+    <button type="submit" class="action-button action-button-danger">Delete Visualization</button>
+  </form>
 </div>
 
 <main class="content-wrap">

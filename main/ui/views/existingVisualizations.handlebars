@@ -2,7 +2,10 @@
 <main class="existing-page">
   <div class="page-header">
     <h2>Your Visualizations</h2>
-    <a class="action-button" href="#visualizationsPopup">+ New Visualization</a>
+    <div class="header-actions">
+      <button class="bulk-delete-btn" id="bulkDeleteVisualizations" style="display: none;">Delete Selected</button>
+      <a class="action-button" href="#visualizationsPopup">+ New Visualization</a>
+    </div>
   </div>
 
   <div class="table-container">
@@ -10,6 +13,9 @@
       <table class="data-table">
         <thead>
           <tr>
+            <th class="col-checkbox">
+              <input type="checkbox" id="selectAllVisualizations" class="table-checkbox">
+            </th>
             <th class="col-name">Name</th>
             <th>Created</th>
             <th>Last Modified</th>
@@ -19,31 +25,18 @@
         <tbody>
           {{#each visualizations}}
             <tr>
+              <td class="col-checkbox">
+                <input type="checkbox" class="row-checkbox" data-id="{{id}}" data-type="visualization">
+              </td>
               <td class="col-name">
                 <a href="/visualizations/{{id}}" class="table-link">{{name}}</a>
               </td>
               <td>{{createdAt}}</td>
               <td>{{updatedAt}}</td>
               <td class="actions-cell">
-                <a class="table-btn rename-btn" href="#visualizationsRenamePopup{{id}}">Rename</a>
-                <form action="/visualizations/{{id}}/DELETE" method="POST" style="display: inline;">
-                  <button class="table-btn delete-btn" type="submit">Delete</button>
-                </form>
+                <a class="table-btn edit-btn" href="/visualizations/{{id}}">Edit</a>
               </td>
             </tr>
-
-            <!-- Rename popup for each item -->
-            <div class="popup rename-popup" id="visualizationsRenamePopup{{id}}">
-              <div class="popup-content">
-                <h2>Rename "{{name}}"</h2>
-                <form action="/visualizations/{{id}}/PATCH" method="POST">
-                  <input type="text" name="name" placeholder="new name" class="rename-input">
-                  <p class="rename-error" hidden></p>
-                  <button class="popup-rename-button">Rename</button>
-                </form>
-                <button type="button" class="popup-cancel-button" onclick="window.location.hash=''">Cancel</button>
-              </div>
-            </div>
           {{/each}}
         </tbody>
       </table>
@@ -71,3 +64,66 @@
     <button type="button" class="popup-cancel-button" onclick="window.location.hash=''">Cancel</button>
   </div>
 </div>
+
+<script>
+// Bulk select/delete functionality for visualizations
+(function() {
+  const selectAll = document.getElementById('selectAllVisualizations');
+  const rowCheckboxes = document.querySelectorAll('.row-checkbox[data-type="visualization"]');
+  const bulkDeleteBtn = document.getElementById('bulkDeleteVisualizations');
+
+  // Select all checkbox
+  if (selectAll) {
+    selectAll.addEventListener('change', function() {
+      rowCheckboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+      });
+      toggleBulkDeleteButton();
+    });
+  }
+
+  // Individual checkboxes
+  rowCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      const allChecked = Array.from(rowCheckboxes).every(cb => cb.checked);
+      const someChecked = Array.from(rowCheckboxes).some(cb => cb.checked);
+      if (selectAll) {
+        selectAll.checked = allChecked;
+        selectAll.indeterminate = someChecked && !allChecked;
+      }
+      toggleBulkDeleteButton();
+    });
+  });
+
+  // Show/hide bulk delete button
+  function toggleBulkDeleteButton() {
+    const selectedCount = Array.from(rowCheckboxes).filter(cb => cb.checked).length;
+    if (bulkDeleteBtn) {
+      bulkDeleteBtn.style.display = selectedCount > 0 ? 'inline-block' : 'none';
+      bulkDeleteBtn.textContent = `Delete Selected (${selectedCount})`;
+    }
+  }
+
+  // Bulk delete handler
+  if (bulkDeleteBtn) {
+    bulkDeleteBtn.addEventListener('click', function() {
+      const selected = Array.from(rowCheckboxes).filter(cb => cb.checked);
+      const count = selected.length;
+
+      if (count === 0) return;
+
+      if (confirm(`Are you sure you want to delete ${count} visualization${count > 1 ? 's' : ''}?`)) {
+        // Delete each selected item
+        selected.forEach(checkbox => {
+          const id = checkbox.getAttribute('data-id');
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = `/visualizations/${id}/DELETE`;
+          document.body.appendChild(form);
+          form.submit();
+        });
+      }
+    });
+  }
+})();
+</script>

@@ -10,6 +10,9 @@
     <div class="editor-actions">
         <button type="submit" form="survey-settings" class="action-button">Save Changes</button>
         <a class="action-button action-button-success" href="#publishSurveyPopup">Publish</a>
+        <form action="/surveyDesigns/{{id}}/DELETE" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this survey design? This action cannot be undone.');">
+            <button type="submit" class="action-button action-button-danger">Delete</button>
+        </form>
         <a class="help" href="/faq.html#14" target="_blank">?</a>
     </div>
 </div>
