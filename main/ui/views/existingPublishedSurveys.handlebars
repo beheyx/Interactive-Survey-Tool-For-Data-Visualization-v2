@@ -9,24 +9,28 @@
       <table class="data-table">
         <thead>
           <tr>
-            <th>Name</th>
+            <th class="col-name">Name</th>
             <th>Status</th>
+            <th>Responses</th>
             <th>Opens</th>
             <th>Closes</th>
-            <th>Actions</th>
+            <th>Last Modified</th>
+            <th class="actions-header">Actions</th>
           </tr>
         </thead>
         <tbody>
           {{#each publishedSurveys}}
             <tr>
-              <td>
+              <td class="col-name">
                 <a href="/publishedSurveys/{{id}}" class="table-link">{{name}}</a>
               </td>
               <td>
                 <span class="survey-status status-{{status}}">{{status}}</span>
               </td>
+              <td class="table-meta">{{responseCount}}</td>
               <td>{{openDateTime}}</td>
               <td>{{closeDateTime}}</td>
+              <td>{{updatedAt}}</td>
               <td class="actions-cell">
                 <a class="table-btn view-btn" href="/publishedSurveys/{{id}}">View</a>
               </td>

@@ -10,18 +10,20 @@
       <table class="data-table">
         <thead>
           <tr>
-            <th>Name</th>
+            <th class="col-name">Name</th>
             <th>Created</th>
-            <th>Actions</th>
+            <th>Last Modified</th>
+            <th class="actions-header">Actions</th>
           </tr>
         </thead>
         <tbody>
           {{#each surveyDesigns}}
             <tr>
-              <td>
+              <td class="col-name">
                 <a href="/surveyDesigns/{{id}}" class="table-link">{{name}}</a>
               </td>
               <td>{{createdAt}}</td>
+              <td>{{updatedAt}}</td>
               <td class="actions-cell">
                 <a class="table-btn rename-btn" href="#surveyDesignsRenamePopup{{id}}">Rename</a>
                 <form action="/surveyDesigns/{{id}}/DELETE" method="POST" style="display: inline;">
