@@ -11,13 +11,15 @@ const OPTIONTEXT_SET_ALL_SELECTABLE = "Make All Elements Selectable"
 const OPTIONTEXT_SET_ALL_NOT_SELECTABLE = "Make All Elements Not Selectable"
 
 const TOOLTEXT_SET_SELECTABLE = "Set Selectable"
-const TOOLTEXT_CREATE = "Create"
+const TOOLTEXT_CREATE = "Box"          // renamed from "Create"
+const TOOLTEXT_LASSO = "Lasso"         // lasso tool
 const TOOLTEXT_DELETE = "Delete"
 const TOOLTEXT_HIGHLIGHT = "Highlight"
 
 const MODELABEL_SELECT_ELEMENTS = "selectElements"
 const MODELABEL_SET_SELECTABLE = "setSelectable"
-const MODELABEL_CREATE = "create"
+const MODELABEL_CREATE = "create"      // still the mode for the Box tool
+const MODELABEL_LASSO = "lasso"        // mode for lasso selection
 const MODELABEL_DELETE = "delete"
 const MODELABEL_HIGHLIGHT_TOOL = "highlightTool"
 
@@ -77,6 +79,7 @@ export const selectElements = (visualizer) => {
             createToolButtons()
 
             EnableBox()
+            EnableLassoSelection()
         }
         
     }
@@ -88,8 +91,14 @@ export const selectElements = (visualizer) => {
 
     decoratedVisualizer.onChangeMode = function() {
         visualizer.onChangeMode()
-        // if entering create mode, disable any default mousedown event (panning)
-        if (page.mode == MODELABEL_CREATE) {
+
+        // update cursor class for lasso mode
+        if (wrapper) {
+            wrapper.classList.toggle("mode-lasso", page.mode == MODELABEL_LASSO)
+        }
+
+        // if entering box or lasso mode, disable any default mousedown event (panning)
+        if (page.mode == MODELABEL_CREATE || page.mode == MODELABEL_LASSO) {
             wrapper.onmousedown = null
         }
     }
@@ -102,8 +111,10 @@ function createToolButtons() {
     page.addTool(TOOLTEXT_HIGHLIGHT, MODELABEL_HIGHLIGHT_TOOL)
     // add set selectable tool
     page.addTool(TOOLTEXT_SET_SELECTABLE, MODELABEL_SET_SELECTABLE)
-    // add create tool
+    // add box tool (formerly "Create")
     page.addTool(TOOLTEXT_CREATE, MODELABEL_CREATE)
+    // add lasso selection tool (before delete)
+    page.addTool(TOOLTEXT_LASSO, MODELABEL_LASSO)
     // add delete tool
     page.addTool(TOOLTEXT_DELETE, MODELABEL_DELETE)
 }
@@ -158,7 +169,7 @@ function EnableBox() {
     let isStartDrawing = false
     let isDrawingBox = false
 
-    // when user presses mouse in select or create mode, enable box drawing
+    // when user presses mouse in box/create mode, enable box drawing
     wrapper.addEventListener("mousedown", evt => {
         if (page.mode == MODELABEL_CREATE) {
             evt.preventDefault()
@@ -223,4 +234,119 @@ function EnableBox() {
             box = null
         }
     })
+}
+
+// Enable user to lasso-select elements using a freehand region
+function EnableLassoSelection() {
+    let isLassoing = false
+    let lassoPoints = []
+    let lassoPath = null
+
+    // start lasso on mousedown in lasso mode
+    wrapper.addEventListener("mousedown", evt => {
+        if (page.mode == MODELABEL_LASSO) {
+            evt.preventDefault()
+            isLassoing = true
+            lassoPoints = []
+
+            const startPoint = screenToSVG(evt.clientX, evt.clientY)
+            lassoPoints.push(startPoint)
+
+            // create a polyline as the visible lasso while drawing
+            lassoPath = document.createElementNS("http://www.w3.org/2000/svg", "polyline")
+            lassoPath.setAttribute("points", `${startPoint.x},${startPoint.y}`)
+            lassoPath.setAttribute("id", "lasso-path")     // for direct targeting if desired
+            lassoPath.setAttribute("class", "lasso-path")  // styled via CSS
+            lassoPath.setAttribute("vector-effect", "non-scaling-stroke")
+            lassoPath.setAttribute("pointer-events", "none")
+            visualizationElement.svg.appendChild(lassoPath)
+        }
+    })
+
+    // track the lasso path while moving
+    document.addEventListener("mousemove", evt => {
+        if (!isLassoing || !lassoPath) return
+
+        evt.preventDefault()
+        const point = screenToSVG(evt.clientX, evt.clientY)
+        lassoPoints.push(point)
+
+        const pointsAttr = lassoPoints.map(p => `${p.x},${p.y}`).join(" ")
+        lassoPath.setAttribute("points", pointsAttr)
+    })
+
+    // on mouseup, finalize lasso and:
+    //  1) create a persistent polygon as a custom SVG element
+    //  2) toggle selection of elements whose centers are inside the polygon
+    document.addEventListener("mouseup", evt => {
+        if (!isLassoing) return
+
+        isLassoing = false
+
+        if (!lassoPath) return
+
+        // Only do anything if we have a "real" polygon
+        if (lassoPoints.length >= 3) {
+            const pointsAttr = lassoPoints.map(p => `${p.x},${p.y}`).join(" ")
+
+            // --- 1) Create persistent polygon element from the lasso ---
+            const lassoPolygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon")
+            lassoPolygon.setAttribute("points", pointsAttr)
+            lassoPolygon.setAttribute("class", "lasso-region")  // style as needed
+            lassoPolygon.setAttribute("vector-effect", "non-scaling-stroke")
+
+            visualizationElement.svg.appendChild(lassoPolygon)
+            visualizationElement.addVisualElement(lassoPolygon)
+            EnableSelectionOfElement(lassoPolygon)
+
+            // --- 2) Use the polygon to select existing elements by center point ---
+            const polygon = lassoPoints
+
+            for (const element of visualizationElement.visualElements) {
+                // Optionally skip the lasso polygon itself, if visualElements already includes it
+                if (element === lassoPolygon) continue
+
+                const bbox = element.getBBox()
+                const center = {
+                    x: bbox.x + bbox.width / 2,
+                    y: bbox.y + bbox.height / 2
+                }
+
+                if (isPointInPolygon(center, polygon)) {
+                    visualizationElement.toggleSelection(element)
+                }
+            }
+
+            autosave.save()
+        }
+
+        // Clean up the temporary polyline
+        if (lassoPath && lassoPath.parentNode) {
+            lassoPath.parentNode.removeChild(lassoPath)
+        }
+        lassoPath = null
+        lassoPoints = []
+    })
+}
+
+// Ray-casting point-in-polygon test
+function isPointInPolygon(point, polygonPoints) {
+    let inside = false
+    const x = point.x
+    const y = point.y
+
+    for (let i = 0, j = polygonPoints.length - 1; i < polygonPoints.length; j = i++) {
+        const xi = polygonPoints[i].x
+        const yi = polygonPoints[i].y
+        const xj = polygonPoints[j].x
+        const yj = polygonPoints[j].y
+
+        const intersect =
+            ((yi > y) !== (yj > y)) &&
+            (x < (xj - xi) * (y - yi) / (yj - yi + 0.0000001) + xi)
+
+        if (intersect) inside = !inside
+    }
+
+    return inside
 }

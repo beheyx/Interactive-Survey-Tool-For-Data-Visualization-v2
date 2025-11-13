@@ -81,28 +81,45 @@ function EnablePanning(visualizer) {
     })
 }
 
-// Enable user to zoom the visual by clicking the zoom buttons
+// Enable user to zoom the visual via scroll wheel (and optionally zoom buttons)
 function EnableZoom() {
-    const zoomOutIntensity = 2
-    const zoomInIntensity = 1./zoomOutIntensity     // inverse
-    
-    // define zoom in event for clicking zoom in button
-    document.getElementById("zoom-in").addEventListener("click", () => {
-        let newSize = visualizationElement.scale * zoomInIntensity
+    // How fast to zoom
+    const zoomOutIntensity = 1.1
+    const zoomInIntensity = 1 / zoomOutIntensity
+
+    // Optional clamp so you can't zoom infinitely
+    const minScale = 5
+    const maxScale = 2000
+
+    // Helper to apply a zoom factor and update CSS
+    const applyZoomFactor = (factor) => {
+        let newSize = visualizationElement.scale * factor
+
+        // clamp scale
+        if (newSize < minScale) newSize = minScale
+        if (newSize > maxScale) newSize = maxScale
 
         visualizationElement.scale = newSize
 
         // send scale factor to CSS
         document.body.style.setProperty("--zoom-scale", visualizationElement.scale / 80 + "px")
-    })
+    }
 
-    // define zoom out event for clicking zoom out button
-    document.getElementById("zoom-out").addEventListener("click", () => {
-        let newSize = visualizationElement.scale * zoomOutIntensity
+    // --- Scroll wheel zoom on wrapper ---
+    // Use wheel to zoom in/out where the cursor is
+    wrapper.addEventListener(
+        "wheel",
+        (evt) => {
+            // prevent page from scrolling
+            evt.preventDefault()
 
-        visualizationElement.scale = newSize
-
-        // send scale factor to CSS
-        document.body.style.setProperty("--zoom-scale", visualizationElement.scale / 80 + "px")
-    })
+            // deltaY < 0 => scroll up => zoom in
+            if (evt.deltaY < 0) {
+                applyZoomFactor(zoomInIntensity)
+            } else if (evt.deltaY > 0) {
+                applyZoomFactor(zoomOutIntensity)
+            }
+        },
+        { passive: false } // needed so preventDefault works on wheel
+    )
 }
