@@ -266,3 +266,26 @@ button, input {
     max-height: 5vh;
     cursor: pointer;
 }
+
+/* Change cursor when in lasso mode */
+.wrapper.mode-lasso,
+.mode-lasso {
+  cursor: crosshair;
+}
+
+/* Lasso drawing line (temporary polyline while dragging) */
+.lasso-path {
+  stroke: blue;
+  stroke-width: 2;
+  stroke-dasharray: 4 4;
+  fill: none;
+  pointer-events: none;
+}
+
+/* Final lasso polygon that becomes a selectable element */
+.lasso-region {
+  stroke: blue;
+  stroke-width: 2;
+  stroke-dasharray: 4 4;
+  fill: blue;
+}
