@@ -4,6 +4,7 @@
 //      - Setting elements as selectable as an editor
 //      - Ability to Draw and delete selectable boxes as an editor
 //      - Ability to highlight elements as an editor
+//      - Ability to draw lasso regions as selectable polygons and multi-select elements
 
 const OPTIONTEXT_SELECT_ALL = "Select All Elements"
 const OPTIONTEXT_DESELECT_ALL = "Clear All Selections"
@@ -11,13 +12,15 @@ const OPTIONTEXT_SET_ALL_SELECTABLE = "Make All Elements Selectable"
 const OPTIONTEXT_SET_ALL_NOT_SELECTABLE = "Make All Elements Not Selectable"
 
 const TOOLTEXT_SET_SELECTABLE = "Set Selectable"
-const TOOLTEXT_CREATE = "Create"
+const TOOLTEXT_CREATE = "Box"          // renamed from "Create"
+const TOOLTEXT_LASSO = "Lasso"         // lasso tool
 const TOOLTEXT_DELETE = "Delete"
 const TOOLTEXT_HIGHLIGHT = "Highlight"
 
 const MODELABEL_SELECT_ELEMENTS = "selectElements"
 const MODELABEL_SET_SELECTABLE = "setSelectable"
-const MODELABEL_CREATE = "create"
+const MODELABEL_CREATE = "create"      // still the mode for the Box tool
+const MODELABEL_LASSO = "lasso"        // mode for lasso selection
 const MODELABEL_DELETE = "delete"
 const MODELABEL_HIGHLIGHT_TOOL = "highlightTool"
 
@@ -34,10 +37,14 @@ export const selectElements = (visualizer) => {
         if (page.mode == MODELABEL_SELECT_ELEMENTS) {
 
             // create select all button
-            page.addOption(OPTIONTEXT_SELECT_ALL, MODELABEL_SELECT_ELEMENTS, () => {visualizationElement.selectAll()})
+            page.addOption(OPTIONTEXT_SELECT_ALL, MODELABEL_SELECT_ELEMENTS, () => {
+                visualizationElement.selectAll()
+            })
 
             // create deselect all button
-            page.addOption(OPTIONTEXT_DESELECT_ALL, MODELABEL_SELECT_ELEMENTS, () => {visualizationElement.deselectAll()})
+            page.addOption(OPTIONTEXT_DESELECT_ALL, MODELABEL_SELECT_ELEMENTS, () => {
+                visualizationElement.deselectAll()
+            })
         }
     }
 
@@ -77,8 +84,8 @@ export const selectElements = (visualizer) => {
             createToolButtons()
 
             EnableBox()
+            EnableLassoSelection()
         }
-        
     }
 
     decoratedVisualizer.onLoadSvg = function() {
@@ -88,8 +95,19 @@ export const selectElements = (visualizer) => {
 
     decoratedVisualizer.onChangeMode = function() {
         visualizer.onChangeMode()
-        // if entering create mode, disable any default mousedown event (panning)
-        if (page.mode == MODELABEL_CREATE) {
+
+        const isLasso = (page.mode === MODELABEL_LASSO)
+        const isBox   = (page.mode === MODELABEL_CREATE)
+
+        if (wrapper) {
+            // helper class if you want CSS-based styling
+            wrapper.classList.toggle("mode-lasso", isLasso)
+            // force cursor change for lasso mode
+            wrapper.style.cursor = isLasso ? "crosshair" : ""
+        }
+
+        // if entering box or lasso mode, disable any default mousedown event (panning)
+        if (isBox || isLasso) {
             wrapper.onmousedown = null
         }
     }
@@ -102,8 +120,10 @@ function createToolButtons() {
     page.addTool(TOOLTEXT_HIGHLIGHT, MODELABEL_HIGHLIGHT_TOOL)
     // add set selectable tool
     page.addTool(TOOLTEXT_SET_SELECTABLE, MODELABEL_SET_SELECTABLE)
-    // add create tool
+    // add box tool (formerly "Create")
     page.addTool(TOOLTEXT_CREATE, MODELABEL_CREATE)
+    // add lasso selection tool
+    page.addTool(TOOLTEXT_LASSO, MODELABEL_LASSO)
     // add delete tool
     page.addTool(TOOLTEXT_DELETE, MODELABEL_DELETE)
 }
@@ -111,7 +131,7 @@ function createToolButtons() {
 // Enable user to select/deselect vector elements by clicking on them
 function EnableSelection() {
     // loop through all visual elements and add event listeners to each
-    for(const visualElement of visualizationElement.visualElements) {
+    for (const visualElement of visualizationElement.visualElements) {
         EnableSelectionOfElement(visualElement)
     }
 }
@@ -119,14 +139,14 @@ function EnableSelection() {
 // Enable user to select/deselect a single visual element
 function EnableSelectionOfElement(visualElement) {
     // clicking on selectable element in select element mode marks/unmarks as "selected"
-    visualElement.addEventListener("click", evt => { 
-        if (page.mode == MODELABEL_SELECT_ELEMENTS) 
+    visualElement.addEventListener("click", evt => {
+        if (page.mode == MODELABEL_SELECT_ELEMENTS)
             visualizationElement.toggleSelection(evt.currentTarget)
     })
 
     // clicking on element as an editor marks/unmarks as "selectable"
-    visualElement.addEventListener("click", evt => { 
-        if (page.mode == MODELABEL_SET_SELECTABLE) { 
+    visualElement.addEventListener("click", evt => {
+        if (page.mode == MODELABEL_SET_SELECTABLE) {
             visualizationElement.toggleSelectable(evt.currentTarget)
             autosave.save()
         }
@@ -143,8 +163,8 @@ function EnableSelectionOfElement(visualElement) {
     }
 
     // clicking on element in highlight mode highlights it
-    visualElement.addEventListener("click", evt => { 
-        if (page.mode == MODELABEL_HIGHLIGHT_TOOL) { 
+    visualElement.addEventListener("click", evt => {
+        if (page.mode == MODELABEL_HIGHLIGHT_TOOL) {
             evt.currentTarget.classList.toggle("highlight")
             autosave.save()
         }
@@ -158,7 +178,7 @@ function EnableBox() {
     let isStartDrawing = false
     let isDrawingBox = false
 
-    // when user presses mouse in select or create mode, enable box drawing
+    // when user presses mouse in box/create mode, enable box drawing
     wrapper.addEventListener("mousedown", evt => {
         if (page.mode == MODELABEL_CREATE) {
             evt.preventDefault()
@@ -205,7 +225,6 @@ function EnableBox() {
             // set new box dimensions, can only be positive
             box.setAttribute("width", Math.abs(newWidth))
             box.setAttribute("height", Math.abs(newHeight))
-            
         }
     })
 
@@ -223,4 +242,119 @@ function EnableBox() {
             box = null
         }
     })
+}
+
+// Enable user to lasso-select elements using a freehand region
+function EnableLassoSelection() {
+    let isLassoing = false
+    let lassoPoints = []
+    let lassoPath = null
+
+    // start lasso on mousedown in lasso mode
+    wrapper.addEventListener("mousedown", evt => {
+        if (page.mode == MODELABEL_LASSO) {
+            evt.preventDefault()
+            isLassoing = true
+            lassoPoints = []
+
+            const startPoint = screenToSVG(evt.clientX, evt.clientY)
+            lassoPoints.push(startPoint)
+
+            // create a polyline as the visible lasso while drawing
+            lassoPath = document.createElementNS("http://www.w3.org/2000/svg", "polyline")
+            lassoPath.setAttribute("points", `${startPoint.x},${startPoint.y}`)
+            lassoPath.setAttribute("id", "lasso-path")     // for direct targeting if desired
+            lassoPath.setAttribute("class", "lasso-path")  // styled via CSS
+            lassoPath.setAttribute("vector-effect", "non-scaling-stroke")
+            lassoPath.setAttribute("pointer-events", "none")
+            visualizationElement.svg.appendChild(lassoPath)
+        }
+    })
+
+    // track the lasso path while moving
+    document.addEventListener("mousemove", evt => {
+        if (!isLassoing || !lassoPath) return
+
+        evt.preventDefault()
+        const point = screenToSVG(evt.clientX, evt.clientY)
+        lassoPoints.push(point)
+
+        const pointsAttr = lassoPoints.map(p => `${p.x},${p.y}`).join(" ")
+        lassoPath.setAttribute("points", pointsAttr)
+    })
+
+    // on mouseup, finalize lasso and:
+    //  1) create a persistent polygon as a custom SVG element
+    //  2) toggle selection of elements whose centers are inside the polygon
+    document.addEventListener("mouseup", evt => {
+        if (!isLassoing) return
+
+        isLassoing = false
+
+        if (!lassoPath) return
+
+        // Only do anything if we have a "real" polygon
+        if (lassoPoints.length >= 3) {
+            const pointsAttr = lassoPoints.map(p => `${p.x},${p.y}`).join(" ")
+
+            // --- 1) Create persistent polygon element from the lasso ---
+            const lassoPolygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon")
+            lassoPolygon.setAttribute("points", pointsAttr)
+            lassoPolygon.setAttribute("class", "lasso-region")  // style as needed
+            lassoPolygon.setAttribute("vector-effect", "non-scaling-stroke")
+
+            visualizationElement.svg.appendChild(lassoPolygon)
+            visualizationElement.addVisualElement(lassoPolygon)
+            EnableSelectionOfElement(lassoPolygon)
+
+            // --- 2) Use the polygon to select existing elements by center point ---
+            const polygon = lassoPoints
+
+            for (const element of visualizationElement.visualElements) {
+                // skip the lasso polygon itself
+                if (element === lassoPolygon) continue
+
+                const bbox = element.getBBox()
+                const center = {
+                    x: bbox.x + bbox.width / 2,
+                    y: bbox.y + bbox.height / 2
+                }
+
+                if (isPointInPolygon(center, polygon)) {
+                    visualizationElement.toggleSelection(element)
+                }
+            }
+
+            autosave.save()
+        }
+
+        // Clean up the temporary polyline
+        if (lassoPath && lassoPath.parentNode) {
+            lassoPath.parentNode.removeChild(lassoPath)
+        }
+        lassoPath = null
+        lassoPoints = []
+    })
+}
+
+// Ray-casting point-in-polygon test
+function isPointInPolygon(point, polygonPoints) {
+    let inside = false
+    const x = point.x
+    const y = point.y
+
+    for (let i = 0, j = polygonPoints.length - 1; i < polygonPoints.length; j = i++) {
+        const xi = polygonPoints[i].x
+        const yi = polygonPoints[i].y
+        const xj = polygonPoints[j].x
+        const yj = polygonPoints[j].y
+
+        const intersect =
+            ((yi > y) !== (yj > y)) &&
+            (x < (xj - xi) * (y - yi) / (yj - yi + 0.0000001) + xi)
+
+        if (intersect) inside = !inside
+    }
+
+    return inside
 }
