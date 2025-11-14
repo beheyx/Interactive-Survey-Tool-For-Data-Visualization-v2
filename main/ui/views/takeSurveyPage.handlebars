@@ -8,12 +8,27 @@
         <script type="module" src="/src/responseRestrictions.js" charset="utf-8" defer></script>
         <script type="module" src="/src/responseHighlightElements.js" charset="utf-8" defer></script>
         <link rel="stylesheet" href="/takesurveystyle.css">
+        <link rel="stylesheet" href="/style.css" />
     </head>
     <body>
+        <header class="landing-header">
+            <div class="landing-container">
+                <h1 class="landing-logo">Interactive Survey Tools</h1>
+
+                <div class="progress-inline">
+                    <span class="progress-text">{{percent}}% Complete ({{progress}}/{{total}})</span>
+                    <div class="progress-bar header-bar">
+                        <div class="progress-fill" style="width: {{percent}}%"></div>
+                    </div>
+                </div>
+
+            </div>
+        </header>
+
         <meta id="savedResponse" response="{{response}}">
         <meta id="questionNumber" number="{{number}}">
         <meta id="questionTotal" total="{{total}}">
-        <div class="container">
+        <div class="container {{#unless visualizationContentId}}no-visual{{/unless}}">
             {{#if visualizationContentId}}
                 <meta id="visualURL" url="{{visualURL}}">
                 
@@ -28,15 +43,11 @@
             {{/if}}
 
             <div class="controls-section">
-                <div class="progress-percentage">
-                    <span id="progress">{{percent}}% Complete ({{progress}}/{{total}})</span>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width:{{percent}}%"></div>
-                </div>
-
                 <div class="box question-box">
-                    <span class="question-header"><strong>Question {{number}}.</strong>{{#if required}}<span id="required"> *required</span>{{/if}}</span>
+                    <span class="question-header" style="color: #5e6063;">
+                        <strong>Question {{number}}.</strong>
+                        {{#if required}}<span id="required" style="color:#777d87;"> *required</span>{{/if}}
+                    </span>
                     <div class="question-text-box">
                         <span class="question-text">{{text}}</span>
                     </div>
@@ -48,7 +59,7 @@
                     <div class="answer-space">
                         {{#if shortAnswer}}
                             {{#if min}} must be at least {{min}} characters{{/if}}
-                            <textarea class="text-entry-box answer-entry-box" type="text" id="short-answer" name="short-answer">{{response}}</textarea>
+                            <textarea class="text-entry-box answer-entry-box" style="width: 100%; height: 40vh" type="text" id="short-answer" name="short-answer">{{response}}</textarea>
                             <span id="character-tracker"><span id="current-characters"></span>{{#if max}} / {{max}}{{/if}}</span>
                         {{/if}}
                         
@@ -75,10 +86,20 @@
                 </div>
 
                 {{#if allowComment}}
-                    <div class="box comment-box">
+                    <div class="box comment-box" 
+                        style="font-size:16px; width: 100%; height: 130px;">
+                        
                         <strong>Comment:</strong>
-                        <textarea class="text-entry-box comment-entry-box" type="text" id="comment" name="comment">{{comment}}</textarea>
+
+                        <textarea id="comment" name="comment"
+                                style="width: 100%; height: 40px; padding: 2px; border-radius: 10px; border: 2px solid #cac9c9; font-size:15px;"
+                                onclick="if (this.value.trim() === '') { this.setSelectionRange(0,0); }">
+                            {{comment}}
+                        </textarea>
+
                     </div>
+
+
                 {{/if}}
                 
                 <div class="button-container">
@@ -86,7 +107,7 @@
                     <button id="next-button" href="/takeSurvey/{{linkHash}}?page={{next}}" class="nav-button">{{nextText}}</button>
                 </div>
 
-                <span id="error-text"></span>
+                <span id="error-text" style="color: red; font-style: italic; font-size:16px"></span>
             </div>
         </div>
     </body>
