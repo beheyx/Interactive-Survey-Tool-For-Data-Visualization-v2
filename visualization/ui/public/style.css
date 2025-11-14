@@ -68,16 +68,22 @@ body {
     z-index: 1;
 }
 
+/* Zoom buttons */
 .zoom-button {
     position: absolute;
     left: 2%;
-    font-size: 7vh;
-    border-radius: 100%;
+    font-size: 5vh;
+    border-radius: 50%;
     z-index: 12;
-    padding: 0px 2vh;
+    width: 7vh;           /* fixed width & height => perfect circle */
+    height: 7vh;
+    padding: 0;           /* no extra padding to distort circle */
     border: 0px;
     background-color: lightgray;
     box-shadow: 2px 2px 2px 0px rgba(0, 0, 0, 0.4);
+    display: flex;        /* center + / - */
+    align-items: center;
+    justify-content: center;
 }
 
 .zoom-button:active {
@@ -96,7 +102,6 @@ body {
     top: 12%;
 }
 
-
 #wrapper {
     min-height: 100%;
     align-items: center;
@@ -107,6 +112,12 @@ body {
     cursor: grabbing;
 }
 
+/* When wrapper is in lasso mode, force crosshair cursor */
+#wrapper.mode-lasso {
+    cursor: crosshair;
+}
+
+/* (Optional/legacy) create mode on wrapper, if you still use it */
 #wrapper.create {
     cursor: crosshair;
 }
@@ -117,14 +128,18 @@ body {
     position: fixed;
 }
 
-.selectElements .visual-element.selectable:hover, .setSelectable .visual-element:hover, .delete .visual-element.custom:hover, .highlightTool .visual-element:hover {
+.selectElements .visual-element.selectable:hover,
+.setSelectable .visual-element:hover,
+.delete .visual-element.custom:hover,
+.highlightTool .visual-element:hover {
     fill-opacity: 40% !important;
     stroke-opacity: 40% !important;
     filter: saturate(0.3) drop-shadow(0px 0px var(--visual-scale) red) saturate(15);
 }
 
-
-.selectElements .visual-element.selected, .setSelectable .visual-element.selectable, :is(.create, .delete) .visual-element.custom {
+.selectElements .visual-element.selected,
+.setSelectable .visual-element.selectable,
+:is(.create, .delete) .visual-element.custom {
     fill-opacity: 40% !important;
     stroke-opacity: 40% !important;
     filter: saturate(0.3) drop-shadow(0px 0px var(--visual-scale) blue) saturate(15);
@@ -136,7 +151,8 @@ body {
     filter: saturate(0.3) drop-shadow(0px 0px var(--visual-scale) cyan) saturate(15);
 }
 
-.highlight .visual-element.highlight, .highlightTool .visual-element.highlight {
+.highlight .visual-element.highlight,
+.highlightTool .visual-element.highlight {
     animation-name: highlight;
     animation-duration: 3s;
     animation-iteration-count: infinite;
@@ -265,4 +281,22 @@ button, input {
     font-family: sans-serif;
     max-height: 5vh;
     cursor: pointer;
+}
+
+/* Lasso drawing line (temporary polyline while dragging) */
+.lasso-path {
+    stroke: blue;
+    stroke-width: 2;
+    stroke-dasharray: 4 4;
+    fill: none;
+    pointer-events: none;
+}
+
+/* Final lasso polygon that becomes a selectable element */
+.lasso-region {
+    stroke: blue;
+    stroke-width: 2;
+    stroke-dasharray: 4 4;
+    fill: blue;
+    fill-opacity: 20%;
 }
