@@ -47,17 +47,18 @@
   <div class="tab-pane fade" id="settings" role="tabpanel">
     <form id="survey-settings" action="/surveyDesigns/{{id}}/PATCH" method="POST">
         <h2>Survey Details<a class="help" href="/faq.html#7" target="_blank">?</a></h2>
+        <br>
         <h3>Survey Title</h3>
         <p>This is the title that is visible to participants.</p>
-        <input type="text" id="title" name="title" value="{{title}}">
-
+        <input class="form-control" type="text" id="title" name="title" value="{{title}}" placeholder="Enter survey title">
+        <br>
         <h3>Introduction Text</h3>
         <p>This is the text the participant sees before starting the survey.</p>
-        <textarea type="text" id="introText" name="introText" rows="4" cols="50" placeholder="Your introduction text here">{{introText}}</textarea>
-
+        <textarea class="form-control" type="text" id="introText" name="introText" rows="4" cols="50" placeholder="Your introduction text here">{{introText}}</textarea>
+        <br>
         <h3>Conclusion Text</h3>
         <p>This is the text the participant sees after completing the survey.</p>
-        <textarea type="text" id="conclusionText" name="conclusionText" rows="4" cols="50" placeholder="Your conclusion text here">{{conclusionText}}</textarea>
+        <textarea class="form-control" type="text" id="conclusionText" name="conclusionText" rows="4" cols="50" placeholder="Your conclusion text here">{{conclusionText}}</textarea>
     </form>
   </div>
 </div>
