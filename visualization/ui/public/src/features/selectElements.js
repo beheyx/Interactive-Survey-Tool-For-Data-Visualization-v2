@@ -4,6 +4,7 @@
 //      - Setting elements as selectable as an editor
 //      - Ability to Draw and delete selectable boxes as an editor
 //      - Ability to highlight elements as an editor
+//      - Ability to draw lasso regions as selectable polygons and multi-select elements
 
 const OPTIONTEXT_SELECT_ALL = "Select All Elements"
 const OPTIONTEXT_DESELECT_ALL = "Clear All Selections"
@@ -36,10 +37,14 @@ export const selectElements = (visualizer) => {
         if (page.mode == MODELABEL_SELECT_ELEMENTS) {
 
             // create select all button
-            page.addOption(OPTIONTEXT_SELECT_ALL, MODELABEL_SELECT_ELEMENTS, () => {visualizationElement.selectAll()})
+            page.addOption(OPTIONTEXT_SELECT_ALL, MODELABEL_SELECT_ELEMENTS, () => {
+                visualizationElement.selectAll()
+            })
 
             // create deselect all button
-            page.addOption(OPTIONTEXT_DESELECT_ALL, MODELABEL_SELECT_ELEMENTS, () => {visualizationElement.deselectAll()})
+            page.addOption(OPTIONTEXT_DESELECT_ALL, MODELABEL_SELECT_ELEMENTS, () => {
+                visualizationElement.deselectAll()
+            })
         }
     }
 
@@ -81,7 +86,6 @@ export const selectElements = (visualizer) => {
             EnableBox()
             EnableLassoSelection()
         }
-        
     }
 
     decoratedVisualizer.onLoadSvg = function() {
@@ -92,13 +96,18 @@ export const selectElements = (visualizer) => {
     decoratedVisualizer.onChangeMode = function() {
         visualizer.onChangeMode()
 
-        // update cursor class for lasso mode
+        const isLasso = (page.mode === MODELABEL_LASSO)
+        const isBox   = (page.mode === MODELABEL_CREATE)
+
         if (wrapper) {
-            wrapper.classList.toggle("mode-lasso", page.mode == MODELABEL_LASSO)
+            // helper class if you want CSS-based styling
+            wrapper.classList.toggle("mode-lasso", isLasso)
+            // force cursor change for lasso mode
+            wrapper.style.cursor = isLasso ? "crosshair" : ""
         }
 
         // if entering box or lasso mode, disable any default mousedown event (panning)
-        if (page.mode == MODELABEL_CREATE || page.mode == MODELABEL_LASSO) {
+        if (isBox || isLasso) {
             wrapper.onmousedown = null
         }
     }
@@ -113,7 +122,7 @@ function createToolButtons() {
     page.addTool(TOOLTEXT_SET_SELECTABLE, MODELABEL_SET_SELECTABLE)
     // add box tool (formerly "Create")
     page.addTool(TOOLTEXT_CREATE, MODELABEL_CREATE)
-    // add lasso selection tool (before delete)
+    // add lasso selection tool
     page.addTool(TOOLTEXT_LASSO, MODELABEL_LASSO)
     // add delete tool
     page.addTool(TOOLTEXT_DELETE, MODELABEL_DELETE)
@@ -122,7 +131,7 @@ function createToolButtons() {
 // Enable user to select/deselect vector elements by clicking on them
 function EnableSelection() {
     // loop through all visual elements and add event listeners to each
-    for(const visualElement of visualizationElement.visualElements) {
+    for (const visualElement of visualizationElement.visualElements) {
         EnableSelectionOfElement(visualElement)
     }
 }
@@ -130,14 +139,14 @@ function EnableSelection() {
 // Enable user to select/deselect a single visual element
 function EnableSelectionOfElement(visualElement) {
     // clicking on selectable element in select element mode marks/unmarks as "selected"
-    visualElement.addEventListener("click", evt => { 
-        if (page.mode == MODELABEL_SELECT_ELEMENTS) 
+    visualElement.addEventListener("click", evt => {
+        if (page.mode == MODELABEL_SELECT_ELEMENTS)
             visualizationElement.toggleSelection(evt.currentTarget)
     })
 
     // clicking on element as an editor marks/unmarks as "selectable"
-    visualElement.addEventListener("click", evt => { 
-        if (page.mode == MODELABEL_SET_SELECTABLE) { 
+    visualElement.addEventListener("click", evt => {
+        if (page.mode == MODELABEL_SET_SELECTABLE) {
             visualizationElement.toggleSelectable(evt.currentTarget)
             autosave.save()
         }
@@ -154,8 +163,8 @@ function EnableSelectionOfElement(visualElement) {
     }
 
     // clicking on element in highlight mode highlights it
-    visualElement.addEventListener("click", evt => { 
-        if (page.mode == MODELABEL_HIGHLIGHT_TOOL) { 
+    visualElement.addEventListener("click", evt => {
+        if (page.mode == MODELABEL_HIGHLIGHT_TOOL) {
             evt.currentTarget.classList.toggle("highlight")
             autosave.save()
         }
@@ -216,7 +225,6 @@ function EnableBox() {
             // set new box dimensions, can only be positive
             box.setAttribute("width", Math.abs(newWidth))
             box.setAttribute("height", Math.abs(newHeight))
-            
         }
     })
 
@@ -303,7 +311,7 @@ function EnableLassoSelection() {
             const polygon = lassoPoints
 
             for (const element of visualizationElement.visualElements) {
-                // Optionally skip the lasso polygon itself, if visualElements already includes it
+                // skip the lasso polygon itself
                 if (element === lassoPolygon) continue
 
                 const bbox = element.getBBox()
