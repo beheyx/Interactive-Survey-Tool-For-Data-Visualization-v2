@@ -49,7 +49,6 @@ function EnablePanning(visualizer) {
     }
     wrapper.onmousedown = startPanning
 
-
     // define behavior for when user moves mouse while panning
     document.addEventListener("mousemove", evt => {
         if (isPanning) {
@@ -81,24 +80,14 @@ function EnablePanning(visualizer) {
     })
 }
 
-// Enable user to zoom the visual via scroll wheel (and optionally zoom buttons)
+// Enable user to zoom the visual using scroll wheel and zoom buttons
 function EnableZoom() {
-    // How fast to zoom
-    const zoomOutIntensity = 1.1
-    const zoomInIntensity = 1 / zoomOutIntensity
+    const zoomOutIntensity = 1.025
+    const zoomInIntensity = 1 / zoomOutIntensity // inverse
 
-    // Optional clamp so you can't zoom infinitely
-    const minScale = 5
-    const maxScale = 2000
-
-    // Helper to apply a zoom factor and update CSS
+    // helper to apply zoom and update CSS variable
     const applyZoomFactor = (factor) => {
-        let newSize = visualizationElement.scale * factor
-
-        // clamp scale
-        if (newSize < minScale) newSize = minScale
-        if (newSize > maxScale) newSize = maxScale
-
+        const newSize = visualizationElement.scale * factor
         visualizationElement.scale = newSize
 
         // send scale factor to CSS
@@ -106,20 +95,38 @@ function EnableZoom() {
     }
 
     // --- Scroll wheel zoom on wrapper ---
-    // Use wheel to zoom in/out where the cursor is
-    wrapper.addEventListener(
-        "wheel",
-        (evt) => {
-            // prevent page from scrolling
-            evt.preventDefault()
+    if (wrapper) {
+        wrapper.addEventListener(
+            "wheel",
+            (evt) => {
+                // prevent page from scrolling
+                evt.preventDefault()
 
-            // deltaY < 0 => scroll up => zoom in
-            if (evt.deltaY < 0) {
-                applyZoomFactor(zoomInIntensity)
-            } else if (evt.deltaY > 0) {
-                applyZoomFactor(zoomOutIntensity)
-            }
-        },
-        { passive: false } // needed so preventDefault works on wheel
-    )
+                if (evt.deltaY < 0) {
+                    // scroll up -> zoom in
+                    applyZoomFactor(zoomInIntensity)
+                } else if (evt.deltaY > 0) {
+                    // scroll down -> zoom out
+                    applyZoomFactor(zoomOutIntensity)
+                }
+            },
+            { passive: false } // needed so preventDefault works
+        )
+    }
+
+    // --- Zoom buttons (keep original behavior) ---
+    const zoomInBtn = document.getElementById("zoom-in")
+    const zoomOutBtn = document.getElementById("zoom-out")
+
+    if (zoomInBtn) {
+        zoomInBtn.addEventListener("click", () => {
+            applyZoomFactor(zoomInIntensity)
+        })
+    }
+
+    if (zoomOutBtn) {
+        zoomOutBtn.addEventListener("click", () => {
+            applyZoomFactor(zoomOutIntensity)
+        })
+    }
 }
