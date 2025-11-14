@@ -525,7 +525,6 @@ app.get('/questions/:id', async (req, res, next) => {
         }
         
         res.render("editquestion", {
-            layout: false,
             number: response.data.number,
             id: response.data.id,
             surveyDesignId: response.data.surveyDesignId,
@@ -539,7 +538,13 @@ app.get('/questions/:id', async (req, res, next) => {
             required: response.data.required,
             allowComment: response.data.allowComment,
             visualURL: process.env.VISUAL_UI_URL,
-            DEBUG: DEBUG
+            DEBUG: DEBUG,
+            breadcrumbs: [
+                    { label: 'Home', url: '/' },
+                    { label: 'Survey Designs', url: '/existing-survey-designs' },
+                    { label: `${designResponse.data.name}`, url: `/surveyDesigns/${response.data.surveyDesignId}` },
+                    { label: 'Question '+response.data.number, url: req.originalUrl }
+                ]
         })
 
     } catch (error) {
