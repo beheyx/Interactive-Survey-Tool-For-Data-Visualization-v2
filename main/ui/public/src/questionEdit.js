@@ -74,27 +74,32 @@ document.addEventListener('DOMContentLoaded', () => {
     questionType.addEventListener("change", updateContent)
 
 
-    // save button behavior
-    const saveQuestionButton = document.getElementsByClassName("save-question-button")[0]
-    saveQuestionButton.addEventListener("click", (event) => {
+    // import button behavior
+    const importVisualizationButton = document.getElementById("import-vis-button")
+    importVisualizationButton.addEventListener("click", (event) => {
         event.preventDefault()
-
-        // save without sending in the import        
-        const form = document.getElementsByTagName("form")[0]
-        form.elements['visualizationId'].value = ""
-        form.submit()
+        if (document.getElementById("visualizationId").value != ""){
+            document.getElementById("question-form").submit()
+        }
     })
 
+    // save button behavior
+    const saveQuestionButton = document.getElementById("save-question-button")
+    saveQuestionButton.addEventListener("click", (event) => {
+        event.preventDefault()
+        // save without resending the import
+        document.getElementById("visualizationId").value = ""
+        document.getElementById("question-form").submit()
+    })
     
     // removing a visual
-    const removeVisualButton = document.getElementsByClassName("remove-visualization-button")[0]
+    const removeVisualButton = document.getElementById("remove-visualization-button")
     if (removeVisualButton) {
         removeVisualButton.addEventListener("click", (event) => {
             // negative number removes visualization
             event.preventDefault()
-            const form = document.getElementsByTagName("form")[0]
-            form.elements['visualizationId'].value = "-1"
-            form.submit()
+            document.getElementById("visualizationId").value = "-1"
+            document.getElementById("question-form").submit()
         })
     }
 
