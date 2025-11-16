@@ -2,7 +2,18 @@
 
 <a class="back-button" href="/surveyDesigns/{{surveyDesignId}}">← Return to survey overview</a>
 <br><br>
-<h1>Question {{number}}</h1>
+<div class="col">
+    <div class="row">
+        <h2>Question {{number}}</h2>
+        <div class="unsaved ml-3 border border-warning alert-warning p-2" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            You have unsaved changes.
+            <a href="#save-question-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"/></svg>
+            </a>
+        </div>
+    </div>
+</div>
 
 <form id="question-form" action="/questions/{{id}}/PATCH" method="POST">
 
@@ -88,5 +99,11 @@
     {{/if}}    
 
     <br>
-    <button class="btn btn-primary" id="save-question-button">Save Changes</button>
+    <div class="row">
+        <button class="btn btn-primary mr-3" id="save-question-button">Save Changes</button>
+        <div class="unsaved border border-warning alert-warning p-2" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            You have unsaved changes.
+        </div>
+    </div>
 </form>

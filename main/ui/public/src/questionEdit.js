@@ -9,15 +9,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const maxLine = document.getElementById("max-line")
     const requiredLine = document.getElementById("required-line")
     const requiredElement = document.getElementById("required")
+    const commentElement = document.getElementById("allowComment")
     const minElement = document.getElementById("min")
     const maxElement = document.getElementById("max")
     const typeDescription = document.getElementById("type-description")
     let typeInfo = null
 
+    let oldStatus = {}
+    let newStatus = {}
+    function updateUnsavedWarning(){
+        if (JSON.stringify(oldStatus) == "{}") return
+        const showWarning = !(JSON.stringify(oldStatus) == JSON.stringify(newStatus))
+        const unsaved = document.getElementsByClassName("unsaved")
+        for (let alert of unsaved){
+            if (showWarning){ // honestly the funniest way to compare two dicts
+                alert.removeAttribute("hidden")
+            } else {
+                alert.setAttribute("hidden", "true")
+            }
+        }
+    }
 
     // making min connected to required
     // if not required min should be 0 and the input field is readonly
     function updateMinReadOnlyStatus() {
+        newStatus["required"] = requiredElement.checked
+        updateUnsavedWarning()
         if (!requiredElement.checked) {
             minElement.value = 0
             minElement.setAttribute("readonly", "true")
@@ -31,6 +48,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // update whenever required box is checked/unchecked
     requiredElement.addEventListener("change", updateMinReadOnlyStatus)
+    commentElement.addEventListener("change", (event) =>{
+        newStatus["comment"] = event.target.checked
+        updateUnsavedWarning()
+    })
 
     // update the min and max when out of bounds
     minElement.addEventListener('input', (event) => {
@@ -42,6 +63,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (setValue < 0){
             minElement.value = 0
         }
+        newStatus["min"] = minElement.value
+        newStatus["max"] = maxElement.value
+        updateUnsavedWarning()
     })
 
     maxElement.addEventListener('input', (event) => {
@@ -53,6 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (setValue< 0){
             maxElement.value = 0
         }
+        newStatus["min"] = minElement.value
+        newStatus["max"] = maxElement.value
+        updateUnsavedWarning()
     })
 
 
@@ -60,6 +87,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateContent() {
         // get info about question type
         typeInfo = questionTypes.filter(type => type.name == questionType.value)[0]
+        newStatus["questionType"] = questionType.value
+        updateUnsavedWarning()
 
         // update description
         typeDescription.textContent = typeInfo.description
@@ -97,6 +126,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // update whenever question type is changed
     questionType.addEventListener("change", updateContent)
 
+    const textEntry = document.getElementById("text")
+    textEntry.addEventListener("change", (event) =>{
+        newStatus["text"] = event.target.value
+        updateUnsavedWarning()
+    })
 
     // import button behavior
     const importVisualizationButton = document.getElementById("import-vis-button")
@@ -112,7 +146,8 @@ document.addEventListener('DOMContentLoaded', () => {
         importVisualizationButton.setAttribute("disabled", "true")
     }
     visualizationDropdown.addEventListener("change", (event) => {
-        console.log(event.target.value)
+        newStatus["visualization"] = event.target.value
+        updateUnsavedWarning()
         if (event.target.value == ""){
             importVisualizationButton.setAttribute("disabled", "true")
         } else {
@@ -135,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
         removeVisualButton.addEventListener("click", (event) => {
             // negative number removes visualization
             event.preventDefault()
-            document.getElementById("visualizationId").value = "-1"
+            visualizationDropdown.value = "-1"
             document.getElementById("question-form").submit()
         })
     }
@@ -147,6 +182,8 @@ document.addEventListener('DOMContentLoaded', () => {
         )
         const choices = items.join("|")
         document.getElementById("choices").value = choices
+        newStatus["choices"] = choices
+        updateUnsavedWarning()
     }
 
     function createChoice(value){
@@ -200,5 +237,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     })
     
+    // parse changes
+    oldStatus["text"] = textEntry.value
+    oldStatus["questionType"] = questionType.value
+    oldStatus["choices"] = savedChoices
+    oldStatus["min"] = minElement.value
+    oldStatus["max"] = maxElement.value
+    oldStatus["visualization"] = visualizationDropdown.value
+    oldStatus["required"] = requiredElement.checked
+    oldStatus["comment"] = commentElement.checked
+    newStatus = JSON.parse(JSON.stringify(oldStatus))
+    updateUnsavedWarning()
 })
 
