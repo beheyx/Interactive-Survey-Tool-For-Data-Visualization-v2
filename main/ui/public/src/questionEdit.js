@@ -127,6 +127,53 @@ document.addEventListener('DOMContentLoaded', () => {
         })
     }
 
+    function updateChoices(){
+        // sneakily edit #choices
+        const items = [...document.querySelectorAll("#choice-list li")].map(li =>
+            li.firstChild.textContent.trim()
+        )
+        const choices = items.join("|")
+        document.getElementById("choices").value = choices
+    }
+
+    function createChoice(value){
+        const li = document.createElement("li")
+        li.className = "list-group-item d-flex justify-content-between align-items-center col"
+        li.textContent = value
+
+        // choice remove
+        const removeBtn = document.createElement("button")
+        removeBtn.className = "btn col-1 btn-outline-danger"
+        removeBtn.textContent = "X"
+        removeBtn.onclick = () => {li.remove(); updateChoices()}
+
+        li.appendChild(removeBtn)
+        document.getElementById("choice-list").appendChild(li)
+    }
+
+    // recreate saved choices
+    const savedChoices = document.getElementById("choices").value
+    if (savedChoices != ""){
+        const listChoices = savedChoices.split("|")
+        for (const choice of listChoices){
+            createChoice(choice)
+        }
+    }
+
+    // adding/removing choices (multiple choice/radio)
+    document.getElementById("add-choice-btn").addEventListener("click", () => {
+        const input = document.getElementById("choice-input")
+        let value = input.value.trim()
+        // remove the pipe
+        value = value.replace("|", "")
+        if (value == "") return
+        
+        createChoice(value)
+
+        input.value = ""
+        input.focus()
+        updateChoices()
+    });
     
 })
 
