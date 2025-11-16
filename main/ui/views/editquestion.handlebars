@@ -21,10 +21,15 @@
     </h5>
 
     <section id="multiple-choice-section">
-        <h6><label for="choices">Choices: </label></h6>
-        <p>All possible choices for a multiple choice question. Separate Choices using the | character.</p>
-        <textarea class="form-input" type="text" id="choices" name="choices" rows="4" cols="50" placeholder="Write|Choices|Like|This">{{choices}}</textarea>
-        <br>
+        <div class="container">
+            <h6>Question Choices</h6>
+            <div class="input-group">
+                <input id="choice-input" type="text" class="form-control col" placeholder="Enter item">
+                <button id="add-choice-btn" type="button" class="btn btn-primary form-control col-2">Add</button>
+            </div>
+            <ul id="choice-list" class="list-group"></ul>
+        </div>
+        <textarea hidden class="form-input" type="text" id="choices" name="choices" rows="4" cols="50" placeholder="Write|Choices|Like|This">{{choices}}</textarea>
     </section>
     <br>
     <div id="required-line"><label for="required"><b>Required question?</b><a class="help" href="/faq.html#12" target="_blank">?</a></label>
@@ -43,9 +48,9 @@
         <div class="col" id="max-line">
             <label for="max" id="max-label">max: </label>
             <input class="form-control" type="number" id="max" name="max" value="{{max}}" min="0">
+            <br>
         </div>
     </div>
-    <br>
 
     <h5>
         <label for="visualizationId">Import Visualization:<a class="help" href="/faq.html#13" target="_blank">?</a></label>
