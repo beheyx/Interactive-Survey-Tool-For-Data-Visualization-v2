@@ -56,6 +56,11 @@
         <label for="visualizationId">Import Visualization:<a class="help" href="/faq.html#13" target="_blank">?</a></label>
     </h5>
     <div class="row">
+        <div class="col-2">
+            <button class="btn btn-primary form-control" type="button" id="import-vis-button">Import
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+            </button>
+        </div>
          <div class="col">
             <select class="form-control" id="visualizationId" name="visualizationId">
                 <option value="">Select Visualization</option>
@@ -64,9 +69,6 @@
                 {{/each}}
                 <option value="-1" hidden>Delete</option>
             </select>
-        </div>
-        <div class="col">
-            <button class="btn btn-primary form-control" type="button" id="import-vis-button">Import</button>
         </div>
     </div>
 
