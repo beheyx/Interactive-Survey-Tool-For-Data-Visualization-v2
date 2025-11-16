@@ -173,8 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // adding/removing choices (multiple choice/radio)
-    document.getElementById("add-choice-btn").addEventListener("click", () => {
+    function addChoice(){
         const input = document.getElementById("choice-input")
         let value = input.value.trim()
         // remove the pipe
@@ -186,7 +185,20 @@ document.addEventListener('DOMContentLoaded', () => {
         input.value = ""
         input.focus()
         updateChoices()
-    });
+    }
+
+    // adding/removing choices (multiple choice/radio)
+    document.getElementById("add-choice-btn").addEventListener("click", () => {
+        addChoice()
+    })
+
+    // capture enter on add choice and add choice instead
+    document.getElementById("choice-input").addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault()
+            addChoice()
+        }
+    })
     
 })
 
