@@ -33,8 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
     requiredElement.addEventListener("change", updateMinReadOnlyStatus)
 
     // update the min and max when out of bounds
-    minElement.addEventListener('input', (e) => {
-        const setValue = Math.floor(e.target.value)
+    minElement.addEventListener('input', (event) => {
+        const setValue = Math.floor(event.target.value)
         minElement.value = setValue
         if (maxElement.value < setValue){
             maxElement.value = setValue
@@ -44,8 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     })
 
-    maxElement.addEventListener('input', (e) => {
-        const setValue = Math.floor(e.target.value)
+    maxElement.addEventListener('input', (event) => {
+        const setValue = Math.floor(event.target.value)
         maxElement.value = setValue
         if (minElement.value > setValue){
             minElement.value = setValue
@@ -107,6 +107,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     })
 
+    const visualizationDropdown = document.getElementById("visualizationId")
+    if (visualizationDropdown.value == ""){
+        importVisualizationButton.setAttribute("disabled", "true")
+    }
+    visualizationDropdown.addEventListener("change", (event) => {
+        console.log(event.target.value)
+        if (event.target.value == ""){
+            importVisualizationButton.setAttribute("disabled", "true")
+        } else {
+            importVisualizationButton.removeAttribute("disabled")
+        }
+    })
+
     // save button behavior
     const saveQuestionButton = document.getElementById("save-question-button")
     saveQuestionButton.addEventListener("click", (event) => {
@@ -138,16 +151,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function createChoice(value){
         const li = document.createElement("li")
-        li.className = "list-group-item d-flex justify-content-between align-items-center col"
+        li.className = "list-group-item d-flex align-items-center col ltr"
         li.textContent = value
 
         // choice remove
-        const removeBtn = document.createElement("button")
-        removeBtn.className = "btn col-1 btn-outline-danger"
-        removeBtn.textContent = "X"
+        const removeBtn = document.createElement("div")
+        removeBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>'
+        removeBtn.className = "btn-outline-danger mr-3"
         removeBtn.onclick = () => {li.remove(); updateChoices()}
 
-        li.appendChild(removeBtn)
+        li.prepend(removeBtn)
         document.getElementById("choice-list").appendChild(li)
     }
 
