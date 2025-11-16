@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const requiredLine = document.getElementById("required-line")
     const requiredElement = document.getElementById("required")
     const minElement = document.getElementById("min")
+    const maxElement = document.getElementById("max")
     const typeDescription = document.getElementById("type-description")
     let typeInfo = null
 
@@ -30,6 +31,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // update whenever required box is checked/unchecked
     requiredElement.addEventListener("change", updateMinReadOnlyStatus)
+
+    // update the min and max when out of bounds
+    minElement.addEventListener('input', (e) => {
+        const setValue = Math.floor(e.target.value)
+        minElement.value = setValue
+        if (maxElement.value < setValue){
+            maxElement.value = setValue
+        }
+        if (setValue < 0){
+            minElement.value = 0
+        }
+    })
+
+    maxElement.addEventListener('input', (e) => {
+        const setValue = Math.floor(e.target.value)
+        maxElement.value = setValue
+        if (minElement.value > setValue){
+            minElement.value = setValue
+        }
+        if (setValue< 0){
+            maxElement.value = 0
+        }
+    })
 
 
     // show appropriate content based on specified question type
