@@ -2,7 +2,18 @@
 
 <a class="back-button" href="/surveyDesigns/{{surveyDesignId}}">← Return to survey overview</a>
 <br><br>
-<h1>Question {{number}}</h1>
+<div class="col">
+    <div class="row">
+        <h2>Question {{number}}</h2>
+        <div class="unsaved ml-3 border border-warning alert-warning p-2" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            You have unsaved changes.
+            <a href="#save-question-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"/></svg>
+            </a>
+        </div>
+    </div>
+</div>
 
 <form id="question-form" action="/questions/{{id}}/PATCH" method="POST">
 
@@ -21,10 +32,17 @@
     </h5>
 
     <section id="multiple-choice-section">
-        <h6><label for="choices">Choices: </label></h6>
-        <p>All possible choices for a multiple choice question. Separate Choices using the | character.</p>
-        <textarea class="form-input" type="text" id="choices" name="choices" rows="4" cols="50" placeholder="Write|Choices|Like|This">{{choices}}</textarea>
-        <br>
+        <div class="container">
+            <h6>Question Choices</h6>
+            <div class="input-group">
+                <button id="add-choice-btn" type="button" class="btn btn-primary form-control col-2">Add
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                </button>
+                <input id="choice-input" type="text" class="form-control col" placeholder="Enter choice">
+            </div>
+            <ul id="choice-list" class="list-group"></ul>
+        </div>
+        <textarea hidden class="form-input" type="text" id="choices" name="choices" rows="4" cols="50" placeholder="Write|Choices|Like|This">{{choices}}</textarea>
     </section>
     <br>
     <div id="required-line"><label for="required"><b>Required question?</b><a class="help" href="/faq.html#12" target="_blank">?</a></label>
@@ -38,19 +56,24 @@
     <div class="row">
         <div class="col" id="min-line">
             <label for="min" id="min-label">min: </label>
-            <input class="form-control" type="text" id="min" name="min" value="{{min}}">
+            <input class="form-control" type="number" id="min" name="min" value="{{min}}" min="0">
         </div>
         <div class="col" id="max-line">
             <label for="max" id="max-label">max: </label>
-            <input class="form-control" type="text" id="max" name="max" value="{{max}}">
+            <input class="form-control" type="number" id="max" name="max" value="{{max}}" min="0">
+            <br>
         </div>
     </div>
-    <br>
 
     <h5>
         <label for="visualizationId">Import Visualization:<a class="help" href="/faq.html#13" target="_blank">?</a></label>
     </h5>
     <div class="row">
+        <div class="col-2">
+            <button class="btn btn-primary form-control" type="button" id="import-vis-button">Import
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+            </button>
+        </div>
          <div class="col">
             <select class="form-control" id="visualizationId" name="visualizationId">
                 <option value="">Select Visualization</option>
@@ -60,21 +83,7 @@
                 <option value="-1" hidden>Delete</option>
             </select>
         </div>
-        <div class="col">
-            <button class="btn btn-primary form-control" type="button" id="import-vis-button">Import</button>
-        </div>
     </div>
-    <!--
-    <div class="form-group">
-        <select class="form-input" id="visualizationId" name="visualizationId">
-            <option value="">Select Visualization</option>
-            {{#each visualizations}}
-                <option value={{this.id}}>{{this.name}}</option>
-            {{/each}}
-            <option value="-1" hidden>Delete</option>
-        </select>
-        <button class="btn btn-primary" type="button">Import</button>
-    </div>-->
 
     {{#if visualizationContentId}}
         <br>
@@ -90,5 +99,11 @@
     {{/if}}    
 
     <br>
-    <button class="btn btn-primary" id="save-question-button">Save Changes</button>
+    <div class="row">
+        <button class="btn btn-primary mr-3" id="save-question-button">Save Changes</button>
+        <div class="unsaved border border-warning alert-warning p-2" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            You have unsaved changes.
+        </div>
+    </div>
 </form>

@@ -631,7 +631,15 @@ app.post('/questions/:id/PATCH', async (req, res, next) => {
         req.body.required = !!req.body.required
 
         const response = await api.patch(req.originalUrl.split('/PATCH')[0], req.body, withAuth(req.cookies.access_token))
-        res.redirect(req.get('Referrer'))
+        const importVis = req.body.visualizationId
+        if (importVis == ""){
+            // redirect to top of page
+            res.redirect(req.get('Referrer'))
+        } else {
+            // redirect to visualization section
+            res.redirect(req.get('Referrer')+"#visualizationId")
+        }
+        
     } catch (error) {
         next(error)
     }
