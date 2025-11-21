@@ -921,8 +921,8 @@ body{margin:0; font:20px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Rob
 /* Existing Pages Layout */
 .existing-page {
   max-width: 1400px;
-  margin: 40px auto;
-  padding: 0 20px;
+  margin: 0 auto;
+  padding: 40px 20px 40px 20px;
 }
 
 .page-nav {
@@ -978,6 +978,12 @@ body{margin:0; font:20px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Rob
   font-size: 36px;
   font-weight: 600;
   color: var(--ink);
+}
+
+.header-title-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .header-actions {
@@ -2529,9 +2535,7 @@ button.table-btn {
 }
 
 .faq-authenticated-container {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 0 16px;
+  margin: 0;
 }
 
 .faq-auth-category {
@@ -2539,42 +2543,57 @@ button.table-btn {
 }
 
 .faq-auth-category-title {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 600;
-  color: #1a202c;
+  color: #1e293b;
   margin-bottom: 20px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #4a90e2;
+  padding-bottom: 12px;
+  padding-left: 12px;
+  border-bottom: 3px solid var(--line);
+  border-left: 4px solid #4a90e2;
+  background: linear-gradient(90deg, rgba(74, 144, 226, 0.05) 0%, transparent 100%);
 }
 
 .faq-auth-item {
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  padding: 20px 24px;
-  margin-bottom: 12px;
+  padding: 24px 28px;
+  margin-bottom: 14px;
   transition: all 0.2s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .faq-auth-item:hover {
-  border-color: #cbd5e0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  transform: translateY(-1px);
+  border-color: #4a90e2;
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.15);
+  transform: translateY(-2px);
 }
 
 .faq-auth-question {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 600;
-  color: #2d3748;
-  margin-bottom: 10px;
-  line-height: 1.4;
+  color: #1e293b;
+  margin-bottom: 12px;
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.faq-auth-question::before {
+  content: "Q:";
+  color: #4a90e2;
+  font-weight: 700;
+  flex-shrink: 0;
 }
 
 .faq-auth-answer {
   font-size: 15px;
-  color: #4a5568;
-  line-height: 1.6;
+  color: #475569;
+  line-height: 1.7;
   margin: 0;
+  padding-left: 28px;
 }
 
 /* Responsive */
