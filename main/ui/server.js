@@ -627,10 +627,30 @@ app.get('/publishedSurveys/:id', async (req, res, next) => {
         }
 
         else {
+            // Format dates and times for separate date/time inputs
+            const localOffset = new Date().getTimezoneOffset() * 60000
+            const openLocal = new Date(openDateTime - localOffset)
+            const closeLocal = new Date(closeDateTime - localOffset)
+
+            // Split into date (YYYY-MM-DD) and time (HH:MM) parts
+            const openDate = openLocal.toISOString().slice(0, 10)
+            const openTime = openLocal.toISOString().slice(11, 16)
+            const closeDate = closeLocal.toISOString().slice(0, 10)
+            const closeTime = closeLocal.toISOString().slice(11, 16)
+
+            // Calculate response count
+            const responseCount = response.data.results?.participants?.length || 0
+
             res.render('publishedSurvey', {
+                id: req.params.id,
                 name: response.data.name,
                 openDateTime: openDateTime,
                 closeDateTime: closeDateTime,
+                openDate: openDate,
+                openTime: openTime,
+                closeDate: closeDate,
+                closeTime: closeTime,
+                responseCount: responseCount,
                 status: response.data.status,
                 url: process.env.MAIN_UI_URL + '/takeSurvey/' + response.data.linkHash,
                 activePage: 'published',
@@ -785,6 +805,38 @@ app.patch('/takeSurvey/:hash', async (req, res, next) => {
     res.cookie("answers", JSON.stringify(answers), { httpOnly: true })
     res.send()
 })
+
+// handle ui button for editing published survey dates
+app.post('/publishedSurveys/:id/PATCH', async (req, res, next) => {
+    try {
+        // Combine separate date and time fields into Date objects
+        if (req.body.openDate && req.body.openTime) {
+            req.body.openDateTime = new Date(`${req.body.openDate}T${req.body.openTime}`)
+            delete req.body.openDate
+            delete req.body.openTime
+        }
+        if (req.body.closeDate && req.body.closeTime) {
+            req.body.closeDateTime = new Date(`${req.body.closeDate}T${req.body.closeTime}`)
+            delete req.body.closeDate
+            delete req.body.closeTime
+        }
+
+        const response = await api.patch(req.originalUrl.split('/PATCH')[0], req.body, withAuth(req.cookies.access_token))
+        res.redirect(req.get('Referrer'))
+    } catch (error) {
+        next(error)
+    }
+})
+
+// Specific route for deleting published surveys
+app.post('/publishedSurveys/:id/DELETE', async (req, res, next) => {
+  try {
+    await api.delete(`/publishedSurveys/${req.params.id}`, withAuth(req.cookies.access_token));
+    return res.redirect('/existing-published-surveys');
+  } catch (error) {
+    next(error);
+  }
+});
 
 // handle ui buttons for POST, PATCH, and DELETE for user resource collections (such as visualizations, survey designs)
 app.post('/:resource/:id?/:method?', async (req, res, next) => {

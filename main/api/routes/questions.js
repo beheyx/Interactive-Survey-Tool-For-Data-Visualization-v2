@@ -38,16 +38,21 @@ router.get('/:id', requireAuthentication, handleErrors( async (req, res, next) =
 router.delete('/:id', requireAuthentication, handleErrors( async (req, res, next) => {
 	const question = await getResourceById(Question, req.params.id)
 	const surveyDesign = await getResourceById(SurveyDesign, question.surveyDesignId)
-	
+
 	if (req.userid == surveyDesign.userId) {
 		if (question.visualizationContentId) {
 			await visualApi.delete('/' + question.visualizationContentId)
 		}
 
 		await question.destroy();
+
+		// Update parent survey design's updatedAt timestamp
+		await surveyDesign.changed('updatedAt', true);
+		await surveyDesign.save();
+
 		res.status(200).send()
 	} else {
-		res.status(401).send({ 
+		res.status(401).send({
 			error: "You do not have access to this resource"
 		})
 	}
@@ -89,7 +94,10 @@ router.patch('/:id', requireAuthentication, handleErrors( async (req, res, next)
 		if (visualizationContentId != question.visualizationContentId) {
 			await Question.update({visualizationContentId: visualizationContentId}, {where: { id: req.params.id }})
 		}
-		
+
+		// Update parent survey design's updatedAt timestamp
+		await surveyDesign.changed('updatedAt', true);
+		await surveyDesign.save();
 
 		res.status(200).send()
 	} else {

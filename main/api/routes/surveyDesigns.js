@@ -103,6 +103,11 @@ router.post('/:id/questions', requireAuthentication, handleErrors( async (req, r
 
 	// Create new survey design in database
 	const question = await Question.create(questionData, QuestionClientFields)
+
+	// Update parent survey design's updatedAt timestamp
+	await surveyDesign.changed('updatedAt', true);
+	await surveyDesign.save();
+
 	res.status(201).send({ id: question.id })
 }))
 

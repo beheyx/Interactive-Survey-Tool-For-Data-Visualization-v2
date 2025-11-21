@@ -95,7 +95,15 @@ function getUserCollection(collectionModel, collectionName) {
 				error: "You are not allowed to access this resource"
 			})
 		} else {
-			const resources = await collectionModel.findAll({ where: { userId: req.params.id} })	
+			const resources = await collectionModel.findAll({ where: { userId: req.params.id} })
+
+			// For published surveys, add response count
+			if (collectionName === 'publishedSurveys') {
+				resources.forEach(survey => {
+					const responseCount = survey.results?.participants?.length || 0
+					survey.dataValues.responseCount = responseCount
+				})
+			}
 
 			const returnJson = {}
 			returnJson[collectionName] = resources

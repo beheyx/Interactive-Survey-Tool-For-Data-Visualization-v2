@@ -2,6 +2,21 @@
 <main class="existing-page">
   <div class="page-actions">
     <a href="/existing-published-surveys" class="back-button">← Back to Published Surveys</a>
+<div class="page-actions">
+  <a href="/existing-published-surveys" class="back-button">← Back to Published Surveys</a>
+  <form id="deleteForm" action="/publishedSurveys/{{id}}/DELETE" method="POST" style="display:inline;">
+    <button type="button" class="action-button action-button-danger" onclick="showDeleteModal()">
+      Delete
+    </button>
+
+  </form>
+</div>
+
+<!-- Page header -->
+<div class="published-survey-header">
+  <div class="header-content">
+    <h1>{{name}}</h1>
+    <span class="survey-status status-{{status}}">{{status}}</span>
   </div>
 
   <!-- Page header -->
@@ -34,24 +49,63 @@
   <div class="detail-grid">
     <div class="detail-card">
       <div class="detail-header">
-        <h3>Opens</h3>
+        <h3>Responses</h3>
       </div>
       <div class="detail-content">
-        <p class="detail-value">{{openDateTime}}</p>
+        <p class="detail-value response-count">{{responseCount}}</p>
       </div>
     </div>
+  </div>
 
+  <form action="/publishedSurveys/{{id}}/PATCH" method="POST" class="edit-dates-form">
     <div class="detail-card">
       <div class="detail-header">
-        <h3>Closes</h3>
+        <h3>Survey Schedule</h3>
+        <a class="help" href="/faq.html#17" target="_blank">?</a>
       </div>
       <div class="detail-content">
-        <p class="detail-value">{{closeDateTime}}</p>
+        <div class="form-group">
+          <label for="openDate">Opens</label>
+          <div class="datetime-input-group">
+            <input type="date" id="openDate" name="openDate" value="{{openDate}}" required class="date-input">
+            <input type="time" id="openTime" name="openTime" value="{{openTime}}" required class="time-input">
+          </div>
+          <p class="form-help">When participants can start taking the survey</p>
+        </div>
+
+        <div class="form-group">
+          <label for="closeDate">Closes</label>
+          <div class="datetime-input-group">
+            <input type="date" id="closeDate" name="closeDate" value="{{closeDate}}" required class="date-input">
+            <input type="time" id="closeTime" name="closeTime" value="{{closeTime}}" required class="time-input">
+          </div>
+          <p class="form-help">When the survey will close and stop accepting responses</p>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="action-button">Update Schedule</button>
+          <p class="form-help-inline">Use this to extend deadlines or reopen closed surveys</p>
+        </div>
       </div>
+    </div>
+  </form>
+</div>
+
+<!-- Delete Survey Modal -->
+<div id="deleteModal" class="delete-modal" style="display:none;">
+  <div class="delete-modal-content">
+    <h3>Delete Survey?</h3>
+    <p>This action cannot be undone.</p>
+
+    <div class="delete-modal-buttons">
+      <button type="button" class="delete-btn-cancel" onclick="hideDeleteModal()">Cancel</button>
+      <button type="button" class="delete-btn-confirm" onclick="confirmDelete()">Delete</button>
     </div>
   </div>
   </div>
 </main>
+
+
 
 <script>
 function copyToClipboard() {
@@ -75,4 +129,17 @@ function copyToClipboard() {
     button.style.color = '';
   }, 2000);
 }
+
+function showDeleteModal() {
+  document.getElementById('deleteModal').style.display = 'flex';
+}
+
+function hideDeleteModal() {
+  document.getElementById('deleteModal').style.display = 'none';
+}
+
+function confirmDelete() {
+  document.getElementById('deleteForm').submit();
+}
+
 </script>
