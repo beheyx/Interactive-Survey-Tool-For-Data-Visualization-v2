@@ -83,7 +83,7 @@
                         <span class="sidebar-text">Published Surveys</span>
                     </a>
                     <div class="sidebar-divider"></div>
-                    <a href="/faq.html" class="sidebar-item" target="_blank" rel="noopener">
+                    <a href="/faq" class="sidebar-item {{#if (eq activePage 'faq')}}sidebar-item-active{{/if}}">
                         <span class="sidebar-icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                         </span>
@@ -159,5 +159,79 @@
         });
         </script>
         {{/if}}
+
+        <!-- Tooltip System -->
+        <script>
+        // Tooltip data mapping
+        const tooltipData = {
+            '7': 'A survey starts with a page presenting its title and introduction text. Then, it has a page for each question which a participant must navigate through one-by-one. After the last question, the conclusion text is presented.',
+            '8': 'The title of the survey is what the participant sees when they take it. The name of the survey is only seen on the designer account.',
+            '9': 'On the left side of the page will be the attached visualization (if there is one). On the right side will be the question, the response prompt/field, and a comment box (if included).',
+            '10': 'The question type is the format in which a participant responds to the question.',
+            '11': 'A survey comment is an optional response section for a user to add any comments they may have about a specific survey question.',
+            '12': 'A participant must leave a response in order to continue, and the response must match the min/max parameters (if they exist). To disable a min/max, set it to 0.',
+            '13': 'A visualization from your account may be selected and attached to the given question. Changes to the visualization in the question edit page will be specific to that question.',
+            '14': 'The survey will be made available for completion in the specified time frame. The published survey will follow the state of the design at the time of publication, and it is accessible through a shareable link.',
+            '15': 'A survey may only be completed between its opening time and its closing time.',
+            '16': 'A survey\'s status can be "pending," "in-progress," or "closed." "Pending" means the opening date/time is still in the future and the survey has not opened for completion yet. "In-progress" means it is currently open. "Closed" means the closing date/time has passed and the survey is no longer open for completion.'
+        };
+
+        // Initialize tooltips when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create tooltip container if it doesn't exist
+            if (!document.getElementById('tooltipContainer')) {
+                const tooltipContainer = document.createElement('div');
+                tooltipContainer.id = 'tooltipContainer';
+                tooltipContainer.className = 'tooltip-popup';
+                document.body.appendChild(tooltipContainer);
+            }
+
+            const tooltip = document.getElementById('tooltipContainer');
+
+            // Add event listeners to all help buttons
+            document.querySelectorAll('.help-tooltip').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const faqId = this.getAttribute('data-faq-id');
+                    const content = tooltipData[faqId];
+
+                    if (content) {
+                        // Set tooltip content
+                        tooltip.innerHTML = `
+                            <div class="tooltip-content">
+                                <button class="tooltip-close" onclick="hideTooltip()">&times;</button>
+                                <p>${content}</p>
+                            </div>
+                        `;
+
+                        // Position tooltip near the button
+                        const rect = this.getBoundingClientRect();
+                        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+
+                        tooltip.style.top = (rect.bottom + scrollTop + 8) + 'px';
+                        tooltip.style.left = (rect.left + scrollLeft) + 'px';
+                        tooltip.classList.add('active');
+                    }
+                });
+            });
+
+            // Close tooltip when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.help-tooltip') && !e.target.closest('.tooltip-popup')) {
+                    hideTooltip();
+                }
+            });
+        });
+
+        function hideTooltip() {
+            const tooltip = document.getElementById('tooltipContainer');
+            if (tooltip) {
+                tooltip.classList.remove('active');
+            }
+        }
+        </script>
     </body>
 </html>
