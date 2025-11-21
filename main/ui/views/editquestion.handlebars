@@ -17,12 +17,12 @@
 
 <form id="question-form" action="/questions/{{id}}/PATCH" method="POST">
 
-    <h5><label for="text">Question Text<a class="help" href="/faq.html#9" target="_blank">?</a></label></h5>
+    <h5><label for="text">Question Text<a class="help-tooltip" data-faq-id="9" href="#">?</a></label></h5>
     <textarea class="form-input" type="text" id="text" name="text" rows="4" cols="75" placeholder="Your question here">{{text}}</textarea>
     <br>
 
     <h5>
-        <label for="type">Question Type:<a class="help" href="/faq.html#10" target="_blank">?</a></label><br>
+        <label for="type">Question Type:<a class="help-tooltip" data-faq-id="10" href="#">?</a></label><br>
         <select class="form-input" name="type" id="type">
             {{#each questionTypes}}
                 <option value="{{this.name}}" id="{{this.name}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
@@ -45,10 +45,10 @@
         <textarea hidden class="form-input" type="text" id="choices" name="choices" rows="4" cols="50" placeholder="Write|Choices|Like|This">{{choices}}</textarea>
     </section>
     <br>
-    <div id="required-line"><label for="required"><b>Required question?</b><a class="help" href="/faq.html#12" target="_blank">?</a></label>
+    <div id="required-line"><label for="required"><b>Required question?</b><a class="help-tooltip" data-faq-id="12" href="#">?</a></label>
         <input type="checkbox" id="required" name="required" {{#if required}}checked{{/if}}>
     </div>
-    <div><label for="allowComment"><b>Allow taker comment?</b><a class="help" href="/faq.html#11" target="_blank">?</a></label>
+    <div><label for="allowComment"><b>Allow taker comment?</b><a class="help-tooltip" data-faq-id="11" href="#">?</a></label>
         <input type="checkbox" id="allowComment" name="allowComment" value="true" {{#if allowComment}}checked{{/if}}>
     </div>
     <br>
@@ -66,7 +66,7 @@
     </div>
 
     <h5>
-        <label for="visualizationId">Import Visualization:<a class="help" href="/faq.html#13" target="_blank">?</a></label>
+        <label for="visualizationId">Import Visualization:<a class="help-tooltip" data-faq-id="13" href="#">?</a></label>
     </h5>
     <div class="row">
         <div class="col-2">
