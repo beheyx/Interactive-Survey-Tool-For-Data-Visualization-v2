@@ -157,6 +157,30 @@ app.get('/login', (req, res) => {
     res.render("login", { layout: false })
 });
 
+// FAQ page - serves different version based on authentication
+app.get('/faq', async (req, res, next) => {
+    try {
+        const userResponse = await api.get('/users', withAuth(req.cookies.access_token))
+
+        // User is authenticated - show authenticated FAQ with sidebar
+        res.render('faq-authenticated', {
+            isAuthenticated: true,
+            activePage: 'faq',
+            breadcrumbs: [
+                { label: 'Home', url: '/' },
+                { label: 'FAQ', url: '/faq' }
+            ]
+        })
+    } catch (error) {
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+            // Not authenticated - show public FAQ page
+            res.sendFile(path.join(__dirname, "public/faq-public.html"))
+        } else {
+            next(error)
+        }
+    }
+});
+
 // existing visualizations page
 app.get('/existing-visualizations', async (req, res, next) => {
     try {

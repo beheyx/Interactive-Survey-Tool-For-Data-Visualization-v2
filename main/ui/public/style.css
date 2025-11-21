@@ -2516,3 +2516,82 @@ button.table-btn {
     font-size: 16px;
   }
 }
+
+/* ============================================
+   AUTHENTICATED FAQ PAGE STYLES
+   ============================================ */
+
+.page-subtitle {
+  font-size: 16px;
+  color: #64748b;
+  margin-top: 8px;
+  font-weight: 400;
+}
+
+.faq-authenticated-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.faq-auth-category {
+  margin-bottom: 48px;
+}
+
+.faq-auth-category-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1a202c;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #4a90e2;
+}
+
+.faq-auth-item {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin-bottom: 12px;
+  transition: all 0.2s;
+}
+
+.faq-auth-item:hover {
+  border-color: #cbd5e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+.faq-auth-question {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.faq-auth-answer {
+  font-size: 15px;
+  color: #4a5568;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .faq-auth-category-title {
+    font-size: 20px;
+  }
+
+  .faq-auth-item {
+    padding: 16px 20px;
+  }
+
+  .faq-auth-question {
+    font-size: 16px;
+  }
+
+  .faq-auth-answer {
+    font-size: 14px;
+  }
+}
