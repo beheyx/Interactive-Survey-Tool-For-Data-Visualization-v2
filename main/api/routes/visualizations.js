@@ -65,7 +65,7 @@ router.delete('/:id', requireAuthentication, handleErrors( async (req, res, next
 // Update specific visualization
 router.patch('/:id', requireAuthentication, handleErrors( async (req, res, next) => {
 	const visualization = await getResourceById(Visualization, req.params.id)
-	
+
 	if (req.userid == visualization.userId) {
 		const result = await Visualization.update(req.body, {
 			where: { id: req.params.id },
@@ -76,8 +76,24 @@ router.patch('/:id', requireAuthentication, handleErrors( async (req, res, next)
 
 		res.status(200).send()
 	} else {
-		res.status(401).send({ 
+		res.status(401).send({
 			error: "You do not have access to this resource"
+		})
+	}
+}))
+
+// Update visualization timestamp by contentId (called when SVG content is modified)
+router.post('/content/:contentId/touch', handleErrors( async (req, res, next) => {
+	const visualization = await Visualization.findOne({ where: { contentId: req.params.contentId } })
+
+	if (visualization) {
+		// Update the updatedAt timestamp
+		await visualization.changed('updatedAt', true);
+		await visualization.save();
+		res.status(200).send()
+	} else {
+		res.status(404).send({
+			error: "Visualization not found"
 		})
 	}
 }))

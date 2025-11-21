@@ -14,6 +14,9 @@ const axios = require('axios');
 const api = axios.create({
     baseURL: process.env.VISUAL_API_URL
 })
+const mainApi = axios.create({
+    baseURL: process.env.MAIN_API_URL
+})
 
 // express-handlebars setup
 // this dynamically renders pages
@@ -87,6 +90,15 @@ app.post('/', async function(req,res,next) {
 app.put('/:id', async function(req,res,next) {
     try {
         const response = await api.put(req.originalUrl, req.body)
+
+        // Notify main API to update the visualization's updatedAt timestamp
+        try {
+            await mainApi.post(`/visualizations/content/${req.params.id}/touch`)
+        } catch (touchError) {
+            // Log error but don't fail the request if timestamp update fails
+            console.error(`Failed to update visualization timestamp for contentId ${req.params.id}:`, touchError.message)
+        }
+
         res.send().status(200)
     } catch (e) {
         next(e)
