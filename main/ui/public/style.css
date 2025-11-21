@@ -2375,3 +2375,144 @@ button.table-btn {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
 }
+
+/* ============================================
+   FAQ PAGE STYLES
+   ============================================ */
+
+.faq-section {
+  padding: 80px 0 100px;
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+}
+
+.faq-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.faq-title {
+  font-size: 48px;
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 16px;
+}
+
+.faq-subtitle {
+  font-size: 20px;
+  color: #64748b;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.faq-content {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.faq-category {
+  margin-bottom: 48px;
+}
+
+.faq-category-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 3px solid #4a90e2;
+}
+
+.faq-item {
+  background: white;
+  border-radius: 12px;
+  padding: 28px 32px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s;
+}
+
+.faq-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.faq-question {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1a202c;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.faq-answer {
+  font-size: 16px;
+  color: #4a5568;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.faq-cta {
+  text-align: center;
+  margin-top: 80px;
+  padding: 60px 32px;
+  background: linear-gradient(135deg, #4a90e2 0%, #2563eb 100%);
+  border-radius: 16px;
+  color: white;
+}
+
+.faq-cta h2 {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.faq-cta p {
+  font-size: 18px;
+  opacity: 0.95;
+  margin-bottom: 32px;
+}
+
+.faq-cta .hero-btn-primary {
+  background: white;
+  color: #4a90e2;
+}
+
+.faq-cta .hero-btn-primary:hover {
+  background: #f8fafc;
+  color: #2563eb;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .faq-title {
+    font-size: 36px;
+  }
+
+  .faq-subtitle {
+    font-size: 18px;
+  }
+
+  .faq-category-title {
+    font-size: 24px;
+  }
+
+  .faq-item {
+    padding: 20px 24px;
+  }
+
+  .faq-question {
+    font-size: 18px;
+  }
+
+  .faq-answer {
+    font-size: 15px;
+  }
+
+  .faq-cta h2 {
+    font-size: 28px;
+  }
+
+  .faq-cta p {
+    font-size: 16px;
+  }
+}
