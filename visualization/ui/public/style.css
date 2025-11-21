@@ -72,16 +72,26 @@ body {
 .zoom-button {
     position: absolute;
     left: 2%;
-    font-size: 5vh;
+
+    /* Responsive but not view-height based */
+    font-size: clamp(1.2rem, 1rem + 0.25vw, 1.6rem);
+
+    /* Circle size tied to font size */
+    width: calc(2.4em);
+    height: calc(2.4em);
+
+    /* Minimum size so preview thumbnails don't make it tiny */
+    min-width: 2.4rem;
+    min-height: 2.4rem;
+
     border-radius: 50%;
     z-index: 12;
-    width: 7vh;           /* fixed width & height => perfect circle */
-    height: 7vh;
-    padding: 0;           /* no extra padding to distort circle */
-    border: 0px;
+    padding: 0;
+    border: 0;
     background-color: lightgray;
     box-shadow: 2px 2px 2px 0px rgba(0, 0, 0, 0.4);
-    display: flex;        /* center + / - */
+
+    display: flex;
     align-items: center;
     justify-content: center;
 }
@@ -117,7 +127,8 @@ body {
     cursor: crosshair;
 }
 
-/* (Optional/legacy) create mode on wrapper, if you still use it */
+/* Optional/legacy create-mode cursor */
+#wrapper.mode-box,
 #wrapper.create {
     cursor: crosshair;
 }
@@ -139,7 +150,8 @@ body {
 
 .selectElements .visual-element.selected,
 .setSelectable .visual-element.selectable,
-:is(.create, .delete) .visual-element.custom {
+/* Treat lasso mode like create/delete for custom elements */
+:is(.create, .lasso, .delete) .visual-element.custom {
     fill-opacity: 40% !important;
     stroke-opacity: 40% !important;
     filter: saturate(0.3) drop-shadow(0px 0px var(--visual-scale) blue) saturate(15);
@@ -170,10 +182,13 @@ button, input {
     position: relative;
 }
 
+/* Custom elements (boxes, lassos, etc.) invisible by default;
+   visibility is controlled by the mode-based rules above. */
 .custom {
     fill-opacity: 0%;
 }
 
+/* Temporary box while drawing (also can be reused during drawing if needed) */
 #user-box {
     fill: blue;
     fill-opacity: 20%;
@@ -290,13 +305,4 @@ button, input {
     stroke-dasharray: 4 4;
     fill: none;
     pointer-events: none;
-}
-
-/* Final lasso polygon that becomes a selectable element */
-.lasso-region {
-    stroke: blue;
-    stroke-width: 2;
-    stroke-dasharray: 4 4;
-    fill: blue;
-    fill-opacity: 20%;
 }

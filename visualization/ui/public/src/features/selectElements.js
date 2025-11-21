@@ -4,7 +4,7 @@
 //      - Setting elements as selectable as an editor
 //      - Ability to Draw and delete selectable boxes as an editor
 //      - Ability to highlight elements as an editor
-//      - Ability to draw lasso regions as selectable polygons and multi-select elements
+//      - Ability to draw lasso regions as selectable polygons
 
 const OPTIONTEXT_SELECT_ALL = "Select All Elements"
 const OPTIONTEXT_DESELECT_ALL = "Clear All Selections"
@@ -93,6 +93,7 @@ export const selectElements = (visualizer) => {
         EnableSelection()
     }
 
+    // Back to the original onChangeMode, only adding a helper CSS class for cursor
     decoratedVisualizer.onChangeMode = function() {
         visualizer.onChangeMode()
 
@@ -102,8 +103,9 @@ export const selectElements = (visualizer) => {
         if (wrapper) {
             // helper class if you want CSS-based styling
             wrapper.classList.toggle("mode-lasso", isLasso)
-            // force cursor change for lasso mode
-            wrapper.style.cursor = isLasso ? "crosshair" : ""
+            wrapper.classList.toggle("mode-box", isBox)
+            // force cursor change for lasso/box modes
+            wrapper.style.cursor = (isLasso || isBox) ? "crosshair" : ""
         }
 
         // if entering box or lasso mode, disable any default mousedown event (panning)
@@ -197,7 +199,7 @@ function EnableBox() {
             boxStartingPoint = screenToSVG(evt.clientX, evt.clientY)
             box.setAttribute("x", boxStartingPoint.x)
             box.setAttribute("y", boxStartingPoint.y)
-            box.setAttribute("id", "user-box")  // used for CSS
+            box.setAttribute("id", "user-box")  // used for CSS while drawing
 
             visualizationElement.svg.appendChild(box)
 
@@ -234,7 +236,7 @@ function EnableBox() {
         isStartDrawing = false
         // if the user was drawing, save the box as a selectable element
         if (box) {
-            box.removeAttribute("id")   // used for CSS
+            box.removeAttribute("id")   // no longer in "drawing" state
             visualizationElement.addVisualElement(box)
             EnableSelectionOfElement(box)
             autosave.save()
@@ -244,7 +246,9 @@ function EnableBox() {
     })
 }
 
-// Enable user to lasso-select elements using a freehand region
+// Enable user to lasso-select by drawing a freehand polygon.
+// This is now parallel to EnableBox, but uses polyline + polygon,
+// and does NOT multi-select existing elements.
 function EnableLassoSelection() {
     let isLassoing = false
     let lassoPoints = []
@@ -283,78 +287,35 @@ function EnableLassoSelection() {
         lassoPath.setAttribute("points", pointsAttr)
     })
 
-    // on mouseup, finalize lasso and:
-    //  1) create a persistent polygon as a custom SVG element
-    //  2) toggle selection of elements whose centers are inside the polygon
+    // on mouseup, finalize lasso and create a persistent polygon custom element
     document.addEventListener("mouseup", evt => {
         if (!isLassoing) return
 
         isLassoing = false
 
-        if (!lassoPath) return
+        // remove temporary polyline
+        if (lassoPath && lassoPath.parentNode) {
+            lassoPath.parentNode.removeChild(lassoPath)
+        }
+        lassoPath = null
 
         // Only do anything if we have a "real" polygon
         if (lassoPoints.length >= 3) {
             const pointsAttr = lassoPoints.map(p => `${p.x},${p.y}`).join(" ")
 
-            // --- 1) Create persistent polygon element from the lasso ---
+            // Create the final polygon as a custom visual element.
+            // We let visualizationElement.addVisualElement decide classes
+            // (likely "visual-element custom") so CSS treats it like a box.
             const lassoPolygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon")
             lassoPolygon.setAttribute("points", pointsAttr)
-            lassoPolygon.setAttribute("class", "lasso-region")  // style as needed
-            lassoPolygon.setAttribute("vector-effect", "non-scaling-stroke")
 
             visualizationElement.svg.appendChild(lassoPolygon)
             visualizationElement.addVisualElement(lassoPolygon)
             EnableSelectionOfElement(lassoPolygon)
 
-            // --- 2) Use the polygon to select existing elements by center point ---
-            const polygon = lassoPoints
-
-            for (const element of visualizationElement.visualElements) {
-                // skip the lasso polygon itself
-                if (element === lassoPolygon) continue
-
-                const bbox = element.getBBox()
-                const center = {
-                    x: bbox.x + bbox.width / 2,
-                    y: bbox.y + bbox.height / 2
-                }
-
-                if (isPointInPolygon(center, polygon)) {
-                    visualizationElement.toggleSelection(element)
-                }
-            }
-
             autosave.save()
         }
 
-        // Clean up the temporary polyline
-        if (lassoPath && lassoPath.parentNode) {
-            lassoPath.parentNode.removeChild(lassoPath)
-        }
-        lassoPath = null
         lassoPoints = []
     })
-}
-
-// Ray-casting point-in-polygon test
-function isPointInPolygon(point, polygonPoints) {
-    let inside = false
-    const x = point.x
-    const y = point.y
-
-    for (let i = 0, j = polygonPoints.length - 1; i < polygonPoints.length; j = i++) {
-        const xi = polygonPoints[i].x
-        const yi = polygonPoints[i].y
-        const xj = polygonPoints[j].x
-        const yj = polygonPoints[j].y
-
-        const intersect =
-            ((yi > y) !== (yj > y)) &&
-            (x < (xj - xi) * (y - yi) / (yj - yi + 0.0000001) + xi)
-
-        if (intersect) inside = !inside
-    }
-
-    return inside
 }
