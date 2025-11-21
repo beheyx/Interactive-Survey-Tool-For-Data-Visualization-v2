@@ -1,7 +1,4 @@
 <!-- Published Survey Detail Page -->
-<main class="existing-page">
-  <div class="page-actions">
-    <a href="/existing-published-surveys" class="back-button">← Back to Published Surveys</a>
 <div class="page-actions">
   <a href="/existing-published-surveys" class="back-button">← Back to Published Surveys</a>
   <form id="deleteForm" action="/publishedSurveys/{{id}}/DELETE" method="POST" style="display:inline;">
@@ -18,24 +15,17 @@
     <h1>{{name}}</h1>
     <span class="survey-status status-{{status}}">{{status}}</span>
   </div>
-
-  <!-- Page header -->
-  <div class="page-header">
-    <div class="header-title-section">
-      <h2>{{name}}</h2>
-      <span class="survey-status status-{{status}}">{{status}}</span>
-    </div>
-    <div class="header-actions">
-      <a href="?downloadCSV=true" class="action-button">Download CSV</a>
-    </div>
+  <div class="header-actions">
+    <a href="?downloadCSV=true" class="action-button">Download CSV</a>
   </div>
+</div>
 
-  <!-- Survey Details -->
-  <div class="published-survey-details">
+<!-- Survey Details -->
+<div class="published-survey-details">
   <div class="detail-card">
     <div class="detail-header">
       <h3>Survey Link</h3>
-      <a class="help-tooltip" data-faq-id="16" href="#">?</a>
+      <a class="help" href="/faq.html#16" target="_blank">?</a>
     </div>
     <div class="detail-content">
       <div class="survey-url-container">
@@ -102,8 +92,7 @@
       <button type="button" class="delete-btn-confirm" onclick="confirmDelete()">Delete</button>
     </div>
   </div>
-  </div>
-</main>
+</div>
 
 
 

@@ -2709,7 +2709,8 @@ button.table-btn {
   .tooltip-popup {
     max-width: 90vw;
     left: 5vw !important;
-    right: 5vw;
+    right: 5vw;}
+}
 /* DELETE MODAL (Independent Component) */
 .delete-modal {
   position: fixed;
