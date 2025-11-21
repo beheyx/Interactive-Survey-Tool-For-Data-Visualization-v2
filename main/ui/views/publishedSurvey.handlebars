@@ -1,11 +1,11 @@
 <!-- Published Survey Detail Page -->
 <div class="page-actions">
   <a href="/existing-published-surveys" class="back-button">← Back to Published Surveys</a>
-  <form action="/publishedSurveys/{{id}}/DELETE" 
-      method="POST"
-      style="display:inline;"
-      onsubmit="return confirm('Are you sure to delete this survey?');">
-    <button type="submit" class="action-button action-button-danger">Delete</button>
+  <form id="deleteForm" action="/publishedSurveys/{{id}}/DELETE" method="POST" style="display:inline;">
+    <button type="button" class="action-button action-button-danger" onclick="showDeleteModal()">
+      Delete
+    </button>
+
   </form>
 </div>
 
@@ -81,6 +81,21 @@
   </form>
 </div>
 
+<!-- Delete Survey Modal -->
+<div id="deleteModal" class="delete-modal" style="display:none;">
+  <div class="delete-modal-content">
+    <h3>Delete Survey?</h3>
+    <p>This action cannot be undone.</p>
+
+    <div class="delete-modal-buttons">
+      <button type="button" class="delete-btn-cancel" onclick="hideDeleteModal()">Cancel</button>
+      <button type="button" class="delete-btn-confirm" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+
+
 <script>
 function copyToClipboard() {
   const urlInput = document.getElementById('surveyUrl');
@@ -103,4 +118,17 @@ function copyToClipboard() {
     button.style.color = '';
   }, 2000);
 }
+
+function showDeleteModal() {
+  document.getElementById('deleteModal').style.display = 'flex';
+}
+
+function hideDeleteModal() {
+  document.getElementById('deleteModal').style.display = 'none';
+}
+
+function confirmDelete() {
+  document.getElementById('deleteForm').submit();
+}
+
 </script>
