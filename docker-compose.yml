@@ -80,6 +80,8 @@ services:
       - "${VISUAL_UI_PORT}:8000"
     volumes:
       - .:/app
+    environment:
+      - MAIN_API_URL=${MAIN_API_URL}
     depends_on:
       - visual-api
 
