@@ -178,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateChoices(){
         // sneakily edit #choices
         const items = [...document.querySelectorAll("#choice-list li")].map(li =>
-            li.firstChild.textContent.trim()
+            li.textContent.trim()
         )
         const choices = items.join("|")
         document.getElementById("choices").value = choices
