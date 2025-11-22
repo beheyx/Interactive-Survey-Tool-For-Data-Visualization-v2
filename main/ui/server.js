@@ -447,6 +447,7 @@ app.get('/visualizations/:id', async (req, res, next) => {
         res.render("visualization", {
             name: response.data.name,
             id: response.data.contentId,
+            visualizationId: response.data.id,   // real ID from MYSQL, used to delete visualization
             visualURL: process.env.VISUAL_UI_URL,
             activePage: 'visualizations',
             breadcrumbs: [
@@ -828,12 +829,16 @@ app.post('/publishedSurveys/:id/PATCH', async (req, res, next) => {
     }
 })
 
-// Specific route for deleting published surveys
-app.post('/publishedSurveys/:id/DELETE', async (req, res, next) => {
+// Specific route for deleting current visualization
+app.post('/visualizations/:id/DELETE', async (req, res, next) => {
   try {
-    await api.delete(`/publishedSurveys/${req.params.id}`, withAuth(req.cookies.access_token));
-    return res.redirect('/existing-published-surveys');
+    console.log("Deleting visualization:", req.params.id);
+
+    await api.delete(`/visualizations/${req.params.id}`, withAuth(req.cookies.access_token));
+
+    return res.redirect('/existing-visualizations');
   } catch (error) {
+    console.log("DELETE visualization failed:");
     next(error);
   }
 });
@@ -847,6 +852,17 @@ app.post('/surveyDesigns/:id/DELETE', async (req, res, next) => {
     next(error);
   }
 });
+
+// Specific route for deleting published surveys
+app.post('/publishedSurveys/:id/DELETE', async (req, res, next) => {
+  try {
+    await api.delete(`/publishedSurveys/${req.params.id}`, withAuth(req.cookies.access_token));
+    return res.redirect('/existing-published-surveys');
+  } catch (error) {
+    next(error);
+  }
+});
+
 
 // handle ui buttons for POST, PATCH, and DELETE for user resource collections (such as visualizations, survey designs)
 app.post('/:resource/:id?/:method?', async (req, res, next) => {
