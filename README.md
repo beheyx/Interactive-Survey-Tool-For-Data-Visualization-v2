@@ -45,9 +45,13 @@ Rename the file `.env` for later use.
 
 Run `mv .env.local .env`.
 
+We need to set up the mySQL database in Docker:
+- first make sure the script is executable, run `chmod +x make_containers_NO_API.sh`
+- run the script `./make_containers_NO_API.sh`
+
 Run `docker compose up --build` to run the application. This may take a while. Visit `http://localhost:5000/` and `http://localhost:8000/` to verify.
 
-Note: the command `sed -i 's/\r$//' wait-for.sh` may be helpful if you have trouble launching.
+Troubleshoot: if you are having mySQL errors such as access denied or your docker is not loading API containers, try `sed -i 's/\r$//' wait-for.sh` for troubleshoot.
 
 ### Cleaning
 Run `docker compose down` to clean up after you've tested.
