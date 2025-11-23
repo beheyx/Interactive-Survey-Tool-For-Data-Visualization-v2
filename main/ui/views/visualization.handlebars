@@ -1,8 +1,10 @@
 <!-- Edit Visualization Page -->
 <div class="page-actions">
   <a href="/existing-visualizations" class="back-button">← Back to Visualizations</a>
-  <form action="/visualizations/{{id}}/DELETE" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this visualization? This action cannot be undone.');">
-    <button type="submit" class="action-button action-button-danger">Delete Visualization</button>
+  <form id="deleteVisualizationForm" action="/visualizations/{{visualizationId}}/DELETE" method="POST" style="display:inline;">
+    <button type="button" class="action-button action-button-danger" onclick="showDeleteVisualizationModal()">
+      Delete Visualization
+    </button>
   </form>
 </div>
 
@@ -17,3 +19,31 @@
     ></iframe>
   </div>
 </main>
+
+<!-- Delete Visualization Modal -->
+<div id="deleteVisualizationModal" class="delete-modal" style="display:none;">
+  <div class="delete-modal-content">
+    <h3>Delete Visualization?</h3>
+    <p>This action cannot be undone.</p>
+
+    <div class="delete-modal-buttons">
+      <button type="button" class="delete-btn-cancel" onclick="hideDeleteVisualizationModal()">Cancel</button>
+      <button type="button" class="delete-btn-confirm" onclick="confirmDeleteVisualization()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function showDeleteVisualizationModal() {
+  document.getElementById('deleteVisualizationModal').style.display = 'flex';
+}
+
+function hideDeleteVisualizationModal() {
+  document.getElementById('deleteVisualizationModal').style.display = 'none';
+}
+
+function confirmDeleteVisualization() {
+    document.getElementById('deleteVisualizationForm').submit();
+}
+</script>
+
