@@ -1,5 +1,9 @@
 # ADR-002: Table-Based Resource Display for Dashboard
 
+**Status:** Accepted  
+**Date:** 2025-11-23  
+**Owner:** Wesley Trieu  
+
 ## Context
 The original inherited dashboard displayed user resources (survey designs, visualizations, published surveys) as simple list items with minimal information. As users began managing multiple survey versions and needed to track recent activity, we considered whether to enhance the display format to provide better organization and actionable information like timestamps and bulk operations.
 
