@@ -1,8 +1,8 @@
 # ADR-005 — Unified Handlebars Layout for Authenticated UI
 
-**Status:** Accepted
+**Status:** Accepted  
 **Date:** 2025-11-23  
-**Author:** Kaveenaya Srinivasagam Omkumar 
+**Owner:** Kaveenaya Srinivasagam Omkumar 
 
 ---
 
