@@ -1,4 +1,8 @@
-# Front-End Framework Decision
+# ADR-001: Front-End Framework Decision
+
+**Status:** Accepted  
+**Date:** 2025-11-23  
+**Owner:** Bessie He 
 
 ## Context
 Because our project is an inherited project, its original framework was using Express + Handlebars. As we began updating UI and implementing more survey features (select elements, smoother zoom in/out, etc.), we considered whether to adopt React for improved component reuse, better user experience, and interactivity.
