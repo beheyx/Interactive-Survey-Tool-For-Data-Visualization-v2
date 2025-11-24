@@ -1,5 +1,8 @@
 # ADR-24OCT2025: Use Bootstrap 4 for Product Style
-Status: Accepted (with modifications)
+
+**Status:** Accepted  
+**Date:** 2025-11-23  
+**Owner:** Kali Pulanco
 
 ## Context
 The inherited repository uses a non-standard style that lacks critical features.
