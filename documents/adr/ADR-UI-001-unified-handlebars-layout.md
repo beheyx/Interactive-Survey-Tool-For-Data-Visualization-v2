@@ -42,12 +42,12 @@ Did not solve global navigation issues
 Breadcrumb implementation would be inconsistent
 
 
-Consequences
-Positive Outcomes
-Major reduction in duplicated UI logic
-Future features (e.g., Profile page) can be added easily
-Layout is maintainable and modernized
+## Consequences
+Positive Outcomes:
+- Major reduction in duplicated UI logic
+- Future features (e.g., Profile page) can be added easily
+- Layout is maintainable and modernized
 breadcrumb system improves usability
-Negative Outcomes
-Developers must understand the global layout when editing UI pages
-Requires coordination when adding new sidebar items
+Negative Outcomes:
+- Developers must understand the global layout when editing UI pages
+- Requires coordination when adding new sidebar items
