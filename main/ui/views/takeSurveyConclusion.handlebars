@@ -1,4 +1,14 @@
 <!DOCTYPE html>
+<style>
+.conclusion_container {
+    min-height: calc(100vh - 80px); /* subtract header height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+</style>
 <html>
     <head>
         <meta charset="utf-8">
@@ -6,11 +16,31 @@
         <title>Survey</title>
         
         <link rel="stylesheet" href="/takesurveystyle.css">
+        <link rel="stylesheet" href="/style.css" />
+        
     </head>
     <body>
-        <div class="container">
+        <!-- Title bar -->
+        <header class="landing-header">
+        <div class="landing-container">
+            <h1 class="landing-logo">
+            <a href="/home.html" style="text-decoration:none; color:inherit; cursor:pointer;">
+                Interactive Survey Tools
+            </a>
+            </h1>
+
+            <div class="progress-inline">
+                <span class="progress-text">100% Complete</span>
+                <div class="progress-bar header-bar">
+                    <div class="progress-fill" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+        </header>
+
+        <div class="conclusion_container">
             <div class="box welcome-box">
-                <h2 class="survey-title">You have finished the survey</h2>
+                <h2 class="survey-title" style="color: #D73F09;">You have finished the survey</h2>
                 <div class="question-text-box">
                     <span class="intro-text">{{conclusionText}}</span>
                 </div>
