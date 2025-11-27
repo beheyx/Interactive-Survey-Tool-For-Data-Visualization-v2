@@ -27,7 +27,7 @@
   .welcome-text {
     font-size: 22px;
     font-weight: 400;
-    color: #5090ee;
+    color: #D73F09;
     margin-bottom: 30px;
   }
 
@@ -56,6 +56,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/takesurveystyle.css">
     <link rel="stylesheet" href="/style.css" />
     <title>{{title}}</title>
 
@@ -70,12 +71,19 @@
             Interactive Survey Tools
           </a>
         </h1>
+
+        <div class="progress-inline">
+            <span class="progress-text">0% Complete</span>
+            <div class="progress-bar header-bar">
+                <div class="progress-fill" style="width: 0%"></div>
+            </div>
+        </div>
       </div>
     </header>
     
     <!-- Survey title -->
     <div class="stage-container">
-        <p class="welcome-text">You are invited to take this survey:</p>
+        <p class="welcome-text" style="font-weight: bold;">You are invited to take this survey:</p>
 
         <div class="class=stage">
             <h2 class="survey-title">{{title}}</h2>
@@ -85,7 +93,7 @@
 
 
         <div class="button-container title-button-container">
-            <a href="/takeSurvey/{{linkHash}}?page=1" class="card-button card-button-secondary">Start Survey!</a>
+            <a href="/takeSurvey/{{linkHash}}?page=1" class="card-button card-button-secondary">Start Survey</a>
         </div>
     </div>
 </body>

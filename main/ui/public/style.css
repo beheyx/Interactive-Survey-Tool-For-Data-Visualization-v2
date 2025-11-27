@@ -184,9 +184,9 @@ select:focus-visible,
 }
 
 .action-button-danger {
-  background: #ff0400 !important;
+  background: #FF3B30 !important;
   color: white !important;
-  border-color: #e53935 !important;
+  border-color: #D11A2A !important;
 }
 
 .action-button-danger:hover {
