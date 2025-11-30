@@ -47,9 +47,20 @@ app.engine("handlebars", exphbs.engine({
     helpers: {
         eq: function(a, b) {
             return a === b;
+        },
+        formatDate: function(dateString) {
+            if (!dateString) return "";
+            const date = new Date(dateString);
+
+            return date.toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+            });
         }
     }
 }))
+
 app.set("view engine", "handlebars")
 
 // Middleware to add authentication status and breadcrumbs to all renders
@@ -780,6 +791,31 @@ app.get('/takeSurvey/:hash', async (req, res, next) => {
         next(error)
     }
 })
+
+app.get('/profile', async (req, res, next) => {
+    try {
+        // Get user info from API
+        const response = await api.get('/users', withAuth(req.cookies.access_token));
+        const user = response.data;
+
+        res.render('profile', {
+            layout: 'main',
+            activePage: 'profile',
+            user,
+            breadcrumbs: [
+                { label: 'Home', url: '/' },
+                { label: 'Profile', url: '/profile' }
+            ]
+        });
+
+    } catch (error) {
+        if (error.response &&
+           (error.response.status === 401 || error.response.status === 403)) {
+            return res.redirect('/login');
+        }
+        next(error);
+    }
+});
 
 // for saving cookie data while taking survey
 app.patch('/takeSurvey/:hash', async (req, res, next) => {
