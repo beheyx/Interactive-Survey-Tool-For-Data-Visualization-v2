@@ -1,0 +1,48 @@
+<div class="profile-page">
+
+  <div class="profile-header">
+    <h2 class="profile-title">User Profile</h2>
+    <p class="profile-subtitle">View your account information</p>
+  </div>
+
+  <!-- CARD WRAPPER (You Forgot This!) -->
+  <div class="profile-card">
+
+    <h3 class="profile-card-title">Account Details</h3>
+
+    <div class="profile-info">
+
+      <div class="profile-row">
+        <span class="profile-label">Username</span>
+        <span class="profile-value">{{user.name}}</span>
+      </div>
+
+      <div class="profile-row">
+        <span class="profile-label">User ID</span>
+        <span class="profile-value">{{user.id}}</span>
+      </div>
+
+      {{#if user.createdAt}}
+      <div class="profile-row">
+        <span class="profile-label">Member Since</span>
+        <span class="profile-value">{{formatDate user.createdAt}}</span>
+      </div>
+      {{/if}}
+
+      {{#if user.lastLogin}}
+      <div class="profile-row">
+        <span class="profile-label">Last Login</span>
+        <span class="profile-value">{{formatDate user.lastLogin}}</span>
+      </div>
+      {{/if}}
+
+    </div>
+
+  </div>
+
+  <!-- LOGOUT BUTTON -->
+  <form action="/users/logout" method="POST" class="profile-logout-form">
+    <button type="submit" class="profile-logout-btn">Logout</button>
+  </form>
+
+</div>
