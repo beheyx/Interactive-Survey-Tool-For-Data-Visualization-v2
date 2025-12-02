@@ -7,8 +7,14 @@ const { Visualization, VisualClientFields } = require('./model/Visualization')
 const sequelize = require('./lib/sequelize')
 
 const express = require('express');
+const compression = require('compression');
 const app = express();
-app.use(express.json());
+
+// Enable gzip compression for all responses
+app.use(compression());
+
+// Increase JSON body parser limit to 50MB to handle large SVG files
+app.use(express.json({ limit: '50mb' }));
 
 // Get visualization info with ID {id}
 app.get('/:id', async (req, res, next) => {

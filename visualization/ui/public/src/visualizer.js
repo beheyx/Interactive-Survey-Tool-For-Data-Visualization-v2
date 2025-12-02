@@ -193,20 +193,32 @@ export const autosave = {
     },
     save: function() {
         this.statusText = "Saving..."
-        fetch(window.location.href, { 
+        const svgData = svgElement.outerHTML
+        const svgSizeKB = (new Blob([svgData]).size / 1024).toFixed(2)
+
+        // Show file size in status for large files
+        if (svgSizeKB > 1024) {
+            const svgSizeMB = (svgSizeKB / 1024).toFixed(2)
+            this.statusText = `Saving ${svgSizeMB}MB...`
+        }
+
+        fetch(window.location.href, {
             method: "PUT",
             body: JSON.stringify({
-                svg: svgElement.outerHTML
+                svg: svgData
             }),
             headers: {
                 "Content-type": "application/json",
-            },    
+            },
         }).then(response => {
             if (response.ok) {
                 this.statusText = "Changes saved"
             } else {
                 this.statusText = "There was an error saving changes!"
             }
+        }).catch(error => {
+            console.error("Save error:", error)
+            this.statusText = "Network error while saving!"
         })
     }
 }

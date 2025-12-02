@@ -10,8 +10,14 @@ const { PublishedSurvey } = require('./model/PublishedSurvey')
 const { handleErrors } = require('./lib/error')
 
 const express = require('express');
+const compression = require('compression');
 const app = express();
-app.use(express.json());
+
+// Enable gzip compression for all responses
+app.use(compression());
+
+// Increase JSON body parser limit to 50MB to handle large survey results
+app.use(express.json({ limit: '50mb' }));
 
 // API routes
 app.use('/users', userRoutes);
