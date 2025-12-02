@@ -21,7 +21,11 @@ router.use(cookieParser());
 router.get('/', requireAuthentication, handleErrors( async (req, res, next) => {
 	// find user with matching id and return info
 	const user = await getResourceById(User, req.userid)
-	res.status(200).send({ id: user.id, name: user.name })
+	res.status(200).send({
+    id: user.id,
+    name: user.name,
+    createdAt: user.createdAt,
+	});
 }))
 
 // Register a new user
@@ -61,6 +65,9 @@ router.post('/login', handleErrors( async (req, res, next) => {
 	if (authenticated) {
 		// find user with matching name
 		const user = await User.findOne({ where: { name: req.body.name } })
+		user.lastLogin = new Date();
+		await user.save();
+
 		// send authentication token back as a cookie
 		// this token lets API know who the user is and whether they have an authenticated login 
 		const token = generateAuthToken(user.id)

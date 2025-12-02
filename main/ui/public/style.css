@@ -2864,3 +2864,125 @@ button.table-btn {
     min-width: 0;
   }
 }
+
+/* === Profile Page === */
+
+.profile-page {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.profile-header {
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.profile-title {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 600;
+  color: #1a202c;
+}
+
+.profile-subtitle {
+  margin: 6px 0 0;
+  font-size: 15px;
+  color: #64748b;
+}
+
+.profile-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e1e4e8;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+  padding: 24px 28px;
+}
+
+.profile-card-title {
+  margin: 0 0 18px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 10px;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.profile-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 6px 0;
+}
+
+.profile-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.profile-value {
+  font-size: 15px;
+  color: #111827;
+  word-break: break-word;
+  text-align: right;
+}
+
+.profile-logout-form {
+  margin-top: 24px;
+  text-align: left;
+}
+
+.profile-logout-btn {
+  display: inline-block;
+  min-width: 180px;
+  padding: 10px 24px;
+  border-radius: 8px;
+  border: none;
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease,
+              box-shadow 0.15s ease;
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3);
+}
+
+.profile-logout-btn:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(220, 38, 38, 0.4);
+}
+
+.profile-logout-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(220, 38, 38, 0.3);
+}
+
+@media (max-width: 640px) {
+  .profile-page {
+    max-width: 100%;
+  }
+
+  .profile-card {
+    padding: 20px;
+  }
+
+  .profile-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .profile-value {
+    text-align: left;
+  }
+}
+
+
