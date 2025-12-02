@@ -45,14 +45,14 @@ header.landing-header {
 
 .progress-text {
     font-size: 1rem;
-    color: #4a90e2;
+    color: #D73F09;
     font-weight: bold;
     white-space: nowrap;     /* prevents wrapping */
 }
 
 .progress-percentage {
     margin-top: 10px;
-    color: #4a90e2;
+    color: #D73F09;
     text-align: center;
     font-size: 1rem;
     font-weight: bold;
@@ -60,13 +60,13 @@ header.landing-header {
 
 .progress-bar {
     height: 1vh;
-    background-color: #cce9f5;
+    background-color: #f1c2b2;
     border-radius: 1vh;
     overflow: hidden;
 }
 
 .progress-fill {
-    background-color: #4a90e2;
+    background-color: #D73F09;
     height: 100%;
     width: 0%;
 }
@@ -93,7 +93,7 @@ header.landing-header {
     justify-content: center;
     align-items: center;
     max-height: 85vh;
-    border: 0.2vw solid #9cc9f7;
+    border: 0.2vw solid #D73F09;
 }
 
 /* RIGHT PANEL */
@@ -108,7 +108,7 @@ header.landing-header {
 
 /* QUESTION CARD */
 .question-box {
-    background: #9cc9f7;
+    background: #eda287;
     border-radius: 1vw;
     padding: 1.5vw;
     box-shadow: 0 0.4vw 1vw rgba(0,0,0,0.05);
@@ -119,7 +119,7 @@ header.landing-header {
     background: white;
     height: 80vh;     /* proportional instead of 260px */
     padding: 1.5vw;
-    border: 0.2vw solid #9cc9f7;
+    border: 0.2vw solid #eda287;
     border-radius: 1vw;
 }
 
@@ -137,10 +137,10 @@ header.landing-header {
     justify-content: center;
     align-items: center;
 
-    border: 2px solid #4a90e2;
+    border: 2px solid #D73F09;
     border-radius: 12px;
     background: white;
-    color: #4a90e2;
+    color: #D73F09;
     font-weight: bold;
     font-size: 14px;
     cursor: pointer;
@@ -148,7 +148,7 @@ header.landing-header {
 
 
 .nav-button:hover {
-    background: #4a90e2;
+    background: #D73F09;
     color: white;
     transform: translateY(-0.3vh);
     box-shadow: 0 0.8vh 1.2vh rgba(74, 144, 226, 0.25);
