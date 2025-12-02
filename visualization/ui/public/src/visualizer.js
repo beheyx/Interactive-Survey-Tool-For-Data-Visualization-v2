@@ -191,35 +191,106 @@ export const autosave = {
         this.value = s
         document.getElementById("save-status").textContent = s
     },
-    save: function() {
-        this.statusText = "Saving..."
-        const svgData = svgElement.outerHTML
-        const svgSizeKB = (new Blob([svgData]).size / 1024).toFixed(2)
+    save: async function() {
+        this.statusText = "Preparing to save..."
 
-        // Show file size in status for large files
-        if (svgSizeKB > 1024) {
-            const svgSizeMB = (svgSizeKB / 1024).toFixed(2)
-            this.statusText = `Saving ${svgSizeMB}MB...`
-        }
+        const progressContainer = document.getElementById("upload-progress-container")
+        const progressFill = document.getElementById("upload-progress-fill")
+        const progressText = document.getElementById("upload-progress-text")
 
-        fetch(window.location.href, {
-            method: "PUT",
-            body: JSON.stringify({
-                svg: svgData
-            }),
-            headers: {
-                "Content-type": "application/json",
-            },
-        }).then(response => {
+        // Show progress bar immediately for user feedback
+        progressContainer.hidden = false
+        progressFill.style.width = "0%"
+        progressText.textContent = "Serializing SVG..."
+
+        let progressInterval = null
+        let svgData, svgSizeBytes, svgSizeKB, svgSizeMB
+
+        try {
+            // Step 1: Serialize SVG asynchronously to prevent UI blocking
+            await new Promise(resolve => setTimeout(resolve, 50)) // Let UI update first
+
+            this.statusText = "Processing SVG data..."
+            progressFill.style.width = "10%"
+            progressText.textContent = "Processing SVG..."
+
+            // Extract SVG in next event loop to keep UI responsive
+            svgData = await new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve(svgElement.outerHTML)
+                }, 0)
+            })
+
+            progressFill.style.width = "20%"
+            progressText.textContent = "Calculating size..."
+
+            // Calculate size
+            svgSizeBytes = new Blob([svgData]).size
+            svgSizeKB = (svgSizeBytes / 1024).toFixed(2)
+            svgSizeMB = (svgSizeKB / 1024).toFixed(2)
+
+            this.statusText = `Preparing ${svgSizeMB}MB for upload...`
+            progressFill.style.width = "30%"
+            progressText.textContent = `Preparing ${svgSizeMB}MB...`
+
+            // Step 2: JSON stringify asynchronously
+            await new Promise(resolve => setTimeout(resolve, 50))
+
+            const jsonData = await new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve(JSON.stringify({ svg: svgData }))
+                }, 0)
+            })
+
+            progressFill.style.width = "40%"
+            progressText.textContent = `Uploading ${svgSizeMB}MB...`
+            this.statusText = `Uploading ${svgSizeMB}MB...`
+
+            // Step 3: Simulate upload progress while sending
+            let progress = 40
+            const estimatedTime = Math.max(3000, svgSizeBytes / 50000)
+            const increment = 50 / (estimatedTime / 100)
+
+            progressInterval = setInterval(() => {
+                progress += increment
+                if (progress < 90) {
+                    progressFill.style.width = progress + "%"
+                    progressText.textContent = `${Math.round(progress)}% (${svgSizeMB} MB)`
+                }
+            }, 100)
+
+            // Step 4: Send the data
+            const response = await fetch(window.location.href, {
+                method: "PUT",
+                body: jsonData,
+                headers: {
+                    "Content-type": "application/json",
+                },
+            })
+
+            if (progressInterval) clearInterval(progressInterval)
+
             if (response.ok) {
                 this.statusText = "Changes saved"
+                progressFill.style.width = "100%"
+                progressText.textContent = `Complete! (${svgSizeMB} MB)`
+                setTimeout(() => {
+                    progressContainer.hidden = true
+                    progressFill.style.width = "0%"
+                }, 2000)
             } else {
                 this.statusText = "There was an error saving changes!"
+                progressContainer.hidden = true
+                progressFill.style.width = "0%"
             }
-        }).catch(error => {
+
+        } catch (error) {
+            if (progressInterval) clearInterval(progressInterval)
             console.error("Save error:", error)
-            this.statusText = "Network error while saving!"
-        })
+            this.statusText = "Error while saving!"
+            progressContainer.hidden = true
+            progressFill.style.width = "0%"
+        }
     }
 }
 
