@@ -48,7 +48,96 @@ app.post('/', async (req, res, next) => {
     }
 })
 
-// replace visualization content
+// In-memory storage for chunked uploads (temporary chunks during upload)
+const uploadChunks = new Map()
+
+// Initialize chunked upload
+app.post('/:id/upload/init', async (req, res, next) => {
+    try {
+        const { totalChunks, fileSize } = req.body
+        const uploadId = `${req.params.id}-${Date.now()}`
+
+        uploadChunks.set(uploadId, {
+            chunks: new Array(totalChunks),
+            totalChunks,
+            fileSize,
+            receivedChunks: 0,
+            createdAt: Date.now()
+        })
+
+        res.status(200).send({ uploadId })
+    } catch (e) {
+        next(e)
+    }
+})
+
+// Receive individual chunk
+app.post('/:id/upload/chunk', async (req, res, next) => {
+    try {
+        const { uploadId, chunkIndex, data } = req.body
+
+        if (!uploadChunks.has(uploadId)) {
+            return res.status(404).send({ error: "Upload session not found" })
+        }
+
+        const upload = uploadChunks.get(uploadId)
+        upload.chunks[chunkIndex] = data
+        upload.receivedChunks++
+
+        res.status(200).send({
+            received: upload.receivedChunks,
+            total: upload.totalChunks
+        })
+    } catch (e) {
+        next(e)
+    }
+})
+
+// Finalize chunked upload
+app.post('/:id/upload/finalize', async (req, res, next) => {
+    try {
+        const { uploadId } = req.body
+
+        if (!uploadChunks.has(uploadId)) {
+            return res.status(404).send({ error: "Upload session not found" })
+        }
+
+        const upload = uploadChunks.get(uploadId)
+
+        // Verify all chunks received
+        if (upload.receivedChunks !== upload.totalChunks) {
+            return res.status(400).send({
+                error: "Missing chunks",
+                received: upload.receivedChunks,
+                expected: upload.totalChunks
+            })
+        }
+
+        // Reassemble the SVG data
+        const svgData = upload.chunks.join('')
+
+        // Update visualization in database
+        const visualization = await Visualization.findOne({where: { id: req.params.id} })
+        if (visualization) {
+            await Visualization.update({ svg: svgData }, {
+                where: { id: req.params.id },
+                fields: VisualClientFields
+            })
+
+            // Clean up chunks from memory
+            uploadChunks.delete(uploadId)
+
+            res.status(204).send()
+        } else {
+            uploadChunks.delete(uploadId)
+            next()
+        }
+    } catch (e) {
+        next(e)
+    }
+})
+
+// replace visualization content (keep original for backwards compatibility)
 app.put('/:id', async (req, res, next) => {
     try {
         const visualization = await Visualization.findOne({where: { id: req.params.id} })

@@ -98,7 +98,43 @@ app.post('/', async function(req,res,next) {
     }
 })
 
-// ui put
+// Chunked upload endpoints
+app.post('/:id/upload/init', async function(req,res,next) {
+    try {
+        const response = await api.post(req.originalUrl, req.body)
+        res.status(200).send(response.data)
+    } catch (e) {
+        next(e)
+    }
+})
+
+app.post('/:id/upload/chunk', async function(req,res,next) {
+    try {
+        const response = await api.post(req.originalUrl, req.body)
+        res.status(200).send(response.data)
+    } catch (e) {
+        next(e)
+    }
+})
+
+app.post('/:id/upload/finalize', async function(req,res,next) {
+    try {
+        const response = await api.post(req.originalUrl, req.body)
+
+        // Notify main API to update the visualization's updatedAt timestamp
+        try {
+            await mainApi.post(`/visualizations/content/${req.params.id}/touch`)
+        } catch (touchError) {
+            console.error(`Failed to update visualization timestamp for contentId ${req.params.id}:`, touchError.message)
+        }
+
+        res.status(204).send()
+    } catch (e) {
+        next(e)
+    }
+})
+
+// ui put (keep for backwards compatibility with non-chunked uploads)
 app.put('/:id', async function(req,res,next) {
     try {
         const response = await api.put(req.originalUrl, req.body)

@@ -198,94 +198,115 @@ export const autosave = {
         const progressFill = document.getElementById("upload-progress-fill")
         const progressText = document.getElementById("upload-progress-text")
 
-        // Show progress bar immediately for user feedback
+        // Show progress bar immediately
         progressContainer.hidden = false
         progressFill.style.width = "0%"
-        progressText.textContent = "Serializing SVG..."
-
-        let progressInterval = null
-        let svgData, svgSizeBytes, svgSizeKB, svgSizeMB
+        progressText.textContent = "Processing SVG..."
 
         try {
-            // Step 1: Serialize SVG asynchronously to prevent UI blocking
-            await new Promise(resolve => setTimeout(resolve, 50)) // Let UI update first
+            // Step 1: Extract SVG data
+            this.statusText = "Processing SVG..."
+            const svgData = svgElement.outerHTML
+            const svgSizeBytes = new Blob([svgData]).size
+            const svgSizeMB = (svgSizeBytes / 1024 / 1024).toFixed(2)
 
-            this.statusText = "Processing SVG data..."
-            progressFill.style.width = "10%"
-            progressText.textContent = "Processing SVG..."
-
-            // Extract SVG in next event loop to keep UI responsive
-            svgData = await new Promise((resolve) => {
-                setTimeout(() => {
-                    resolve(svgElement.outerHTML)
-                }, 0)
-            })
-
-            progressFill.style.width = "20%"
-            progressText.textContent = "Calculating size..."
-
-            // Calculate size
-            svgSizeBytes = new Blob([svgData]).size
-            svgSizeKB = (svgSizeBytes / 1024).toFixed(2)
-            svgSizeMB = (svgSizeKB / 1024).toFixed(2)
-
-            this.statusText = `Preparing ${svgSizeMB}MB for upload...`
-            progressFill.style.width = "30%"
+            progressFill.style.width = "5%"
             progressText.textContent = `Preparing ${svgSizeMB}MB...`
 
-            // Step 2: JSON stringify asynchronously
-            await new Promise(resolve => setTimeout(resolve, 50))
+            // Determine chunk size (1MB chunks for better progress tracking)
+            const CHUNK_SIZE = 1 * 1024 * 1024 // 1MB
+            const useChunking = svgSizeBytes > CHUNK_SIZE
 
-            const jsonData = await new Promise((resolve) => {
-                setTimeout(() => {
-                    resolve(JSON.stringify({ svg: svgData }))
-                }, 0)
-            })
+            if (!useChunking) {
+                // Small file - use original PUT method
+                progressFill.style.width = "50%"
+                const response = await fetch(window.location.href, {
+                    method: "PUT",
+                    body: JSON.stringify({ svg: svgData }),
+                    headers: { "Content-type": "application/json" }
+                })
 
-            progressFill.style.width = "40%"
-            progressText.textContent = `Uploading ${svgSizeMB}MB...`
-            this.statusText = `Uploading ${svgSizeMB}MB...`
-
-            // Step 3: Simulate upload progress while sending
-            let progress = 40
-            const estimatedTime = Math.max(3000, svgSizeBytes / 50000)
-            const increment = 50 / (estimatedTime / 100)
-
-            progressInterval = setInterval(() => {
-                progress += increment
-                if (progress < 90) {
-                    progressFill.style.width = progress + "%"
-                    progressText.textContent = `${Math.round(progress)}% (${svgSizeMB} MB)`
+                if (response.ok) {
+                    this.statusText = "Changes saved"
+                    progressFill.style.width = "100%"
+                    progressText.textContent = "Complete!"
+                    setTimeout(() => {
+                        progressContainer.hidden = true
+                        progressFill.style.width = "0%"
+                    }, 2000)
+                } else {
+                    throw new Error("Upload failed")
                 }
-            }, 100)
-
-            // Step 4: Send the data
-            const response = await fetch(window.location.href, {
-                method: "PUT",
-                body: jsonData,
-                headers: {
-                    "Content-type": "application/json",
-                },
-            })
-
-            if (progressInterval) clearInterval(progressInterval)
-
-            if (response.ok) {
-                this.statusText = "Changes saved"
-                progressFill.style.width = "100%"
-                progressText.textContent = `Complete! (${svgSizeMB} MB)`
-                setTimeout(() => {
-                    progressContainer.hidden = true
-                    progressFill.style.width = "0%"
-                }, 2000)
-            } else {
-                this.statusText = "There was an error saving changes!"
-                progressContainer.hidden = true
-                progressFill.style.width = "0%"
+                return
             }
 
+            // Large file - use chunked upload
+            const totalChunks = Math.ceil(svgSizeBytes / CHUNK_SIZE)
+            this.statusText = `Uploading ${svgSizeMB}MB in ${totalChunks} chunks...`
+
+            // Step 2: Initialize upload
+            progressFill.style.width = "10%"
+            progressText.textContent = "Initializing upload..."
+
+            const initResponse = await fetch(`${window.location.href}/upload/init`, {
+                method: "POST",
+                body: JSON.stringify({ totalChunks, fileSize: svgSizeBytes }),
+                headers: { "Content-type": "application/json" }
+            })
+
+            if (!initResponse.ok) throw new Error("Failed to initialize upload")
+            const { uploadId } = await initResponse.json()
+
+            // Step 3: Send chunks
+            for (let i = 0; i < totalChunks; i++) {
+                const start = i * CHUNK_SIZE
+                const end = Math.min(start + CHUNK_SIZE, svgSizeBytes)
+                const chunk = svgData.substring(start, end)
+
+                const chunkResponse = await fetch(`${window.location.href}/upload/chunk`, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        uploadId,
+                        chunkIndex: i,
+                        data: chunk
+                    }),
+                    headers: { "Content-type": "application/json" }
+                })
+
+                if (!chunkResponse.ok) {
+                    throw new Error(`Failed to upload chunk ${i + 1}/${totalChunks}`)
+                }
+
+                // Update progress (10% for init, 80% for chunks, 10% for finalize)
+                const chunkProgress = 10 + (80 * (i + 1) / totalChunks)
+                progressFill.style.width = chunkProgress + "%"
+                progressText.textContent = `Uploading: ${i + 1}/${totalChunks} chunks (${svgSizeMB}MB)`
+                this.statusText = `Uploading chunk ${i + 1}/${totalChunks}...`
+            }
+
+            // Step 4: Finalize upload
+            progressFill.style.width = "95%"
+            progressText.textContent = "Finalizing..."
+            this.statusText = "Finalizing upload..."
+
+            const finalizeResponse = await fetch(`${window.location.href}/upload/finalize`, {
+                method: "POST",
+                body: JSON.stringify({ uploadId }),
+                headers: { "Content-type": "application/json" }
+            })
+
+            if (!finalizeResponse.ok) throw new Error("Failed to finalize upload")
+
+            // Success!
+            this.statusText = "Changes saved"
+            progressFill.style.width = "100%"
+            progressText.textContent = `Complete! (${svgSizeMB}MB)`
+            setTimeout(() => {
+                progressContainer.hidden = true
+                progressFill.style.width = "0%"
+            }, 2000)
+
         } catch (error) {
-            if (progressInterval) clearInterval(progressInterval)
             console.error("Save error:", error)
             this.statusText = "Error while saving!"
             progressContainer.hidden = true
