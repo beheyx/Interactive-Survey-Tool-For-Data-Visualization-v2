@@ -19,8 +19,14 @@ const visualizerBase = {
     onPageLoadAsEditor: function() {
         // create file uploader (but keep it hidden until SVG loads)
         const uploader = document.getElementById("svg-uploader");
-        uploader.addEventListener("change", handleSvgUpload);
-        
+        if (uploader) {
+            console.log("onPageLoadAsEditor: Attaching event listener to svg-uploader");
+            uploader.addEventListener("change", handleSvgUpload);
+            uploader.dataset.listenerAttached = "true";
+        } else {
+            console.warn("onPageLoadAsEditor: svg-uploader element not found");
+        }
+
         // help button
         document.getElementById("help-button").removeAttribute("hidden")
         document.getElementById("help-button").addEventListener("click", () => {
@@ -43,8 +49,14 @@ const visualizerBase = {
 
         // create file uploader (but keep it hidden until SVG loads)
         const uploader = document.getElementById("svg-uploader");
-        uploader.addEventListener("change", handleSvgUpload);  
-    
+        if (uploader) {
+            console.log("onPageLoadDebug: Attaching event listener to svg-uploader");
+            uploader.addEventListener("change", handleSvgUpload);
+            uploader.dataset.listenerAttached = "true";
+        } else {
+            console.warn("onPageLoadDebug: svg-uploader element not found");
+        }
+
         // create debug mode buttons
         document.getElementById("editor-button").removeAttribute("hidden")
         document.getElementById("participant-button").removeAttribute("hidden")
@@ -219,6 +231,8 @@ export const autosave = {
             if (!useChunking) {
                 // Small file - use original PUT method
                 progressFill.style.width = "50%"
+                progressText.textContent = `Uploading ${svgSizeMB}MB...`
+
                 const response = await fetch(baseUrl, {
                     method: "PUT",
                     body: JSON.stringify({ svg: svgData }),
@@ -234,7 +248,9 @@ export const autosave = {
                         progressFill.style.width = "0%"
                     }, 2000)
                 } else {
-                    throw new Error("Upload failed")
+                    const errorText = await response.text()
+                    console.error("PUT upload error:", response.status, errorText)
+                    throw new Error(`Upload failed: ${response.status}`)
                 }
                 return
             }
@@ -311,9 +327,13 @@ export const autosave = {
 
         } catch (error) {
             console.error("Save error:", error)
+            console.error("Error stack:", error.stack)
             this.statusText = "Error while saving!"
             progressContainer.hidden = true
             progressFill.style.width = "0%"
+
+            // Show error to user
+            alert(`Upload failed: ${error.message}. Check console for details.`)
         }
     }
 }
@@ -333,11 +353,45 @@ async function loadSVGAsync() {
 
             const data = await response.json()
 
+            // Check if SVG data exists
+            if (!data.svg || data.svg.trim() === '') {
+                // No SVG uploaded yet - remove spinner and show uploader
+                const spinner = document.getElementById('svg-loading-spinner')
+                if (spinner) spinner.remove()
+
+                visualContainer.innerHTML = '<p style="text-align: center; color: #666;">No visualization uploaded yet. Upload one to get started.</p>'
+
+                // Show uploader for editor/debug mode
+                const uploaderContainer = document.getElementById('uploader-container')
+                if (uploaderContainer && (wrapper.classList.contains('editor') || wrapper.classList.contains('debug'))) {
+                    uploaderContainer.hidden = false
+
+                    // Ensure event listener is attached
+                    const uploader = document.getElementById("svg-uploader")
+                    if (uploader && !uploader.dataset.listenerAttached) {
+                        console.log("Attaching change event listener to uploader")
+                        uploader.addEventListener("change", handleSvgUpload)
+                        uploader.dataset.listenerAttached = "true"
+                    }
+                }
+                return true
+            }
+
             // Keep spinner visible while parsing and inserting
             // Parse SVG using DOM parser
             const parser = new DOMParser()
             const svgDoc = parser.parseFromString(data.svg, 'image/svg+xml')
             const svgElement = svgDoc.documentElement
+
+            // Check for XML parsing errors
+            const parserError = svgDoc.querySelector('parsererror')
+            if (parserError) {
+                console.error('SVG parsing error:', parserError.textContent)
+                const spinner = document.getElementById('svg-loading-spinner')
+                if (spinner) spinner.remove()
+                visualContainer.innerHTML = '<p style="color: red; text-align: center;">Failed to parse SVG: Invalid XML format</p>'
+                return false
+            }
 
             // Remove spinner and insert SVG atomically
             const spinner = document.getElementById('svg-loading-spinner')
@@ -417,6 +471,7 @@ addEventListener("DOMContentLoaded", async () => {
 
 function handleSvgUpload(event){
     const file = event.target.files[0];
+    console.log("handleSvgUpload called with file:", file?.name, "size:", file?.size);
     if (!file) return;
     if (debug)
         if (!file.name.endsWith('.svg')) return;
@@ -424,57 +479,86 @@ function handleSvgUpload(event){
         if (!(file.name.endsWith('.svg') || file.name.endsWith('.jpg') || file.name.endsWith('.png'))) return;
 
     if (file.name.endsWith('.svg')) {
+        console.log("Reading SVG file:", file.name);
         const reader = new FileReader();
         reader.onload = function(e) {
             const svgText = e.target.result;
+            console.log("SVG file loaded, length:", svgText.length);
             loadSvgFromText(svgText);
+        }
+        reader.onerror = function(e) {
+            console.error("FileReader error:", e);
+            alert("Failed to read file: " + e);
         }
         reader.readAsText(file);
     } else {
         loadRaster(file)
-        
+
     }
-    
+
 }
 
 function loadSvgFromText(svgText) {
+    console.log("loadSvgFromText called, text length:", svgText.length);
     let firstUpload = true
     const parser = new DOMParser();
     const svgDoc = parser.parseFromString(svgText, "image/svg+xml");
-  
+
     // Check if the parse failed
     if (svgDoc.documentElement.nodeName === "parsererror") {
       console.error("Error parsing SVG:", svgDoc.documentElement);
+      alert("Failed to parse SVG file. Invalid XML format.");
       return;
     }
+    console.log("SVG parsed successfully");
+
     // Remove old SVG if one is already present
-    if (svgElement) {
+    if (svgElement && visualizationElement) {
+      console.log("Removing old SVG element");
       visualContainer.removeChild(visualizationElement.svg);
       firstUpload = false
+    } else {
+      // Clear any placeholder content (like "Upload one to get started" message)
+      console.log("Clearing placeholder content from visualContainer");
+      visualContainer.innerHTML = '';
     }
 
-   
+
     svgElement = visualContainer.appendChild(svgDoc.documentElement);
+    console.log("SVG appended to visualContainer");
 
     visualizationElement = new VisualizationElement(svgElement)
+    console.log("VisualizationElement created");
+
+    // Show button header after SVG loads
+    const buttonHeader = document.getElementById('button-header')
+    if (buttonHeader) {
+        console.log("Showing button-header");
+        buttonHeader.hidden = false;
+    }
+
+    // Ensure upload progress bar stays hidden (only shown during save)
+    const progressContainer = document.getElementById('upload-progress-container')
+    if (progressContainer) progressContainer.hidden = true
 
     if (!debug) {
-        // fetch(window.location.href, { 
-        //     method: "PUT",
-        //     body: JSON.stringify({
-        //         svg: svgElement.outerHTML
-        //     }),
-        //     headers: {
-        //         "Content-type": "application/json",
-        //     },    
-        // })
+        console.log("Calling autosave.save()");
         autosave.save()
+    } else {
+        console.log("Debug mode, skipping autosave");
     }
-  
-    // Re-initialize pan/zoom
-    visualizer.onLoadSvg();
-    if (firstUpload)
-        visualizer.onFirstLoadSvg();
+
+    // Re-initialize pan/zoom and show editor controls
+    console.log("Calling visualizer.onLoadSvg(), visualizer exists:", !!visualizer);
+    if (visualizer) {
+        visualizer.onLoadSvg();
+        if (firstUpload) {
+            console.log("First upload, calling visualizer.onFirstLoadSvg()");
+            visualizer.onFirstLoadSvg();
+        }
+    } else {
+        console.error("visualizer is not defined!");
+    }
 }
 
 async function loadRaster(file) {
