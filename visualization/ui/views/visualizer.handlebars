@@ -18,7 +18,7 @@
       <button id = "zoom-out" class="zoom-button">-</button>
       <button id = "editor-button" hidden>editor mode</button>
       <button id = "participant-button" hidden>participant mode</button>
-      <div id="uploader-container" {{#unless svg}}hidden{{/unless}}>
+      <div id="uploader-container" hidden>
         <input
         type="file"
         id="svg-uploader"
@@ -27,7 +27,7 @@
         />
       </div>
 
-      <div id="button-header" {{#unless svg}}hidden{{/unless}}>
+      <div id="button-header" hidden>
 
         <small id="save-status"></small>
         <div id="upload-progress-container" hidden>

@@ -17,10 +17,8 @@ const visualizerBase = {
     
     // called when the page loads as an editor
     onPageLoadAsEditor: function() {
-        // create file uploader
+        // create file uploader (but keep it hidden until SVG loads)
         const uploader = document.getElementById("svg-uploader");
-        const uploaderContainer = document.getElementById("uploader-container");
-        uploaderContainer.removeAttribute('hidden')
         uploader.addEventListener("change", handleSvgUpload);
         
         // help button
@@ -42,11 +40,9 @@ const visualizerBase = {
     onPageLoadDebug: function() {
         // debug mode set up
         debug = true
-    
-        // create file uploader
+
+        // create file uploader (but keep it hidden until SVG loads)
         const uploader = document.getElementById("svg-uploader");
-        const uploaderContainer = document.getElementById("uploader-container");
-        uploaderContainer.removeAttribute('hidden')
         uploader.addEventListener("change", handleSvgUpload);  
     
         // create debug mode buttons
@@ -337,33 +333,49 @@ async function loadSVGAsync() {
 
             const data = await response.json()
 
-            // Remove loading spinner
-            const spinner = document.getElementById('svg-loading-spinner')
-            if (spinner) spinner.remove()
-
-            // Insert SVG using DOM parser to avoid blocking
-            // This is much faster than innerHTML for large SVGs
-            await new Promise(resolve => setTimeout(resolve, 0)) // Let UI update
-
+            // Keep spinner visible while parsing and inserting
+            // Parse SVG using DOM parser
             const parser = new DOMParser()
             const svgDoc = parser.parseFromString(data.svg, 'image/svg+xml')
             const svgElement = svgDoc.documentElement
 
-            // Clear container and append parsed SVG
-            visualContainer.innerHTML = ''
+            // Remove spinner and insert SVG atomically
+            const spinner = document.getElementById('svg-loading-spinner')
+            if (spinner) spinner.remove()
             visualContainer.appendChild(svgElement)
 
-            // Show button header and uploader after SVG loads
+            // Show button header after SVG loads
             const buttonHeader = document.getElementById('button-header')
             if (buttonHeader) buttonHeader.hidden = false
 
+            // Ensure upload progress bar stays hidden (only shown during save)
+            const progressContainer = document.getElementById('upload-progress-container')
+            if (progressContainer) progressContainer.hidden = true
+
+            // Show uploader only in editor or debug mode
             const uploaderContainer = document.getElementById('uploader-container')
-            if (uploaderContainer) uploaderContainer.hidden = false
+            if (uploaderContainer && (wrapper.classList.contains('editor') || wrapper.classList.contains('debug'))) {
+                uploaderContainer.hidden = false
+            }
 
         } catch (error) {
             console.error('Error loading SVG:', error)
             visualContainer.innerHTML = '<p style="color: red; text-align: center;">Failed to load visualization</p>'
             return false
+        }
+    } else {
+        // SVG was embedded in initial HTML - show UI elements immediately
+        const buttonHeader = document.getElementById('button-header')
+        if (buttonHeader) buttonHeader.hidden = false
+
+        // Ensure upload progress bar stays hidden (only shown during save)
+        const progressContainer = document.getElementById('upload-progress-container')
+        if (progressContainer) progressContainer.hidden = true
+
+        // Show uploader only in editor or debug mode
+        const uploaderContainer = document.getElementById('uploader-container')
+        if (uploaderContainer && (wrapper.classList.contains('editor') || wrapper.classList.contains('debug'))) {
+            uploaderContainer.hidden = false
         }
     }
 
