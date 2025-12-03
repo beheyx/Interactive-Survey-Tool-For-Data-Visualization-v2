@@ -17,14 +17,11 @@ const visualizerBase = {
     
     // called when the page loads as an editor
     onPageLoadAsEditor: function() {
-        // create file uploader (but keep it hidden until SVG loads)
+        // Attach file upload handler (element may load asynchronously)
         const uploader = document.getElementById("svg-uploader");
         if (uploader) {
-            console.log("onPageLoadAsEditor: Attaching event listener to svg-uploader");
             uploader.addEventListener("change", handleSvgUpload);
             uploader.dataset.listenerAttached = "true";
-        } else {
-            console.warn("onPageLoadAsEditor: svg-uploader element not found");
         }
 
         // help button
@@ -44,17 +41,13 @@ const visualizerBase = {
     
     // called when the page loads in debug mode
     onPageLoadDebug: function() {
-        // debug mode set up
         debug = true
 
-        // create file uploader (but keep it hidden until SVG loads)
+        // Attach file upload handler (element may load asynchronously)
         const uploader = document.getElementById("svg-uploader");
         if (uploader) {
-            console.log("onPageLoadDebug: Attaching event listener to svg-uploader");
             uploader.addEventListener("change", handleSvgUpload);
             uploader.dataset.listenerAttached = "true";
-        } else {
-            console.warn("onPageLoadDebug: svg-uploader element not found");
         }
 
         // create debug mode buttons
@@ -212,7 +205,7 @@ export const autosave = {
         progressText.textContent = "Processing SVG..."
 
         try {
-            // Step 1: Extract SVG data
+            // Extract and measure SVG data
             this.statusText = "Processing SVG..."
             const svgData = svgElement.outerHTML
             const svgSizeBytes = new Blob([svgData]).size
@@ -221,15 +214,13 @@ export const autosave = {
             progressFill.style.width = "5%"
             progressText.textContent = `Preparing ${svgSizeMB}MB...`
 
-            // Determine chunk size (1MB chunks for better progress tracking)
-            const CHUNK_SIZE = 1 * 1024 * 1024 // 1MB
+            // Use chunked upload for files > 1MB
+            const CHUNK_SIZE = 1 * 1024 * 1024
             const useChunking = svgSizeBytes > CHUNK_SIZE
-
-            // Get base URL without query parameters
             const baseUrl = window.location.origin + window.location.pathname
 
             if (!useChunking) {
-                // Small file - use original PUT method
+                // Small file - use direct PUT upload
                 progressFill.style.width = "50%"
                 progressText.textContent = `Uploading ${svgSizeMB}MB...`
 
@@ -255,11 +246,11 @@ export const autosave = {
                 return
             }
 
-            // Large file - use chunked upload
+            // Large file - use chunked upload for better progress tracking
             const totalChunks = Math.ceil(svgSizeBytes / CHUNK_SIZE)
             this.statusText = `Uploading ${svgSizeMB}MB in ${totalChunks} chunks...`
 
-            // Step 2: Initialize upload
+            // Initialize chunked upload session
             progressFill.style.width = "10%"
             progressText.textContent = "Initializing upload..."
 
@@ -272,7 +263,7 @@ export const autosave = {
             if (!initResponse.ok) throw new Error("Failed to initialize upload")
             const { uploadId } = await initResponse.json()
 
-            // Step 3: Send chunks
+            // Upload chunks sequentially
             for (let i = 0; i < totalChunks; i++) {
                 const start = i * CHUNK_SIZE
                 const end = Math.min(start + CHUNK_SIZE, svgSizeBytes)
@@ -292,14 +283,14 @@ export const autosave = {
                     throw new Error(`Failed to upload chunk ${i + 1}/${totalChunks}`)
                 }
 
-                // Update progress (10% for init, 80% for chunks, 10% for finalize)
+                // Update progress: 10% init + 80% chunks + 10% finalize
                 const chunkProgress = 10 + (80 * (i + 1) / totalChunks)
                 progressFill.style.width = chunkProgress + "%"
                 progressText.textContent = `Uploading: ${i + 1}/${totalChunks} chunks (${svgSizeMB}MB)`
                 this.statusText = `Uploading chunk ${i + 1}/${totalChunks}...`
             }
 
-            // Step 4: Finalize upload
+            // Finalize upload and save to database
             progressFill.style.width = "95%"
             progressText.textContent = "Finalizing..."
             this.statusText = "Finalizing upload..."
@@ -316,7 +307,7 @@ export const autosave = {
                 throw new Error(`Failed to finalize upload: ${finalizeResponse.status}`)
             }
 
-            // Success!
+            // Upload complete
             this.statusText = "Changes saved"
             progressFill.style.width = "100%"
             progressText.textContent = `Complete! (${svgSizeMB}MB)`
@@ -331,15 +322,13 @@ export const autosave = {
             this.statusText = "Error while saving!"
             progressContainer.hidden = true
             progressFill.style.width = "0%"
-
-            // Show error to user
             alert(`Upload failed: ${error.message}. Check console for details.`)
         }
     }
 }
 
 
-// Lazy load SVG via AJAX to prevent UI freezing
+// Load SVG asynchronously to prevent UI blocking
 async function loadSVGAsync() {
     const svgLoaded = visualContainer.getAttribute('data-svg-loaded') === 'true'
 
@@ -353,23 +342,21 @@ async function loadSVGAsync() {
 
             const data = await response.json()
 
-            // Check if SVG data exists
+            // Handle empty visualization state
             if (!data.svg || data.svg.trim() === '') {
-                // No SVG uploaded yet - remove spinner and show uploader
                 const spinner = document.getElementById('svg-loading-spinner')
                 if (spinner) spinner.remove()
 
                 visualContainer.innerHTML = '<p style="text-align: center; color: #666;">No visualization uploaded yet. Upload one to get started.</p>'
 
-                // Show uploader for editor/debug mode
+                // Show file uploader in editor/debug mode
                 const uploaderContainer = document.getElementById('uploader-container')
                 if (uploaderContainer && (wrapper.classList.contains('editor') || wrapper.classList.contains('debug'))) {
                     uploaderContainer.hidden = false
 
-                    // Ensure event listener is attached
+                    // Attach event listener if not already attached
                     const uploader = document.getElementById("svg-uploader")
                     if (uploader && !uploader.dataset.listenerAttached) {
-                        console.log("Attaching change event listener to uploader")
                         uploader.addEventListener("change", handleSvgUpload)
                         uploader.dataset.listenerAttached = "true"
                     }
@@ -377,13 +364,12 @@ async function loadSVGAsync() {
                 return true
             }
 
-            // Keep spinner visible while parsing and inserting
-            // Parse SVG using DOM parser
+            // Parse and validate SVG
             const parser = new DOMParser()
             const svgDoc = parser.parseFromString(data.svg, 'image/svg+xml')
             const svgElement = svgDoc.documentElement
 
-            // Check for XML parsing errors
+            // Validate SVG was parsed successfully
             const parserError = svgDoc.querySelector('parsererror')
             if (parserError) {
                 console.error('SVG parsing error:', parserError.textContent)
@@ -393,20 +379,18 @@ async function loadSVGAsync() {
                 return false
             }
 
-            // Remove spinner and insert SVG atomically
+            // Insert SVG into DOM
             const spinner = document.getElementById('svg-loading-spinner')
             if (spinner) spinner.remove()
             visualContainer.appendChild(svgElement)
 
-            // Show button header after SVG loads
+            // Show UI elements after SVG loads
             const buttonHeader = document.getElementById('button-header')
             if (buttonHeader) buttonHeader.hidden = false
 
-            // Ensure upload progress bar stays hidden (only shown during save)
             const progressContainer = document.getElementById('upload-progress-container')
             if (progressContainer) progressContainer.hidden = true
 
-            // Show uploader only in editor or debug mode
             const uploaderContainer = document.getElementById('uploader-container')
             if (uploaderContainer && (wrapper.classList.contains('editor') || wrapper.classList.contains('debug'))) {
                 uploaderContainer.hidden = false
@@ -418,15 +402,13 @@ async function loadSVGAsync() {
             return false
         }
     } else {
-        // SVG was embedded in initial HTML - show UI elements immediately
+        // SVG was pre-rendered in HTML - show UI elements
         const buttonHeader = document.getElementById('button-header')
         if (buttonHeader) buttonHeader.hidden = false
 
-        // Ensure upload progress bar stays hidden (only shown during save)
         const progressContainer = document.getElementById('upload-progress-container')
         if (progressContainer) progressContainer.hidden = true
 
-        // Show uploader only in editor or debug mode
         const uploaderContainer = document.getElementById('uploader-container')
         if (uploaderContainer && (wrapper.classList.contains('editor') || wrapper.classList.contains('debug'))) {
             uploaderContainer.hidden = false
@@ -471,20 +453,19 @@ addEventListener("DOMContentLoaded", async () => {
 
 function handleSvgUpload(event){
     const file = event.target.files[0];
-    console.log("handleSvgUpload called with file:", file?.name, "size:", file?.size);
     if (!file) return;
-    if (debug)
+
+    // Validate file type
+    if (debug) {
         if (!file.name.endsWith('.svg')) return;
-    else
+    } else {
         if (!(file.name.endsWith('.svg') || file.name.endsWith('.jpg') || file.name.endsWith('.png'))) return;
+    }
 
     if (file.name.endsWith('.svg')) {
-        console.log("Reading SVG file:", file.name);
         const reader = new FileReader();
         reader.onload = function(e) {
-            const svgText = e.target.result;
-            console.log("SVG file loaded, length:", svgText.length);
-            loadSvgFromText(svgText);
+            loadSvgFromText(e.target.result);
         }
         reader.onerror = function(e) {
             console.error("FileReader error:", e);
@@ -493,71 +474,53 @@ function handleSvgUpload(event){
         reader.readAsText(file);
     } else {
         loadRaster(file)
-
     }
-
 }
 
 function loadSvgFromText(svgText) {
-    console.log("loadSvgFromText called, text length:", svgText.length);
     let firstUpload = true
     const parser = new DOMParser();
     const svgDoc = parser.parseFromString(svgText, "image/svg+xml");
 
-    // Check if the parse failed
+    // Validate SVG was parsed successfully
     if (svgDoc.documentElement.nodeName === "parsererror") {
       console.error("Error parsing SVG:", svgDoc.documentElement);
       alert("Failed to parse SVG file. Invalid XML format.");
       return;
     }
-    console.log("SVG parsed successfully");
 
-    // Remove old SVG if one is already present
+    // Clear existing content
     if (svgElement && visualizationElement) {
-      console.log("Removing old SVG element");
       visualContainer.removeChild(visualizationElement.svg);
       firstUpload = false
     } else {
-      // Clear any placeholder content (like "Upload one to get started" message)
-      console.log("Clearing placeholder content from visualContainer");
+      // Remove placeholder message if present
       visualContainer.innerHTML = '';
     }
 
-
+    // Insert SVG and initialize visualization
     svgElement = visualContainer.appendChild(svgDoc.documentElement);
-    console.log("SVG appended to visualContainer");
-
     visualizationElement = new VisualizationElement(svgElement)
-    console.log("VisualizationElement created");
 
-    // Show button header after SVG loads
+    // Show editor toolbar
     const buttonHeader = document.getElementById('button-header')
-    if (buttonHeader) {
-        console.log("Showing button-header");
-        buttonHeader.hidden = false;
-    }
+    if (buttonHeader) buttonHeader.hidden = false;
 
-    // Ensure upload progress bar stays hidden (only shown during save)
+    // Hide progress bar (only shown during save operations)
     const progressContainer = document.getElementById('upload-progress-container')
     if (progressContainer) progressContainer.hidden = true
 
+    // Auto-save in non-debug mode
     if (!debug) {
-        console.log("Calling autosave.save()");
         autosave.save()
-    } else {
-        console.log("Debug mode, skipping autosave");
     }
 
-    // Re-initialize pan/zoom and show editor controls
-    console.log("Calling visualizer.onLoadSvg(), visualizer exists:", !!visualizer);
+    // Initialize pan/zoom and editor controls
     if (visualizer) {
         visualizer.onLoadSvg();
         if (firstUpload) {
-            console.log("First upload, calling visualizer.onFirstLoadSvg()");
             visualizer.onFirstLoadSvg();
         }
-    } else {
-        console.error("visualizer is not defined!");
     }
 }
 
