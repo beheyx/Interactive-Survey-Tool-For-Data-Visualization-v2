@@ -165,34 +165,28 @@ app.get('/:id/photo', async function(req,res,next) {
     }
 })
 
+// New endpoint to get SVG data only (for AJAX loading)
+app.get('/:id/svg-data', async function(req,res,next) {
+    try {
+        const response = await api.get(`/${req.params.id}`)
+        res.status(200).json({ svg: response.data.svg })
+    } catch (e) {
+        next(e)
+    }
+})
+
 // endpoint to load specific visualization
 app.get('/:id', async function(req,res,next) {
     try {
-        const response = await api.get(`/${req.params.id}`)
         const firstQuery = Object.keys(req.query)[0];
         if (firstQuery) {
             res.render("visualizer", {
-                role: firstQuery,
-                svg: response.data.svg
+                role: firstQuery
+                // SVG will be loaded via AJAX to prevent UI freezing
             })
-        // if (req.query.editor) {
-        //     res.render("visualizer", {
-        //         role: "editor",
-        //         svg: response.data.svg
-        //     })
-        // } else if (req.query.selectElements) {
-        //     res.render("visualizer", {
-        //         role: "selectElements",
-        //         svg: response.data.svg
-        //     })
-        // } else if (req.query.markPoints) {
-        //     res.render("visualizer", {
-        //         role: "markPoints",
-        //         svg: response.data.svg
-        //     })
         } else {
             res.render("visualizer", {
-                svg: response.data.svg
+                // SVG will be loaded via AJAX to prevent UI freezing
             })
         }
     } catch (e) {

@@ -217,10 +217,13 @@ export const autosave = {
             const CHUNK_SIZE = 1 * 1024 * 1024 // 1MB
             const useChunking = svgSizeBytes > CHUNK_SIZE
 
+            // Get base URL without query parameters
+            const baseUrl = window.location.origin + window.location.pathname
+
             if (!useChunking) {
                 // Small file - use original PUT method
                 progressFill.style.width = "50%"
-                const response = await fetch(window.location.href, {
+                const response = await fetch(baseUrl, {
                     method: "PUT",
                     body: JSON.stringify({ svg: svgData }),
                     headers: { "Content-type": "application/json" }
@@ -248,7 +251,7 @@ export const autosave = {
             progressFill.style.width = "10%"
             progressText.textContent = "Initializing upload..."
 
-            const initResponse = await fetch(`${window.location.href}/upload/init`, {
+            const initResponse = await fetch(`${baseUrl}/upload/init`, {
                 method: "POST",
                 body: JSON.stringify({ totalChunks, fileSize: svgSizeBytes }),
                 headers: { "Content-type": "application/json" }
@@ -263,7 +266,7 @@ export const autosave = {
                 const end = Math.min(start + CHUNK_SIZE, svgSizeBytes)
                 const chunk = svgData.substring(start, end)
 
-                const chunkResponse = await fetch(`${window.location.href}/upload/chunk`, {
+                const chunkResponse = await fetch(`${baseUrl}/upload/chunk`, {
                     method: "POST",
                     body: JSON.stringify({
                         uploadId,
@@ -289,13 +292,17 @@ export const autosave = {
             progressText.textContent = "Finalizing..."
             this.statusText = "Finalizing upload..."
 
-            const finalizeResponse = await fetch(`${window.location.href}/upload/finalize`, {
+            const finalizeResponse = await fetch(`${baseUrl}/upload/finalize`, {
                 method: "POST",
                 body: JSON.stringify({ uploadId }),
                 headers: { "Content-type": "application/json" }
             })
 
-            if (!finalizeResponse.ok) throw new Error("Failed to finalize upload")
+            if (!finalizeResponse.ok) {
+                const errorText = await finalizeResponse.text()
+                console.error("Finalize error response:", finalizeResponse.status, errorText)
+                throw new Error(`Failed to finalize upload: ${finalizeResponse.status}`)
+            }
 
             // Success!
             this.statusText = "Changes saved"
@@ -316,8 +323,55 @@ export const autosave = {
 }
 
 
+// Lazy load SVG via AJAX to prevent UI freezing
+async function loadSVGAsync() {
+    const svgLoaded = visualContainer.getAttribute('data-svg-loaded') === 'true'
+
+    if (!svgLoaded) {
+        // SVG not embedded - fetch it via AJAX
+        try {
+            const baseUrl = window.location.origin + window.location.pathname
+            const response = await fetch(`${baseUrl}/svg-data`)
+
+            if (!response.ok) throw new Error('Failed to load SVG')
+
+            const data = await response.json()
+
+            // Remove loading spinner
+            const spinner = document.getElementById('svg-loading-spinner')
+            if (spinner) spinner.remove()
+
+            // Insert SVG using DOM parser to avoid blocking
+            // This is much faster than innerHTML for large SVGs
+            await new Promise(resolve => setTimeout(resolve, 0)) // Let UI update
+
+            const parser = new DOMParser()
+            const svgDoc = parser.parseFromString(data.svg, 'image/svg+xml')
+            const svgElement = svgDoc.documentElement
+
+            // Clear container and append parsed SVG
+            visualContainer.innerHTML = ''
+            visualContainer.appendChild(svgElement)
+
+            // Show button header and uploader after SVG loads
+            const buttonHeader = document.getElementById('button-header')
+            if (buttonHeader) buttonHeader.hidden = false
+
+            const uploaderContainer = document.getElementById('uploader-container')
+            if (uploaderContainer) uploaderContainer.hidden = false
+
+        } catch (error) {
+            console.error('Error loading SVG:', error)
+            visualContainer.innerHTML = '<p style="color: red; text-align: center;">Failed to load visualization</p>'
+            return false
+        }
+    }
+
+    return true
+}
+
 // start loading svg once page has loaded
-addEventListener("DOMContentLoaded", () => {
+addEventListener("DOMContentLoaded", async () => {
     visualizer = visualizerDecorator(visualizerBase)
 
     page.addChangeModeListener(visualizer.onChangeMode)
@@ -336,13 +390,16 @@ addEventListener("DOMContentLoaded", () => {
         visualizer.onPageLoadAsParticipant()
     }
 
+    // Load SVG asynchronously if not embedded
+    await loadSVGAsync()
+
     if (visualContainer.firstElementChild) {
         svgElement = visualContainer.firstElementChild
         visualizationElement = new VisualizationElement(svgElement)
         visualizer.onLoadSvg();
         visualizer.onFirstLoadSvg();
-    } 
-    
+    }
+
 });
 
 
