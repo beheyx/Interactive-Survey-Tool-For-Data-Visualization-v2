@@ -17,12 +17,13 @@ const visualizerBase = {
     
     // called when the page loads as an editor
     onPageLoadAsEditor: function() {
-        // create file uploader
+        // Attach file upload handler (element may load asynchronously)
         const uploader = document.getElementById("svg-uploader");
-        const uploaderContainer = document.getElementById("uploader-container");
-        uploaderContainer.removeAttribute('hidden')
-        uploader.addEventListener("change", handleSvgUpload);
-        
+        if (uploader) {
+            uploader.addEventListener("change", handleSvgUpload);
+            uploader.dataset.listenerAttached = "true";
+        }
+
         // help button
         document.getElementById("help-button").removeAttribute("hidden")
         document.getElementById("help-button").addEventListener("click", () => {
@@ -40,15 +41,15 @@ const visualizerBase = {
     
     // called when the page loads in debug mode
     onPageLoadDebug: function() {
-        // debug mode set up
         debug = true
-    
-        // create file uploader
+
+        // Attach file upload handler (element may load asynchronously)
         const uploader = document.getElementById("svg-uploader");
-        const uploaderContainer = document.getElementById("uploader-container");
-        uploaderContainer.removeAttribute('hidden')
-        uploader.addEventListener("change", handleSvgUpload);  
-    
+        if (uploader) {
+            uploader.addEventListener("change", handleSvgUpload);
+            uploader.dataset.listenerAttached = "true";
+        }
+
         // create debug mode buttons
         document.getElementById("editor-button").removeAttribute("hidden")
         document.getElementById("participant-button").removeAttribute("hidden")
@@ -191,29 +192,234 @@ export const autosave = {
         this.value = s
         document.getElementById("save-status").textContent = s
     },
-    save: function() {
-        this.statusText = "Saving..."
-        fetch(window.location.href, { 
-            method: "PUT",
-            body: JSON.stringify({
-                svg: svgElement.outerHTML
-            }),
-            headers: {
-                "Content-type": "application/json",
-            },    
-        }).then(response => {
-            if (response.ok) {
-                this.statusText = "Changes saved"
-            } else {
-                this.statusText = "There was an error saving changes!"
+    save: async function() {
+        this.statusText = "Preparing to save..."
+
+        const progressContainer = document.getElementById("upload-progress-container")
+        const progressFill = document.getElementById("upload-progress-fill")
+        const progressText = document.getElementById("upload-progress-text")
+
+        // Show progress bar immediately
+        progressContainer.hidden = false
+        progressFill.style.width = "0%"
+        progressText.textContent = "Processing SVG..."
+
+        try {
+            // Extract and measure SVG data
+            this.statusText = "Processing SVG..."
+            const svgData = svgElement.outerHTML
+            const svgSizeBytes = new Blob([svgData]).size
+            const svgSizeMB = (svgSizeBytes / 1024 / 1024).toFixed(2)
+
+            progressFill.style.width = "5%"
+            progressText.textContent = `Preparing ${svgSizeMB}MB...`
+
+            // Use chunked upload for files > 1MB
+            const CHUNK_SIZE = 1 * 1024 * 1024
+            const useChunking = svgSizeBytes > CHUNK_SIZE
+            const baseUrl = window.location.origin + window.location.pathname
+
+            if (!useChunking) {
+                // Small file - use direct PUT upload
+                progressFill.style.width = "50%"
+                progressText.textContent = `Uploading ${svgSizeMB}MB...`
+
+                const response = await fetch(baseUrl, {
+                    method: "PUT",
+                    body: JSON.stringify({ svg: svgData }),
+                    headers: { "Content-type": "application/json" }
+                })
+
+                if (response.ok) {
+                    this.statusText = "Changes saved"
+                    progressFill.style.width = "100%"
+                    progressText.textContent = "Complete!"
+                    setTimeout(() => {
+                        progressContainer.hidden = true
+                        progressFill.style.width = "0%"
+                    }, 2000)
+                } else {
+                    const errorText = await response.text()
+                    console.error("PUT upload error:", response.status, errorText)
+                    throw new Error(`Upload failed: ${response.status}`)
+                }
+                return
             }
-        })
+
+            // Large file - use chunked upload for better progress tracking
+            const totalChunks = Math.ceil(svgSizeBytes / CHUNK_SIZE)
+            this.statusText = `Uploading ${svgSizeMB}MB in ${totalChunks} chunks...`
+
+            // Initialize chunked upload session
+            progressFill.style.width = "10%"
+            progressText.textContent = "Initializing upload..."
+
+            const initResponse = await fetch(`${baseUrl}/upload/init`, {
+                method: "POST",
+                body: JSON.stringify({ totalChunks, fileSize: svgSizeBytes }),
+                headers: { "Content-type": "application/json" }
+            })
+
+            if (!initResponse.ok) throw new Error("Failed to initialize upload")
+            const { uploadId } = await initResponse.json()
+
+            // Upload chunks sequentially
+            for (let i = 0; i < totalChunks; i++) {
+                const start = i * CHUNK_SIZE
+                const end = Math.min(start + CHUNK_SIZE, svgSizeBytes)
+                const chunk = svgData.substring(start, end)
+
+                const chunkResponse = await fetch(`${baseUrl}/upload/chunk`, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        uploadId,
+                        chunkIndex: i,
+                        data: chunk
+                    }),
+                    headers: { "Content-type": "application/json" }
+                })
+
+                if (!chunkResponse.ok) {
+                    throw new Error(`Failed to upload chunk ${i + 1}/${totalChunks}`)
+                }
+
+                // Update progress: 10% init + 80% chunks + 10% finalize
+                const chunkProgress = 10 + (80 * (i + 1) / totalChunks)
+                progressFill.style.width = chunkProgress + "%"
+                progressText.textContent = `Uploading: ${i + 1}/${totalChunks} chunks (${svgSizeMB}MB)`
+                this.statusText = `Uploading chunk ${i + 1}/${totalChunks}...`
+            }
+
+            // Finalize upload and save to database
+            progressFill.style.width = "95%"
+            progressText.textContent = "Finalizing..."
+            this.statusText = "Finalizing upload..."
+
+            const finalizeResponse = await fetch(`${baseUrl}/upload/finalize`, {
+                method: "POST",
+                body: JSON.stringify({ uploadId }),
+                headers: { "Content-type": "application/json" }
+            })
+
+            if (!finalizeResponse.ok) {
+                const errorText = await finalizeResponse.text()
+                console.error("Finalize error response:", finalizeResponse.status, errorText)
+                throw new Error(`Failed to finalize upload: ${finalizeResponse.status}`)
+            }
+
+            // Upload complete
+            this.statusText = "Changes saved"
+            progressFill.style.width = "100%"
+            progressText.textContent = `Complete! (${svgSizeMB}MB)`
+            setTimeout(() => {
+                progressContainer.hidden = true
+                progressFill.style.width = "0%"
+            }, 2000)
+
+        } catch (error) {
+            console.error("Save error:", error)
+            console.error("Error stack:", error.stack)
+            this.statusText = "Error while saving!"
+            progressContainer.hidden = true
+            progressFill.style.width = "0%"
+            alert(`Upload failed: ${error.message}. Check console for details.`)
+        }
     }
 }
 
 
+// Load SVG asynchronously to prevent UI blocking
+async function loadSVGAsync() {
+    const svgLoaded = visualContainer.getAttribute('data-svg-loaded') === 'true'
+
+    if (!svgLoaded) {
+        // SVG not embedded - fetch it via AJAX
+        try {
+            const baseUrl = window.location.origin + window.location.pathname
+            const response = await fetch(`${baseUrl}/svg-data`)
+
+            if (!response.ok) throw new Error('Failed to load SVG')
+
+            const data = await response.json()
+
+            // Handle empty visualization state
+            if (!data.svg || data.svg.trim() === '') {
+                const spinner = document.getElementById('svg-loading-spinner')
+                if (spinner) spinner.remove()
+
+                visualContainer.innerHTML = '<p style="text-align: center; color: #666;">No visualization uploaded yet. Upload one to get started.</p>'
+
+                // Show file uploader in editor/debug mode
+                const uploaderContainer = document.getElementById('uploader-container')
+                if (uploaderContainer && (wrapper.classList.contains('editor') || wrapper.classList.contains('debug'))) {
+                    uploaderContainer.hidden = false
+
+                    // Attach event listener if not already attached
+                    const uploader = document.getElementById("svg-uploader")
+                    if (uploader && !uploader.dataset.listenerAttached) {
+                        uploader.addEventListener("change", handleSvgUpload)
+                        uploader.dataset.listenerAttached = "true"
+                    }
+                }
+                return true
+            }
+
+            // Parse and validate SVG
+            const parser = new DOMParser()
+            const svgDoc = parser.parseFromString(data.svg, 'image/svg+xml')
+            const svgElement = svgDoc.documentElement
+
+            // Validate SVG was parsed successfully
+            const parserError = svgDoc.querySelector('parsererror')
+            if (parserError) {
+                console.error('SVG parsing error:', parserError.textContent)
+                const spinner = document.getElementById('svg-loading-spinner')
+                if (spinner) spinner.remove()
+                visualContainer.innerHTML = '<p style="color: red; text-align: center;">Failed to parse SVG: Invalid XML format</p>'
+                return false
+            }
+
+            // Insert SVG into DOM
+            const spinner = document.getElementById('svg-loading-spinner')
+            if (spinner) spinner.remove()
+            visualContainer.appendChild(svgElement)
+
+            // Show UI elements after SVG loads
+            const buttonHeader = document.getElementById('button-header')
+            if (buttonHeader) buttonHeader.hidden = false
+
+            const progressContainer = document.getElementById('upload-progress-container')
+            if (progressContainer) progressContainer.hidden = true
+
+            const uploaderContainer = document.getElementById('uploader-container')
+            if (uploaderContainer && (wrapper.classList.contains('editor') || wrapper.classList.contains('debug'))) {
+                uploaderContainer.hidden = false
+            }
+
+        } catch (error) {
+            console.error('Error loading SVG:', error)
+            visualContainer.innerHTML = '<p style="color: red; text-align: center;">Failed to load visualization</p>'
+            return false
+        }
+    } else {
+        // SVG was pre-rendered in HTML - show UI elements
+        const buttonHeader = document.getElementById('button-header')
+        if (buttonHeader) buttonHeader.hidden = false
+
+        const progressContainer = document.getElementById('upload-progress-container')
+        if (progressContainer) progressContainer.hidden = true
+
+        const uploaderContainer = document.getElementById('uploader-container')
+        if (uploaderContainer && (wrapper.classList.contains('editor') || wrapper.classList.contains('debug'))) {
+            uploaderContainer.hidden = false
+        }
+    }
+
+    return true
+}
+
 // start loading svg once page has loaded
-addEventListener("DOMContentLoaded", () => {
+addEventListener("DOMContentLoaded", async () => {
     visualizer = visualizerDecorator(visualizerBase)
 
     page.addChangeModeListener(visualizer.onChangeMode)
@@ -232,76 +438,90 @@ addEventListener("DOMContentLoaded", () => {
         visualizer.onPageLoadAsParticipant()
     }
 
+    // Load SVG asynchronously if not embedded
+    await loadSVGAsync()
+
     if (visualContainer.firstElementChild) {
         svgElement = visualContainer.firstElementChild
         visualizationElement = new VisualizationElement(svgElement)
         visualizer.onLoadSvg();
         visualizer.onFirstLoadSvg();
-    } 
-    
+    }
+
 });
 
 
 function handleSvgUpload(event){
     const file = event.target.files[0];
     if (!file) return;
-    if (debug)
+
+    // Validate file type
+    if (debug) {
         if (!file.name.endsWith('.svg')) return;
-    else
+    } else {
         if (!(file.name.endsWith('.svg') || file.name.endsWith('.jpg') || file.name.endsWith('.png'))) return;
+    }
 
     if (file.name.endsWith('.svg')) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            const svgText = e.target.result;
-            loadSvgFromText(svgText);
+            loadSvgFromText(e.target.result);
+        }
+        reader.onerror = function(e) {
+            console.error("FileReader error:", e);
+            alert("Failed to read file: " + e);
         }
         reader.readAsText(file);
     } else {
         loadRaster(file)
-        
     }
-    
 }
 
 function loadSvgFromText(svgText) {
     let firstUpload = true
     const parser = new DOMParser();
     const svgDoc = parser.parseFromString(svgText, "image/svg+xml");
-  
-    // Check if the parse failed
+
+    // Validate SVG was parsed successfully
     if (svgDoc.documentElement.nodeName === "parsererror") {
       console.error("Error parsing SVG:", svgDoc.documentElement);
+      alert("Failed to parse SVG file. Invalid XML format.");
       return;
     }
-    // Remove old SVG if one is already present
-    if (svgElement) {
+
+    // Clear existing content
+    if (svgElement && visualizationElement) {
       visualContainer.removeChild(visualizationElement.svg);
       firstUpload = false
+    } else {
+      // Remove placeholder message if present
+      visualContainer.innerHTML = '';
     }
 
-   
+    // Insert SVG and initialize visualization
     svgElement = visualContainer.appendChild(svgDoc.documentElement);
-
     visualizationElement = new VisualizationElement(svgElement)
 
+    // Show editor toolbar
+    const buttonHeader = document.getElementById('button-header')
+    if (buttonHeader) buttonHeader.hidden = false;
+
+    // Hide progress bar (only shown during save operations)
+    const progressContainer = document.getElementById('upload-progress-container')
+    if (progressContainer) progressContainer.hidden = true
+
+    // Auto-save in non-debug mode
     if (!debug) {
-        // fetch(window.location.href, { 
-        //     method: "PUT",
-        //     body: JSON.stringify({
-        //         svg: svgElement.outerHTML
-        //     }),
-        //     headers: {
-        //         "Content-type": "application/json",
-        //     },    
-        // })
         autosave.save()
     }
-  
-    // Re-initialize pan/zoom
-    visualizer.onLoadSvg();
-    if (firstUpload)
-        visualizer.onFirstLoadSvg();
+
+    // Initialize pan/zoom and editor controls
+    if (visualizer) {
+        visualizer.onLoadSvg();
+        if (firstUpload) {
+            visualizer.onFirstLoadSvg();
+        }
+    }
 }
 
 async function loadRaster(file) {

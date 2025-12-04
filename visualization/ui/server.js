@@ -2,20 +2,32 @@ require('dotenv').config()
 
 // set up express
 const express = require('express')
+const compression = require('compression')
 const app = express()
 const path = require('path')
 const fs = require('fs')
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }));
+
+// Enable gzip compression for all responses
+app.use(compression())
+
+// Increase JSON body parser limit to 50MB to handle large SVG files
+app.use(express.json({ limit: '50mb' }))
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(express.static(path.join(__dirname, "public")))
 
 // setup axios API interface
 const axios = require('axios');
 const api = axios.create({
-    baseURL: process.env.VISUAL_API_URL
+    baseURL: process.env.VISUAL_API_URL,
+    maxContentLength: 50 * 1024 * 1024, // 50MB
+    maxBodyLength: 50 * 1024 * 1024, // 50MB
+    timeout: 120000 // 2 minutes
 })
 const mainApi = axios.create({
-    baseURL: process.env.MAIN_API_URL
+    baseURL: process.env.MAIN_API_URL,
+    maxContentLength: 50 * 1024 * 1024, // 50MB
+    maxBodyLength: 50 * 1024 * 1024, // 50MB
+    timeout: 120000 // 2 minutes
 })
 
 // express-handlebars setup
@@ -86,7 +98,43 @@ app.post('/', async function(req,res,next) {
     }
 })
 
-// ui put
+// Chunked upload endpoints
+app.post('/:id/upload/init', async function(req,res,next) {
+    try {
+        const response = await api.post(req.originalUrl, req.body)
+        res.status(200).send(response.data)
+    } catch (e) {
+        next(e)
+    }
+})
+
+app.post('/:id/upload/chunk', async function(req,res,next) {
+    try {
+        const response = await api.post(req.originalUrl, req.body)
+        res.status(200).send(response.data)
+    } catch (e) {
+        next(e)
+    }
+})
+
+app.post('/:id/upload/finalize', async function(req,res,next) {
+    try {
+        const response = await api.post(req.originalUrl, req.body)
+
+        // Notify main API to update the visualization's updatedAt timestamp
+        try {
+            await mainApi.post(`/visualizations/content/${req.params.id}/touch`)
+        } catch (touchError) {
+            console.error(`Failed to update visualization timestamp for contentId ${req.params.id}:`, touchError.message)
+        }
+
+        res.status(204).send()
+    } catch (e) {
+        next(e)
+    }
+})
+
+// ui put (keep for backwards compatibility with non-chunked uploads)
 app.put('/:id', async function(req,res,next) {
     try {
         const response = await api.put(req.originalUrl, req.body)
@@ -117,34 +165,28 @@ app.get('/:id/photo', async function(req,res,next) {
     }
 })
 
+// New endpoint to get SVG data only (for AJAX loading)
+app.get('/:id/svg-data', async function(req,res,next) {
+    try {
+        const response = await api.get(`/${req.params.id}`)
+        res.status(200).json({ svg: response.data.svg })
+    } catch (e) {
+        next(e)
+    }
+})
+
 // endpoint to load specific visualization
 app.get('/:id', async function(req,res,next) {
     try {
-        const response = await api.get(`/${req.params.id}`)
         const firstQuery = Object.keys(req.query)[0];
         if (firstQuery) {
             res.render("visualizer", {
-                role: firstQuery,
-                svg: response.data.svg
+                role: firstQuery
+                // SVG will be loaded via AJAX to prevent UI freezing
             })
-        // if (req.query.editor) {
-        //     res.render("visualizer", {
-        //         role: "editor",
-        //         svg: response.data.svg
-        //     })
-        // } else if (req.query.selectElements) {
-        //     res.render("visualizer", {
-        //         role: "selectElements",
-        //         svg: response.data.svg
-        //     })
-        // } else if (req.query.markPoints) {
-        //     res.render("visualizer", {
-        //         role: "markPoints",
-        //         svg: response.data.svg
-        //     })
         } else {
             res.render("visualizer", {
-                svg: response.data.svg
+                // SVG will be loaded via AJAX to prevent UI freezing
             })
         }
     } catch (e) {

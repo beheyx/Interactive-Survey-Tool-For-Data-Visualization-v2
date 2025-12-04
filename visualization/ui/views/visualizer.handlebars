@@ -19,18 +19,24 @@
       <button id = "editor-button" hidden>editor mode</button>
       <button id = "participant-button" hidden>participant mode</button>
       <div id="uploader-container" hidden>
-        <input 
-        type="file" 
-        id="svg-uploader" 
-        accept=".svg, .jpg, .png" 
+        <input
+        type="file"
+        id="svg-uploader"
+        accept=".svg, .jpg, .png"
         style="margin: 10px;"
         />
       </div>
-      
-      <div id="button-header">
+
+      <div id="button-header" hidden>
 
         <small id="save-status"></small>
-        
+        <div id="upload-progress-container" hidden>
+          <div id="upload-progress-bar">
+            <div id="upload-progress-fill"></div>
+          </div>
+          <small id="upload-progress-text"></small>
+        </div>
+
         <div class="file dropdown" hidden>
           File
           <div class="dropdown-buttons file-buttons">
@@ -50,9 +56,18 @@
         <button id="help-button" hidden>?</button>
 
       </div>
-      
-      <div id="visual-container">{{{svg}}}</div>
-      
+
+      <div id="visual-container" data-svg-loaded="{{#if svg}}true{{else}}false{{/if}}">
+        {{#if svg}}
+          {{{svg}}}
+        {{else}}
+          <div id="svg-loading-spinner">
+            <div class="spinner"></div>
+            <p>Loading visualization...</p>
+          </div>
+        {{/if}}
+      </div>
+
     </div>
     
   </body>
