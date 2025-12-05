@@ -207,7 +207,7 @@ const questionTypes = [
         label: "Short Answer",
         description: "User writes an answer in a scrollable text box.",
         hasRequired: true,
-        hasMinMax: true,
+        hasMinMax: false,
         hasChoices: false,
         minText: "Minimum required characters",
         maxText: "Maximum allowed characters",
