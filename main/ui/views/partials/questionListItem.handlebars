@@ -1,82 +1,85 @@
-{{!-- Question card --}}
-{{#if text}}
-  <div class="bg-light">
-{{else}}
-  <div class="bg-secondary text-white">
-{{/if}}
-
-    <div class="card-body">
-      <div class="row clearfix">
-        <div class="col float-left">
-          <h3 class="card-title">
-            {{number}} | 
+<div class="question-block mb-3" id="question-{{id}}">
+  {{#if text}}
+    <div class="bg-light">
+  {{else}}
+    <div class="bg-secondary text-white">
+  {{/if}}
+      <div class="card-body">
+        <div class="row clearfix">
+          <div class="col float-left">
+            <h3 class="card-title">
+              <span class="question-number">{{number}}</span> |
+              {{#if text}}
+                {{text}}
+              {{else}}
+                Empty Question
+              {{/if}}
+            </h3>
+            {{#if required}}<b>Required</b>{{/if}}
             {{#if text}}
-              {{text}}
-            {{else}}
-              Empty Question
+              <p>{{type}}</p>
             {{/if}}
-          </h3>
+          </div>
 
-          {{#if required}}
-            <b>Required</b>
-          {{/if}}
-
-          {{#if text}}
-            <p>{{type}}</p>
-          {{/if}}
+          <div class="col float-right">
+            {{#if visualizationContentId}}
+              <iframe
+                src="{{visualURL}}/{{visualizationContentId}}?highlight=true"
+                title="Visualization Editor"
+                class="float-right"
+                style="border: 1px solid #e5e7eb; border-radius: 12px;"
+              ></iframe>
+            {{/if}}
+          </div>
         </div>
 
-        <div class="col float-right">
-          {{#if visualizationContentId}}
-            <iframe
-              src="{{visualURL}}/{{visualizationContentId}}?highlight=true"
-              title="Visualization Editor"
-              class="float-right"
-              style="border: 1px solid #e5e7eb; border-radius: 12px;"
-            ></iframe>
-          {{/if}}
+        <br>
+
+        <div class="d-flex justify-content-between">
+          <a
+            class="btn btn-primary"
+            style="width:fit-content"
+            href="/questions/{{id}}"
+          >
+            Edit
+          </a>
+
+          {{!-- Delete has its own form --}}
+          <form action="/questions/{{id}}/DELETE" method="POST" class="m-0">
+            <button class="btn btn-danger" style="width:fit-content">
+              Delete
+            </button>
+          </form>
         </div>
       </div>
 
-      <br>
+      {{!-- Change order controls --}}
+      <div class="d-flex justify-content-end align-items-center px-4 pb-3">
+        <span class="mr-2">Change order:</span>
 
-      <div class="d-flex justify-content-between">
-        <a
-          class="btn btn-primary"
-          style="width:fit-content"
-          href="/questions/{{id}}"
+        <form
+          method="POST"
+          action="/questions/{{id}}/moveUp"
+          class="d-inline question-move-form"
+          data-direction="up"
         >
-          Edit
-        </a>
+          <button type="submit" class="btn btn-sm btn-outline-secondary">
+            ↑
+          </button>
+        </form>
 
-        {{!-- Delete has its own form, not wrapping the whole card --}}
-        <form action="/questions/{{id}}/DELETE" method="POST" class="m-0">
-          <button
-            class="btn btn-danger"
-            style="width:fit-content"
-          >
-            Delete
+        <form
+          method="POST"
+          action="/questions/{{id}}/moveDown"
+          class="d-inline ml-1 question-move-form"
+          data-direction="down"
+        >
+          <button type="submit" class="btn btn-sm btn-outline-secondary">
+            ↓
           </button>
         </form>
       </div>
     </div>
 
-    {{!-- Change order row, stacked under the card but before the line --}}
-    <div class="d-flex justify-content-end align-items-center px-4 pb-3">
-      <span class="mr-2">Change order:</span>
-
-      <form method="POST" action="/questions/{{id}}/moveUp" class="d-inline">
-        <button type="submit" class="btn btn-sm btn-outline-secondary">
-          ↑
-        </button>
-      </form>
-
-      <form method="POST" action="/questions/{{id}}/moveDown" class="d-inline ml-1">
-        <button type="submit" class="btn btn-sm btn-outline-secondary">
-          ↓
-        </button>
-      </form>
-    </div>
+    <hr style="margin: 16px 0;">
 </div>
-
-<hr style="margin: 16px 0;">
