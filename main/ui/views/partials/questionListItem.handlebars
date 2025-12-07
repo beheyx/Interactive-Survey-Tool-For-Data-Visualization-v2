@@ -1,47 +1,82 @@
+{{!-- Question card --}}
 {{#if text}}
-    <div class="bg-light d-flex">
+  <div class="bg-light">
 {{else}}
-    <div class="bg-secondary d-flex text-white">
+  <div class="bg-secondary text-white">
 {{/if}}
-    <form class="card-body" action="/questions/{{id}}/DELETE" method="POST">
-        <div class="row clearfix">
-            <div class="col float-left">
-                <h3 class="card-title">{{number}} | 
-                    {{#if text}}
-                        {{text}}
-                    {{else}}
-                        Empty Question
-                    {{/if}}
-                </h3>
-                {{#if required}}<b>Required</b>{{/if}}
-                {{#if text}}
-                    <p>{{type}}</p>
-                {{/if}}
-            </div>
-            <div class="col float-right">
-                {{#if visualizationContentId}}
-                    <iframe
-                    src="{{visualURL}}/{{visualizationContentId}}?highlight=true"
-                    title="Visualization Editor"
-                    class="float-right"
-                    style="border: 1px solid #e5e7eb; border-radius: 12px;"
-                    ></iframe>
-                {{/if}}
-            </div>
-        </div>
-        <br>
-        <div class="clearfix">
-            <a class="col btn btn-primary float-left" style="width:fit-content" href="/questions/{{id}}">Edit</a>
-            <button class="col delete-button btn btn-danger float-right" style="width:fit-content">Delete</button>
-        </div>
-    </form>
-</div>
-<hr style="margin: 16px 0;">
 
-<!-- Shifting buttons, to be implemented
-<h4>Change order: </h4>
-<button class="shift-up-button" action="/questions/{{id}}">↑</button>
-<button class="shift-down-button" action="/questions/{{id}}">↓</button>
-<button class="make-first-button" action="/questions/{{id}}">First</button>
-<button class="make-last-button" action="/questions/{{id}}">Last</button>
--->
+    <div class="card-body">
+      <div class="row clearfix">
+        <div class="col float-left">
+          <h3 class="card-title">
+            {{number}} | 
+            {{#if text}}
+              {{text}}
+            {{else}}
+              Empty Question
+            {{/if}}
+          </h3>
+
+          {{#if required}}
+            <b>Required</b>
+          {{/if}}
+
+          {{#if text}}
+            <p>{{type}}</p>
+          {{/if}}
+        </div>
+
+        <div class="col float-right">
+          {{#if visualizationContentId}}
+            <iframe
+              src="{{visualURL}}/{{visualizationContentId}}?highlight=true"
+              title="Visualization Editor"
+              class="float-right"
+              style="border: 1px solid #e5e7eb; border-radius: 12px;"
+            ></iframe>
+          {{/if}}
+        </div>
+      </div>
+
+      <br>
+
+      <div class="d-flex justify-content-between">
+        <a
+          class="btn btn-primary"
+          style="width:fit-content"
+          href="/questions/{{id}}"
+        >
+          Edit
+        </a>
+
+        {{!-- Delete has its own form, not wrapping the whole card --}}
+        <form action="/questions/{{id}}/DELETE" method="POST" class="m-0">
+          <button
+            class="btn btn-danger"
+            style="width:fit-content"
+          >
+            Delete
+          </button>
+        </form>
+      </div>
+    </div>
+
+    {{!-- Change order row, stacked under the card but before the line --}}
+    <div class="d-flex justify-content-end align-items-center px-4 pb-3">
+      <span class="mr-2">Change order:</span>
+
+      <form method="POST" action="/questions/{{id}}/moveUp" class="d-inline">
+        <button type="submit" class="btn btn-sm btn-outline-secondary">
+          ↑
+        </button>
+      </form>
+
+      <form method="POST" action="/questions/{{id}}/moveDown" class="d-inline ml-1">
+        <button type="submit" class="btn btn-sm btn-outline-secondary">
+          ↓
+        </button>
+      </form>
+    </div>
+</div>
+
+<hr style="margin: 16px 0;">
