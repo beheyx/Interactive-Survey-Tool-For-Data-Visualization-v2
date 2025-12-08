@@ -301,115 +301,6 @@ app.get('/existing-published-surveys', async (req, res, next) => {
 });
 
 
-// app.post('/users(/*)?', async (req, res, next) => {
-//   const apiPageNames = {
-//     '/users': 'register',
-//     '/users/login': 'login'
-//   };
-
-//   const page = apiPageNames[req.originalUrl];
-
-//   try {
-//     // --- Frontend-side validation before calling API ---
-//     if (req.originalUrl === '/users') {
-//       const { name, password, confirm_password } = req.body;
-
-//       // Check for empty fields
-//       if (!name || !password || !confirm_password) {
-//         return res.render(page, {
-//           error: 'Please fill in all fields.',
-//           name,
-//           password,
-//           confirm_password
-//         });
-//       }
-
-//       // Check password match
-//       if (password !== confirm_password) {
-//         return res.render(page, {
-//           error: 'Passwords do not match.',
-//           name,
-//           password,
-//           confirm_password
-//         });
-//       }
-//     }
-
-//     // --- Relay post request to backend API ---
-//     const response = await api.post(req.originalUrl, req.body);
-
-//     // --- On success: save token and redirect ---
-//     res.cookie('access_token', response.data.token, { httpOnly: true });
-//     res.redirect('/register?success=true');
-//     res.redirect(req.protocol + "://" + req.get("host"))
-
-//   } catch (error) {
-//     console.log('Full API error:', JSON.stringify(error.response.data, null, 2));
-
-//     if (error.response) {
-//       const data = error.response.data || {};
-//       const status = error.response.status;
-//       const combined = JSON.stringify(data).toLowerCase();
-
-//       let errorMessage =
-//         data.error ||
-//         data.message ||
-//         data.detail ||
-//         'Registration failed.';
-
-//       // --- Handle duplicate name ---
-//       if (status === 400 && combined.includes('invalid') && req.body.name) {
-//         errorMessage = 'User already exists.';
-//       } else if (status === 409 || combined.includes('exist')) {
-//         errorMessage = 'User already exists.';
-//       } else if (combined.includes('invalid')) {
-//         errorMessage = 'Invalid input. Please check your username and password.';
-//       }
-
-//       return res.render(page, {
-//         error: errorMessage,
-//         name: req.body.name,
-//         password: req.body.password,
-//         confirm_password: req.body.confirm_password
-//       });
-//     } else {
-//       next(error);
-//     }
-//   }
-// });
-
-// handles what to do on ui registration, login, or logout
-// app.post('/users(/*)?', async (req, res, next) => {
-
-//     // map certain API endpoints to name of page to render
-//     const apiPageNames = {
-//         '/users': 'register',
-//         '/users/login': 'login'
-//     }
-
-//     try {
-//         // relay post request to api
-//         const response = await api.post(req.originalUrl, req.body)
-
-//         // save credentials as a cookie
-//         res.cookie("access_token", response.data.token, { httpOnly: true })
-
-//         // on success, go back to home page
-//         res.redirect(req.protocol + "://" + req.get("host"))
-
-//     } catch (error) {
-//         if (error.response) {
-//             // on fail, re-render page with error message
-//             res.render(apiPageNames[req.originalUrl], {
-//                 error: error.response.data.error
-//             })
-//         } else {
-//             next(error)
-//         }
-//     }
-// })
-
-
 // REGISTER — popup only, no cookie
 app.post('/users', async (req, res, next) => {
   try {
@@ -499,14 +390,22 @@ app.get('/surveyDesigns/:id', async (req, res, next) => {
         const tomorrow = new Date(Date.now() + 86400000 - (localOffset * 60000))
 
         try {
-            const questionResponse = await api.get(req.originalUrl + "/questions", withAuth(req.cookies.access_token))
+            const questionResponse = await api.get(
+                req.originalUrl + "/questions",
+                withAuth(req.cookies.access_token)
+            )
+
+            // 🔽 Sort questions by their number before rendering
+            const questions = (questionResponse.data.questions || [])
+                .slice()
+                .sort((a, b) => a.number - b.number)
             
             res.render("editsurveydesign", {
                 name: response.data.name,
                 id: response.data.id,
                 title: response.data.title,
                 introText: response.data.introText,
-                questions: questionResponse.data.questions,
+                questions: questions,
                 conclusionText: response.data.conclusionText,
                 today: today.toISOString().substring(0, 16),
                 tomorrow: tomorrow.toISOString().substring(0, 16),
@@ -642,7 +541,7 @@ app.get('/publishedSurveys/:id', async (req, res, next) => {
             .status(200)
             .set({
               'Content-Type':        'text/csv',
-              'Content-Disposition': `attachment; filename="${pub.name.replace(/\W+/g,'_')}-${pub.status}-results.csv"`
+              'Content-Disposition': `attachment; filename="${pub.name.replace(/\W+/g,'_')}-${pub.status}-results.csv"` // eslint-disable-line no-control-regex
             })
             .send(csv)
         }

@@ -119,3 +119,68 @@ function confirmDeleteDesign() {
   document.getElementById('deleteDesignForm').submit();
 }
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const forms = document.querySelectorAll('.question-move-form');
+
+  forms.forEach(function (form) {
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();  // don't do full-page navigation
+
+      const direction = form.dataset.direction;
+      const block = form.closest('.question-block');
+      if (!block) return;
+
+      // Find neighbor block
+      let neighbor = (direction === 'up')
+        ? block.previousElementSibling
+        : block.nextElementSibling;
+
+      // Skip non-question siblings (just in case)
+      while (neighbor && !neighbor.classList.contains('question-block')) {
+        neighbor = (direction === 'up')
+          ? neighbor.previousElementSibling
+          : neighbor.nextElementSibling;
+      }
+
+      if (!neighbor) {
+        // first/last question: nothing to move
+        return;
+      }
+
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+
+        if (!res.ok) {
+          throw new Error('Move failed with status ' + res.status);
+        }
+
+        // Swap DOM position
+        const parent = block.parentNode;
+        if (direction === 'up') {
+          parent.insertBefore(block, neighbor);
+        } else {
+          parent.insertBefore(neighbor, block);
+        }
+
+        // Swap the visible question numbers
+        const numEl1 = block.querySelector('.question-number');
+        const numEl2 = neighbor.querySelector('.question-number');
+        if (numEl1 && numEl2) {
+          const tmp = numEl1.textContent;
+          numEl1.textContent = numEl2.textContent;
+          numEl2.textContent = tmp;
+        }
+      } catch (err) {
+        console.error(err);
+        // Fallback: full reload if something goes wrong
+        window.location.reload();
+      }
+    });
+  });
+});
+</script>
