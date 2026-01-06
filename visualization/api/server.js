@@ -27,6 +27,7 @@ app.get('/:id', async (req, res, next) => {
             next()
         }
 	} catch (e) {
+		console.error(`[API Server] GET error:`, e.message)
 		next(e)
 	}
 })
@@ -141,6 +142,7 @@ app.post('/:id/upload/finalize', async (req, res, next) => {
 app.put('/:id', async (req, res, next) => {
     try {
         const visualization = await Visualization.findOne({where: { id: req.params.id} })
+
         if (visualization) {
             await Visualization.update(req.body, {
                 where: { id: req.params.id },
@@ -152,6 +154,7 @@ app.put('/:id', async (req, res, next) => {
             next()
         }
     } catch (e) {
+        console.error(`[API Server] PUT error:`, e.message, e.stack)
         if (e instanceof ValidationError) {
             // attempted to create a bad visualization
             res.status(400).send({
