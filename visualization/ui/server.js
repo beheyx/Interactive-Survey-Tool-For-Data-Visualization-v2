@@ -137,7 +137,7 @@ app.post('/:id/upload/finalize', async function(req,res,next) {
 // ui put (keep for backwards compatibility with non-chunked uploads)
 app.put('/:id', async function(req,res,next) {
     try {
-        const response = await api.put(req.originalUrl, req.body)
+        await api.put(req.originalUrl, req.body)
 
         // Notify main API to update the visualization's updatedAt timestamp
         try {
@@ -147,8 +147,9 @@ app.put('/:id', async function(req,res,next) {
             console.error(`Failed to update visualization timestamp for contentId ${req.params.id}:`, touchError.message)
         }
 
-        res.send().status(200)
+        res.status(204).send()
     } catch (e) {
+        console.error(`[UI Server] PUT error:`, e.message)
         next(e)
     }
 })
@@ -156,11 +157,16 @@ app.put('/:id', async function(req,res,next) {
 // endpoint to load photo
 app.get('/:id/photo', async function(req,res,next) {
     try {
-        if (fs.existsSync(`${__dirname}/uploads/${req.params.id}.png`))
-            res.sendFile(`${__dirname}/uploads/${req.params.id}.png`)
-        else
-            res.sendFile(`${__dirname}/uploads/${req.params.id}.jpg`)
+        const pngPath = `${__dirname}/uploads/${req.params.id}.png`
+        const jpgPath = `${__dirname}/uploads/${req.params.id}.jpg`
+
+        if (fs.existsSync(pngPath)) {
+            res.sendFile(pngPath)
+        } else {
+            res.sendFile(jpgPath)
+        }
     } catch (e) {
+        console.error(`[UI Server] Error serving photo:`, e.message)
         next(e)
     }
 })
@@ -171,6 +177,7 @@ app.get('/:id/svg-data', async function(req,res,next) {
         const response = await api.get(`/${req.params.id}`)
         res.status(200).json({ svg: response.data.svg })
     } catch (e) {
+        console.error(`[UI Server] GET svg-data error:`, e.message)
         next(e)
     }
 })

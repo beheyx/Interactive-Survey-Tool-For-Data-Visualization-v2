@@ -4,7 +4,7 @@
  * @type {string[]}
  * @default
  */
-const VISUAL_ELEMENT_TAGS = ["path", "rect", "circle", "ellipse", "polygon", "line", "polyline"]
+const VISUAL_ELEMENT_TAGS = ["path", "rect", "circle", "ellipse", "polygon", "line", "polyline", "image", "foreignObject"]
 
 /**
  * Class name for visual elements
@@ -57,8 +57,13 @@ const VisualizationElement = class {
         this.visualElements = ExtractVisualElements(svg)
         this.nextId = this.visualElements.length
 
-        this.defaultWidth = this.svg.viewBox?.baseVal?.width ? this.svg.viewBox.baseVal.width : this.svg.width.baseVal.value
-        this.defaultHeight = this.svg.viewBox?.baseVal?.height ? this.svg.viewBox.baseVal.height : this.svg.height.baseVal.value
+        // Get width/height from viewBox first, then from width/height properties, then from attributes
+        this.defaultWidth = this.svg.viewBox?.baseVal?.width
+            ? this.svg.viewBox.baseVal.width
+            : (this.svg.width?.baseVal?.value ?? parseFloat(this.svg.getAttribute('width')) ?? 500)
+        this.defaultHeight = this.svg.viewBox?.baseVal?.height
+            ? this.svg.viewBox.baseVal.height
+            : (this.svg.height?.baseVal?.value ?? parseFloat(this.svg.getAttribute('height')) ?? 500)
         this.resetScaleAndPosition()
         
         // on first time upload, mark all visual elements as selectable by default
@@ -273,32 +278,56 @@ const VisualizationElement = class {
         return count
     }
 
+    // Helper to parse viewBox when baseVal is not available
+    _parseViewBox() {
+        const viewBoxAttr = this.svg.getAttribute('viewBox')
+        if (viewBoxAttr) {
+            const parts = viewBoxAttr.split(/\s+/)
+            return {
+                x: parseFloat(parts[0]) || 0,
+                y: parseFloat(parts[1]) || 0,
+                width: parseFloat(parts[2]) || 500,
+                height: parseFloat(parts[3]) || 500
+            }
+        }
+        return { x: 0, y: 0, width: 500, height: 500 }
+    }
+
     get scale() {
-        return this.svg.viewBox.baseVal.width
+        if (this.svg.viewBox?.baseVal?.width) {
+            return this.svg.viewBox.baseVal.width
+        }
+        return this._parseViewBox().width
     }
 
     set scale(num) {
         if (num > 0) {
-            this.svg.setAttribute("viewBox", this.x + " " + this.y + " " + 
+            this.svg.setAttribute("viewBox", this.x + " " + this.y + " " +
                 num + " " + num)
         }
     }
 
     get x() {
-        return this.svg.viewBox.baseVal.x
+        if (this.svg.viewBox?.baseVal?.x !== undefined) {
+            return this.svg.viewBox.baseVal.x
+        }
+        return this._parseViewBox().x
     }
 
     set x(pos) {
-        this.svg.setAttribute("viewBox", pos + " " + this.y + " " + 
+        this.svg.setAttribute("viewBox", pos + " " + this.y + " " +
             this.scale + " " + this.scale)
     }
 
     get y() {
-        return this.svg.viewBox.baseVal.y
+        if (this.svg.viewBox?.baseVal?.y !== undefined) {
+            return this.svg.viewBox.baseVal.y
+        }
+        return this._parseViewBox().y
     }
 
     set y(pos) {
-        this.svg.setAttribute("viewBox", this.x + " " + pos + " " + 
+        this.svg.setAttribute("viewBox", this.x + " " + pos + " " +
             this.scale + " " + this.scale)
     }
 }

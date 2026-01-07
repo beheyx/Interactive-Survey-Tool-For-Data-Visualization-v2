@@ -190,7 +190,10 @@ export const autosave = {
     statusText: "",
     set statusText(s) {
         this.value = s
-        document.getElementById("save-status").textContent = s
+        const saveStatus = document.getElementById("save-status")
+        if (saveStatus) {
+            saveStatus.textContent = s
+        }
     },
     save: async function() {
         this.statusText = "Preparing to save..."
@@ -199,20 +202,29 @@ export const autosave = {
         const progressFill = document.getElementById("upload-progress-fill")
         const progressText = document.getElementById("upload-progress-text")
 
-        // Show progress bar immediately
-        progressContainer.hidden = false
-        progressFill.style.width = "0%"
-        progressText.textContent = "Processing SVG..."
+        // Show progress bar immediately (only if elements exist)
+        if (progressContainer && progressFill && progressText) {
+            progressContainer.hidden = false
+            progressFill.style.width = "0%"
+            progressText.textContent = "Processing SVG..."
+        }
 
         try {
             // Extract and measure SVG data
             this.statusText = "Processing SVG..."
-            const svgData = svgElement.outerHTML
+
+            // Serialize SVG with XMLSerializer to ensure proper XML formatting
+            // (e.g., HTML img tags inside foreignObject are properly closed)
+            const serializer = new XMLSerializer()
+            let svgData = serializer.serializeToString(svgElement)
+
             const svgSizeBytes = new Blob([svgData]).size
             const svgSizeMB = (svgSizeBytes / 1024 / 1024).toFixed(2)
 
-            progressFill.style.width = "5%"
-            progressText.textContent = `Preparing ${svgSizeMB}MB...`
+            if (progressFill && progressText) {
+                progressFill.style.width = "5%"
+                progressText.textContent = `Preparing ${svgSizeMB}MB...`
+            }
 
             // Use chunked upload for files > 1MB
             const CHUNK_SIZE = 1 * 1024 * 1024
@@ -221,23 +233,29 @@ export const autosave = {
 
             if (!useChunking) {
                 // Small file - use direct PUT upload
-                progressFill.style.width = "50%"
-                progressText.textContent = `Uploading ${svgSizeMB}MB...`
+                if (progressFill && progressText) {
+                    progressFill.style.width = "50%"
+                    progressText.textContent = `Uploading ${svgSizeMB}MB...`
+                }
+
+                const requestBody = { svg: svgData }
 
                 const response = await fetch(baseUrl, {
                     method: "PUT",
-                    body: JSON.stringify({ svg: svgData }),
+                    body: JSON.stringify(requestBody),
                     headers: { "Content-type": "application/json" }
                 })
 
                 if (response.ok) {
                     this.statusText = "Changes saved"
-                    progressFill.style.width = "100%"
-                    progressText.textContent = "Complete!"
-                    setTimeout(() => {
-                        progressContainer.hidden = true
-                        progressFill.style.width = "0%"
-                    }, 2000)
+                    if (progressFill && progressText && progressContainer) {
+                        progressFill.style.width = "100%"
+                        progressText.textContent = "Complete!"
+                        setTimeout(() => {
+                            progressContainer.hidden = true
+                            progressFill.style.width = "0%"
+                        }, 2000)
+                    }
                 } else {
                     const errorText = await response.text()
                     console.error("PUT upload error:", response.status, errorText)
@@ -251,8 +269,10 @@ export const autosave = {
             this.statusText = `Uploading ${svgSizeMB}MB in ${totalChunks} chunks...`
 
             // Initialize chunked upload session
-            progressFill.style.width = "10%"
-            progressText.textContent = "Initializing upload..."
+            if (progressFill && progressText) {
+                progressFill.style.width = "10%"
+                progressText.textContent = "Initializing upload..."
+            }
 
             const initResponse = await fetch(`${baseUrl}/upload/init`, {
                 method: "POST",
@@ -284,15 +304,19 @@ export const autosave = {
                 }
 
                 // Update progress: 10% init + 80% chunks + 10% finalize
-                const chunkProgress = 10 + (80 * (i + 1) / totalChunks)
-                progressFill.style.width = chunkProgress + "%"
-                progressText.textContent = `Uploading: ${i + 1}/${totalChunks} chunks (${svgSizeMB}MB)`
+                if (progressFill && progressText) {
+                    const chunkProgress = 10 + (80 * (i + 1) / totalChunks)
+                    progressFill.style.width = chunkProgress + "%"
+                    progressText.textContent = `Uploading: ${i + 1}/${totalChunks} chunks (${svgSizeMB}MB)`
+                }
                 this.statusText = `Uploading chunk ${i + 1}/${totalChunks}...`
             }
 
             // Finalize upload and save to database
-            progressFill.style.width = "95%"
-            progressText.textContent = "Finalizing..."
+            if (progressFill && progressText) {
+                progressFill.style.width = "95%"
+                progressText.textContent = "Finalizing..."
+            }
             this.statusText = "Finalizing upload..."
 
             const finalizeResponse = await fetch(`${baseUrl}/upload/finalize`, {
@@ -309,19 +333,23 @@ export const autosave = {
 
             // Upload complete
             this.statusText = "Changes saved"
-            progressFill.style.width = "100%"
-            progressText.textContent = `Complete! (${svgSizeMB}MB)`
-            setTimeout(() => {
-                progressContainer.hidden = true
-                progressFill.style.width = "0%"
-            }, 2000)
+            if (progressFill && progressText && progressContainer) {
+                progressFill.style.width = "100%"
+                progressText.textContent = `Complete! (${svgSizeMB}MB)`
+                setTimeout(() => {
+                    progressContainer.hidden = true
+                    progressFill.style.width = "0%"
+                }, 2000)
+            }
 
         } catch (error) {
             console.error("Save error:", error)
             console.error("Error stack:", error.stack)
             this.statusText = "Error while saving!"
-            progressContainer.hidden = true
-            progressFill.style.width = "0%"
+            if (progressContainer && progressFill) {
+                progressContainer.hidden = true
+                progressFill.style.width = "0%"
+            }
             alert(`Upload failed: ${error.message}. Check console for details.`)
         }
     }
@@ -384,6 +412,43 @@ async function loadSVGAsync() {
             if (spinner) spinner.remove()
             visualContainer.appendChild(svgElement)
 
+            // Convert legacy SVG image elements to foreignObject for better raster image support
+            const images = svgElement.querySelectorAll('image')
+            if (images.length > 0) {
+                setTimeout(() => {
+                    images.forEach((img) => {
+                        const href = img.getAttributeNS('http://www.w3.org/1999/xlink', 'href') || img.getAttribute('href')
+                        const x = parseFloat(img.getAttribute('x') || '0')
+                        const y = parseFloat(img.getAttribute('y') || '0')
+                        const width = parseFloat(img.getAttribute('width') || '500')
+                        const height = parseFloat(img.getAttribute('height') || '500')
+
+                        if (href) {
+                            // Use foreignObject with HTML img for better raster image rendering
+                            const foreignObject = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject')
+                            foreignObject.setAttributeNS(null, 'x', x.toString())
+                            foreignObject.setAttributeNS(null, 'y', y.toString())
+                            foreignObject.setAttributeNS(null, 'width', width.toString())
+                            foreignObject.setAttributeNS(null, 'height', height.toString())
+
+                            const htmlImg = document.createElement('img')
+                            htmlImg.src = href
+                            htmlImg.style.width = '100%'
+                            htmlImg.style.height = '100%'
+                            htmlImg.style.objectFit = 'fill'
+                            htmlImg.style.display = 'block'
+
+                            htmlImg.addEventListener('error', (e) => {
+                                console.error('Failed to load image:', href, e)
+                            })
+
+                            foreignObject.appendChild(htmlImg)
+                            img.parentNode.replaceChild(foreignObject, img)
+                        }
+                    })
+                }, 100)
+            }
+
             // Show UI elements after SVG loads
             const buttonHeader = document.getElementById('button-header')
             if (buttonHeader) buttonHeader.hidden = false
@@ -402,7 +467,40 @@ async function loadSVGAsync() {
             return false
         }
     } else {
-        // SVG was pre-rendered in HTML - show UI elements
+        // SVG was pre-rendered in HTML - convert any legacy image elements
+        const svgElement = visualContainer.firstElementChild
+        if (svgElement && svgElement.tagName.toLowerCase() === 'svg') {
+            const images = svgElement.querySelectorAll('image')
+
+            images.forEach((img) => {
+                const href = img.getAttributeNS('http://www.w3.org/1999/xlink', 'href') || img.getAttribute('href')
+                const x = parseFloat(img.getAttribute('x') || '0')
+                const y = parseFloat(img.getAttribute('y') || '0')
+                const width = parseFloat(img.getAttribute('width') || '500')
+                const height = parseFloat(img.getAttribute('height') || '500')
+
+                if (href) {
+                    // Convert to foreignObject for better raster image rendering
+                    const foreignObject = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject')
+                    foreignObject.setAttributeNS(null, 'x', x.toString())
+                    foreignObject.setAttributeNS(null, 'y', y.toString())
+                    foreignObject.setAttributeNS(null, 'width', width.toString())
+                    foreignObject.setAttributeNS(null, 'height', height.toString())
+
+                    const htmlImg = document.createElement('img')
+                    htmlImg.src = href
+                    htmlImg.style.width = '100%'
+                    htmlImg.style.height = '100%'
+                    htmlImg.style.objectFit = 'fill'
+                    htmlImg.style.display = 'block'
+
+                    foreignObject.appendChild(htmlImg)
+                    img.parentNode.replaceChild(foreignObject, img)
+                }
+            })
+        }
+
+        // Show UI elements
         const buttonHeader = document.getElementById('button-header')
         if (buttonHeader) buttonHeader.hidden = false
 
@@ -441,11 +539,15 @@ addEventListener("DOMContentLoaded", async () => {
     // Load SVG asynchronously if not embedded
     await loadSVGAsync()
 
-    if (visualContainer.firstElementChild) {
+    if (visualContainer.firstElementChild && visualContainer.firstElementChild.tagName.toLowerCase() === 'svg') {
         svgElement = visualContainer.firstElementChild
-        visualizationElement = new VisualizationElement(svgElement)
-        visualizer.onLoadSvg();
-        visualizer.onFirstLoadSvg();
+        try {
+            visualizationElement = new VisualizationElement(svgElement)
+            visualizer.onLoadSvg();
+            visualizer.onFirstLoadSvg();
+        } catch (error) {
+            console.error('Error creating VisualizationElement:', error)
+        }
     }
 
 });
@@ -464,8 +566,8 @@ function handleSvgUpload(event){
 
     if (file.name.endsWith('.svg')) {
         const reader = new FileReader();
-        reader.onload = function(e) {
-            loadSvgFromText(e.target.result);
+        reader.onload = async function(e) {
+            await loadSvgFromText(e.target.result);
         }
         reader.onerror = function(e) {
             console.error("FileReader error:", e);
@@ -477,7 +579,7 @@ function handleSvgUpload(event){
     }
 }
 
-function loadSvgFromText(svgText) {
+async function loadSvgFromText(svgText) {
     let firstUpload = true
     const parser = new DOMParser();
     const svgDoc = parser.parseFromString(svgText, "image/svg+xml");
@@ -512,7 +614,7 @@ function loadSvgFromText(svgText) {
 
     // Auto-save in non-debug mode
     if (!debug) {
-        autosave.save()
+        await autosave.save()
     }
 
     // Initialize pan/zoom and editor controls
@@ -525,46 +627,66 @@ function loadSvgFromText(svgText) {
 }
 
 async function loadRaster(file) {
-    // send request to upload image
+    // Upload raster image to server
     const formData = new FormData()
     const urlParts = window.location.href.split('/')
     const fileParts = file.name.split('.')
     const fileUrl = window.location.href.split('?')[0] + "/photo"
     formData.append('file', file, urlParts[urlParts.length-1].split('?')[0] + '.' + fileParts[fileParts.length-1]);
-    await fetch(fileUrl, { 
+
+    await fetch(fileUrl, {
         method: "POST",
         body: formData
     })
 
     // Remove old SVG if one is already present
     let firstUpload = true
-    if (svgElement) {
+    if (svgElement && visualizationElement) {
         visualContainer.removeChild(visualizationElement.svg);
         firstUpload = false
+    } else {
+        visualContainer.innerHTML = '';
     }
 
-    // create svg element
+    // Create SVG wrapper with foreignObject for raster image
     const newSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
     newSvg.setAttributeNS(null, "width", "500")
     newSvg.setAttributeNS(null, "height", "500")
     newSvg.setAttributeNS(null, "viewBox", "0 0 500 500")
-    newSvg.innerHTML = `<image href="${fileUrl}" x="0" y="0" height="500" width="500"></image>`
+
+    const foreignObject = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject')
+    foreignObject.setAttributeNS(null, 'x', '0')
+    foreignObject.setAttributeNS(null, 'y', '0')
+    foreignObject.setAttributeNS(null, 'width', '500')
+    foreignObject.setAttributeNS(null, 'height', '500')
+
+    const htmlImg = document.createElement('img')
+    htmlImg.src = fileUrl
+    htmlImg.style.width = '100%'
+    htmlImg.style.height = '100%'
+    htmlImg.style.objectFit = 'fill'
+    htmlImg.style.display = 'block'
+
+    foreignObject.appendChild(htmlImg)
+    newSvg.appendChild(foreignObject)
 
     svgElement = visualContainer.appendChild(newSvg);
 
     visualizationElement = new VisualizationElement(svgElement)
 
-    autosave.save()
-    // fetch(window.location.href, { 
-    //     method: "PUT",
-    //     body: JSON.stringify({
-    //         svg: svgElement.outerHTML
-    //     }),
-    //     headers: {
-    //         "Content-type": "application/json",
-    //     },    
-    // })
-  
+    // Show editor toolbar
+    const buttonHeader = document.getElementById('button-header')
+    if (buttonHeader) buttonHeader.hidden = false;
+
+    // Hide progress bar (only shown during save operations)
+    const progressContainer = document.getElementById('upload-progress-container')
+    if (progressContainer) progressContainer.hidden = true
+
+    // Auto-save
+    console.log("Calling autosave.save()...")
+    await autosave.save()
+    console.log("autosave.save() completed")
+
     // Re-initialize pan/zoom
     visualizer.onLoadSvg();
     if (firstUpload)
