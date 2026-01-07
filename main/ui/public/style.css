@@ -1881,7 +1881,6 @@ button.table-btn {
 .landing-btn-primary:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(215, 63, 9, 0.4);
-  border: 2px solid #000000;
 }
 
 /* Hero Section */
@@ -1932,7 +1931,6 @@ button.table-btn {
 .hero-btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 16px rgba(215, 63, 9, 0.4);
-  border: 2px solid #000000;
 }
 
 .hero-btn-secondary {
