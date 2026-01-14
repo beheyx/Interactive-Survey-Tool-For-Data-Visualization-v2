@@ -557,14 +557,15 @@ function handleSvgUpload(event){
     const file = event.target.files[0];
     if (!file) return;
 
-    // Validate file type
+    // Validate file type (case-insensitive)
+    const fileName = file.name.toLowerCase();
     if (debug) {
-        if (!file.name.endsWith('.svg')) return;
+        if (!fileName.endsWith('.svg')) return;
     } else {
-        if (!(file.name.endsWith('.svg') || file.name.endsWith('.jpg') || file.name.endsWith('.png'))) return;
+        if (!(fileName.endsWith('.svg') || fileName.endsWith('.jpg') || fileName.endsWith('.png') || fileName.endsWith('.jpeg'))) return;
     }
 
-    if (file.name.endsWith('.svg')) {
+    if (fileName.endsWith('.svg')) {
         const reader = new FileReader();
         reader.onload = async function(e) {
             await loadSvgFromText(e.target.result);
