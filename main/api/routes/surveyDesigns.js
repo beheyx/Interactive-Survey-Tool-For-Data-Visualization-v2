@@ -114,7 +114,15 @@ router.post('/:id/questions', requireAuthentication, handleErrors( async (req, r
 // Publish a survey
 router.post('/:id/publishedSurveys', requireAuthentication, handleErrors( async (req, res, next) => {
 	const surveyDesign = await getResourceById(SurveyDesign, req.params.id)
-	const questions = await Question.findAll({where: {surveyDesignId: req.params.id}})
+	const allQuestions = await Question.findAll({where: {surveyDesignId: req.params.id}})
+
+	// Filter out empty questions (no text content) and renumber remaining questions
+	const validQuestions = allQuestions
+		.filter(q => q.text && q.text.trim() !== '')
+		.map((q, index) => ({
+			...q.dataValues,
+			number: index + 1
+		}))
 
 	// Get survey data from req
 	const publishedSurveyData = {
@@ -123,7 +131,7 @@ router.post('/:id/publishedSurveys', requireAuthentication, handleErrors( async 
 		openDateTime: new Date(req.body.openDateTime),
 		closeDateTime: new Date(req.body.closeDateTime),
 		surveyDesign: surveyDesign,
-		questions: questions
+		questions: validQuestions
 	}
 
 	// Create new survey design in database
