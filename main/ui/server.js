@@ -338,7 +338,10 @@ app.post('/users(/*)?', async (req, res, next) => {
   } catch (error) {
     if (error.response) {
       res.render(apiPageNames[req.originalUrl], {
-        error: error.response.data.error
+        layout: false,
+        error: error.response.data.error,
+        name: req.body.name,
+        password: req.body.password
       });
     } else {
       next(error);
