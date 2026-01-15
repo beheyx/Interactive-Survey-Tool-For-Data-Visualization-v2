@@ -435,7 +435,7 @@ async function loadSVGAsync() {
                             htmlImg.src = href
                             htmlImg.style.width = '100%'
                             htmlImg.style.height = '100%'
-                            htmlImg.style.objectFit = 'fill'
+                            htmlImg.style.objectFit = 'contain'
                             htmlImg.style.display = 'block'
 
                             htmlImg.addEventListener('error', (e) => {
@@ -491,7 +491,7 @@ async function loadSVGAsync() {
                     htmlImg.src = href
                     htmlImg.style.width = '100%'
                     htmlImg.style.height = '100%'
-                    htmlImg.style.objectFit = 'fill'
+                    htmlImg.style.objectFit = 'contain'
                     htmlImg.style.display = 'block'
 
                     foreignObject.appendChild(htmlImg)
@@ -665,7 +665,7 @@ async function loadRaster(file) {
     htmlImg.src = fileUrl
     htmlImg.style.width = '100%'
     htmlImg.style.height = '100%'
-    htmlImg.style.objectFit = 'fill'
+    htmlImg.style.objectFit = 'contain'
     htmlImg.style.display = 'block'
 
     foreignObject.appendChild(htmlImg)
