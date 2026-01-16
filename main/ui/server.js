@@ -499,6 +499,33 @@ app.get('/questions/:id', async (req, res, next) => {
     }
 });
 
+async function buildSurveyRecords(surveyId, token) {
+  const { data: pub } = await api.get(
+    `/publishedSurveys/${surveyId}`,
+    withAuth(token)
+  )
+
+  const participants = pub.results?.participants || []
+
+  const records = []
+  participants.forEach(p =>
+    p.answers.forEach(a => {
+      records.push({
+        participantId:  p.participantId,
+        questionNumber: a.questionNumber,
+        response:       a.response,
+        comment:        a.comment
+      })
+    })
+  )
+
+  return {
+    pub,
+    records,
+    fields: ['participantId','questionNumber','response','comment']
+  }
+}
+
 // View published survey
 app.get('/publishedSurveys/:id', async (req, res, next) => {
     try {
@@ -518,35 +545,20 @@ app.get('/publishedSurveys/:id', async (req, res, next) => {
         }
 
         if (req.query.downloadCSV) {
-            const { data: pub } = await api.get(req.originalUrl, withAuth(req.cookies.access_token))
-            const participants = pub.results?.participants || []
-            // build one flat row per answer
-            const records = []
-            participants.forEach(p =>
-              p.answers.forEach(a => {
-                records.push({
-                  participantId:    p.participantId,
-                  questionNumber:   a.questionNumber,
-                  response:         a.response,
-                  comment:          a.comment
-                })
-              })
-            )
-      
-            // defines column order
-            const fields = [
-              'participantId','questionNumber','response','comment'
-            ]
+            const { pub, records, fields } =
+                await buildSurveyRecords(req.params.id, req.cookies.access_token)
+
             const parser = new Parser({ fields })
-            const csv    = parser.parse(records)
+            const csv = parser.parse(records)
 
             return res
-            .status(200)
-            .set({
-              'Content-Type':        'text/csv',
-              'Content-Disposition': `attachment; filename="${pub.name.replace(/\W+/g,'_')}-${pub.status}-results.csv"` // eslint-disable-line no-control-regex
-            })
-            .send(csv)
+                .status(200)
+                .set({
+                'Content-Type': 'text/csv',
+                'Content-Disposition':
+                    `attachment; filename="${pub.name.replace(/\W+/g,'_')}-${pub.status}-results.csv"`
+                })
+                .send(csv)
         }
 
         else {
@@ -590,6 +602,27 @@ app.get('/publishedSurveys/:id', async (req, res, next) => {
     }
 });
 
+app.get('/publishedSurveys/:id/preview', async (req, res, next) => {
+  try {
+    const { pub, records, fields } =
+        await buildSurveyRecords(req.params.id, req.cookies.access_token)
+
+    // Limit rows for performance (VERY important)
+    const PREVIEW_LIMIT = 100
+
+    res.render('publishedSurveyPreview', {
+      layout: false,
+      name: pub.name,
+      status: pub.status,
+      fields,
+      rows: records.slice(0, PREVIEW_LIMIT),
+      totalRows: records.length
+    })
+  } catch (err) {
+    next(err)
+  }
+})
+
 // handle ui button for saving questions
 app.post('/questions/:id/PATCH', async (req, res, next) => {
     try {
@@ -621,6 +654,7 @@ app.get('/takeSurvey/:hash', async (req, res, next) => {
             if (req.query.page == response.data.questions.length+1) {
                 res.render("takeSurveyConclusion", {
                     layout: false,
+                    title: response.data.surveyDesign.title,
                     conclusionText: response.data.surveyDesign.conclusionText,
                 })
 
@@ -661,6 +695,7 @@ app.get('/takeSurvey/:hash', async (req, res, next) => {
 
                 res.render("takeSurveyPage", {
                     layout: false,
+                    title: response.data.surveyDesign.title,
                     linkHash: response.data.linkHash,
                     text: question.text,
                     visualURL: process.env.VISUAL_UI_URL,
@@ -702,6 +737,7 @@ app.get('/takeSurvey/:hash', async (req, res, next) => {
         next(error)
     }
 })
+
 
 app.get('/profile', async (req, res, next) => {
     try {
