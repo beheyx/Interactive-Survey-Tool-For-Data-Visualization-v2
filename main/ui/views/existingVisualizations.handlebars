@@ -106,22 +106,26 @@
 
   // Bulk delete handler
   if (bulkDeleteBtn) {
-    bulkDeleteBtn.addEventListener('click', function() {
+    bulkDeleteBtn.addEventListener('click', async function() {
       const selected = Array.from(rowCheckboxes).filter(cb => cb.checked);
       const count = selected.length;
 
       if (count === 0) return;
 
       if (confirm(`Are you sure you want to delete ${count} visualization${count > 1 ? 's' : ''}?`)) {
-        // Delete each selected item
-        selected.forEach(checkbox => {
+        // Delete each selected item sequentially
+        for (const checkbox of selected) {
           const id = checkbox.getAttribute('data-id');
-          const form = document.createElement('form');
-          form.method = 'POST';
-          form.action = `/visualizations/${id}/DELETE`;
-          document.body.appendChild(form);
-          form.submit();
-        });
+          try {
+            await fetch(`/visualizations/${id}/DELETE`, {
+              method: 'POST'
+            });
+          } catch (error) {
+            console.error(`Failed to delete visualization ${id}:`, error);
+          }
+        }
+        // Reload page after all deletes complete
+        window.location.reload();
       }
     });
   }
