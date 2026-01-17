@@ -145,7 +145,7 @@ body {
 .highlightTool .visual-element:hover {
     fill-opacity: 40% !important;
     stroke-opacity: 40% !important;
-    filter: saturate(0.3) drop-shadow(0px 0px var(--visual-scale) red) saturate(15);
+    filter: saturate(0.3) drop-shadow(0px 0px var(--visual-scale) red) saturate(15) !important;
 }
 
 .selectElements .visual-element.selected,
@@ -160,7 +160,7 @@ body {
 .setSelectable .visual-element {
     fill-opacity: 40% !important;
     stroke-opacity: 40% !important;
-    filter: saturate(0.3) drop-shadow(0px 0px var(--visual-scale) cyan) saturate(15);
+    filter: saturate(0.3) drop-shadow(0px 0px var(--visual-scale) cyan) saturate(-15);
 }
 
 .highlight .visual-element.highlight,
