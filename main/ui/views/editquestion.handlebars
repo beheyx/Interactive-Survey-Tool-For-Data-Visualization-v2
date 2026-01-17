@@ -1,5 +1,5 @@
 <head>
-  <title>Edit Question</title>
+  <title>Editing Question {{number}}</title>
 </head>
 
 <script type="module" src="/src/questionEdit.js" charset="utf-8" defer></script>
@@ -90,6 +90,12 @@
     </div>
 
     {{#if visualizationContentId}}
+        <br>
+        <div class="row">
+            <div class="col">
+                <b>Edits made here will only affect this visualization instance.</b>
+            </div>
+        </div>
         <br>
         {{#unless DEBUG}}
             <iframe id="displayedImage" src="{{visualURL}}/{{visualizationContentId}}?editor=true" height="360" width="480"></iframe>

@@ -1,5 +1,5 @@
 <head>
-  <title>Edit Visualization</title>
+  <title>Editing {{name}}</title>
 </head>
 
 <!-- Edit Visualization Page -->
@@ -11,7 +11,12 @@
     </button>
   </form>
 </div>
-
+<div class="row">
+  <div class="col">
+    <b>Edits made here will not affect questions with {{name}} already imported. Re-import visualizations in questions to reflect changes.</b>
+  </div>
+</div>
+<br>
 <main class="content-wrap">
   <div class="visual-edit-container" style="height: calc(100vh - 180px);">
     <iframe
@@ -28,8 +33,9 @@
 <div id="deleteVisualizationModal" class="delete-modal" style="display:none;">
   <div class="delete-modal-content">
     <h3>Delete Visualization?</h3>
-    <p>This action cannot be undone.</p>
-
+    <p><b>This action cannot be undone.</b>
+    Questions with {{name}} already imported will keep the visualization. Remove imported visualizations from individual questions to fully remove them.
+    </p>
     <div class="delete-modal-buttons">
       <button type="button" class="delete-btn-cancel" onclick="hideDeleteVisualizationModal()">Cancel</button>
       <button type="button" class="delete-btn-confirm" onclick="confirmDeleteVisualization()">Delete</button>
