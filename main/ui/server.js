@@ -201,6 +201,19 @@ app.get('/faq', async (req, res, next) => {
     }
 });
 
+// About Us page - same for all users
+app.get('/about', (req, res) => {
+    res.render('about-us', {
+        isAuthenticated: !!req.cookies.access_token,
+        activePage: 'about',
+        breadcrumbs: [
+            { label: 'Home', url: '/' },
+            { label: 'About Us', url: '/about' }
+        ]
+    });
+});
+
+
 // existing visualizations page
 app.get('/existing-visualizations', async (req, res, next) => {
     try {
