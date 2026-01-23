@@ -1,3 +1,13 @@
+/* === Platform CSS Variables === */
+:root {
+  --ink: #000000;
+  --line: #9aa0a6;
+  --panel: #eeeeee;
+  --bg: #ffffff;
+  --primary: #D73F09;
+  --primary-dark: #B23307;
+}
+
 @keyframes blink {
     0% {stroke-opacity: 0; fill-opacity: 0;}
     50% {stroke-opacity: 1; fill-opacity: 1;}
@@ -15,15 +25,28 @@
     z-index: 25;
     height: 80%;
     width: 80%;
-    padding: 10px;
-    background-color: lightgray;
-    border-radius: 1%;
+    padding: 20px;
+    background-color: var(--bg);
+    border: 2px solid var(--line);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
 #close-help-window-button {
     margin-left: 95%;
-    border: 0;
-    background-color: transparent;
+    border: 2px solid var(--line);
+    background-color: var(--panel);
+    border-radius: 6px;
+    padding: 4px 12px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.12s ease;
+}
+
+#close-help-window-button:hover {
+    background-color: var(--primary);
+    color: white;
+    border-color: var(--primary-dark);
 }
 
 .mark {
@@ -43,7 +66,29 @@
 html, body {
     height: 100%;
     margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+}
+
+/* Global focus indicators for accessibility */
+a:focus,
+button:focus,
+input:focus,
+textarea:focus,
+select:focus,
+[tabindex]:focus {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(215, 63, 9, 0.2);
 }
 
 body {
@@ -87,9 +132,11 @@ body {
     border-radius: 50%;
     z-index: 12;
     padding: 0;
-    border: 0;
-    background-color: lightgray;
-    box-shadow: 2px 2px 2px 0px rgba(0, 0, 0, 0.4);
+    border: 2px solid var(--line);
+    background-color: var(--panel);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: transform 0.08s ease, background-color 0.12s ease;
 
     display: flex;
     align-items: center;
@@ -97,11 +144,13 @@ body {
 }
 
 .zoom-button:active {
-    background-color: darkgray;
+    background-color: #dadada;
+    transform: scale(0.95);
 }
 
 .zoom-button:hover {
-    transform: scale(1.1)
+    transform: scale(1.1);
+    background-color: #e0e0e0;
 }
 
 #zoom-in {
@@ -195,41 +244,45 @@ button, input {
 }
 
 .dropdown {
+    position: relative;
     z-index: 13;
     font-size: 4.5vh;
-    border: 0px;
+    border: 2px solid var(--line);
+    border-radius: 8px;
     min-width: 22vh;
     text-align: center;
-    box-shadow: 2px 2px 2px 0px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     margin: 0 2vw;
+    cursor: pointer;
+    transition: transform 0.08s ease, background-color 0.12s ease;
 }
 
 .dropdown[hidden] {
     display: none;
 }
 
+.dropdown:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+}
+
+.file,
 .options {
-    background-color: #ccd9cc;
+    background-color: var(--panel);
 }
 
 .tools {
-    background-color: #fc7979;
+    background-color: var(--primary);
+    color: white;
+    border-color: var(--primary-dark);
 }
 
-.file {
-    background-color: #c7c7c7;
-}
-
-.file:hover {
-    background-color: #a8a8a8;
-}
-
+.file:hover,
 .options:hover {
-    background-color: #bbc7bb;
+    background-color: #e0e0e0;
 }
 
 .tools:hover {
-    background-color: #bd5b5b;
+    background-color: var(--primary-dark);
 }
 
 #button-header {
@@ -247,10 +300,14 @@ button, input {
 .dropdown-buttons {
     display: none;
     position: absolute;
+    top: calc(100% - 2px);
+    left: 0;
     box-shadow: 0px 4px 8px 0px #454545;
     z-index: 14;
     font-size: 2vh;
     max-width: 22vh;
+    min-width: 100%;
+    padding-top: 2px;
 }
 
 .dropdown-buttons button {
@@ -258,6 +315,7 @@ button, input {
     padding: 0.5vh;
     min-width: 22vh;
     font-size: 2vh;
+    transition: background-color 0.12s ease;
 }
 
 .dropdown-buttons button:hover {
@@ -265,41 +323,60 @@ button, input {
 }
 
 .options .dropdown-buttons button {
-    background-color: #ebfaeb;
+    background-color: #f9f9f9;
+    color: var(--ink);
 }
 
 .options .dropdown-buttons button:hover {
-    background-color: #ccd9cc;
+    background-color: var(--panel);
 }
 
 .tools .dropdown-buttons button {
-    background-color: #f78b8b;
+    background-color: #FF6B5A;
+    color: white;
 }
 
 .tools .dropdown-buttons button:hover {
-    background-color: #c26e6e;
+    background-color: var(--primary);
 }
 
 .file .dropdown-buttons button {
-    background-color: #e3e3e3;
+    background-color: #f5f5f5;
+    color: var(--ink);
 }
 
 .file .dropdown-buttons button:hover {
-    background-color: #bfbfbf;
+    background-color: #e0e0e0;
 }
 
-.dropdown:hover .dropdown-buttons {
-    display: grid;
+.dropdown:hover .dropdown-buttons,
+.file:hover .file-buttons,
+.options:hover .option-buttons,
+.tools:hover .tool-buttons {
+    display: grid !important;
 }
 
 #help-button {
-    border: none;
-    background-color: transparent;
-    font-size: 4.3vh;
+    border: 2px solid var(--line);
+    background-color: var(--panel);
+    border-radius: 50%;
+    width: 5vh;
+    height: 5vh;
+    font-size: 3vh;
     font-weight: bold;
     font-family: sans-serif;
-    max-height: 5vh;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.12s ease, transform 0.08s ease;
+}
+
+#help-button:hover {
+    background-color: var(--primary);
+    color: white;
+    border-color: var(--primary-dark);
+    transform: scale(1.1);
 }
 
 /* Lasso drawing line (temporary polyline while dragging) */
@@ -327,16 +404,17 @@ button, input {
 #upload-progress-bar {
     width: 200px;
     height: 20px;
-    background-color: #e0e0e0;
+    background-color: var(--panel);
+    border: 2px solid var(--line);
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 #upload-progress-fill {
     height: 100%;
     width: 0%;
-    background: linear-gradient(90deg, #4caf50, #8bc34a);
+    background: linear-gradient(90deg, var(--primary), #FF6B5A);
     transition: width 0.3s ease;
     border-radius: 10px;
 }
@@ -344,7 +422,8 @@ button, input {
 #upload-progress-text {
     margin-top: 5px;
     font-size: 12px;
-    color: #555;
+    color: var(--ink);
+    font-weight: 500;
 }
 
 /* SVG Loading Spinner */
@@ -354,12 +433,12 @@ button, input {
     align-items: center;
     justify-content: center;
     height: 80vh;
-    color: #666;
+    color: var(--ink);
 }
 
 .spinner {
-    border: 8px solid #f3f3f3;
-    border-top: 8px solid #4caf50;
+    border: 8px solid var(--panel);
+    border-top: 8px solid var(--primary);
     border-radius: 50%;
     width: 60px;
     height: 60px;
