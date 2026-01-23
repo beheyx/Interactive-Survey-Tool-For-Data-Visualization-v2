@@ -2983,4 +2983,64 @@ button.table-btn {
   }
 }
 
+/* =========================================================
+   Survey Question Reorder Buttons + Question Block Border
+   ========================================================= */
 
+:root{
+  --osu-orange: #D73F09;
+  --osu-orange-dark: #B23307;
+}
+
+/* Question block border (wraps the inner bg-light/bg-secondary container) */
+.question-block > .bg-light,
+.question-block > .bg-secondary {
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.question-block:hover > .bg-light,
+.question-block:hover > .bg-secondary {
+  border-color: var(--osu-orange);
+}
+
+/* Reorder buttons (↑ ↓) */
+.question-block .question-move-form > button.btn.btn-sm.btn-outline-secondary {
+  background: #fff;
+  color: var(--osu-orange);
+  border: 2px solid var(--osu-orange);
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-weight: 700;
+  line-height: 1;
+  min-width: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease, transform 120ms ease;
+}
+
+.question-block .question-move-form > button.btn.btn-sm.btn-outline-secondary:hover {
+  background: var(--osu-orange);
+  color: #fff;
+  border-color: var(--osu-orange);
+}
+
+.question-block .question-move-form > button.btn.btn-sm.btn-outline-secondary:active {
+  transform: translateY(1px);
+  border-color: var(--osu-orange-dark);
+}
+
+.question-block .question-move-form > button.btn.btn-sm.btn-outline-secondary:focus-visible {
+  outline: 3px solid var(--osu-orange);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(215, 63, 9, 0.2);
+}
+
+.question-block .question-move-form > button.btn.btn-sm.btn-outline-secondary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background: #fff;
+  color: #666;
+  border-color: #bbb;
+}
