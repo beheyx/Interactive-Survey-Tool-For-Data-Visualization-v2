@@ -8,9 +8,11 @@ export default function saveAnswer(onDoneSaving) {
 
     // get comment, if available
     let comment = ""
-    if (document.getElementsByClassName("comment-entry-box").length > 0) {
-        comment = document.getElementsByClassName("comment-entry-box")[0].value
+    const commentEl = document.getElementById("comment")
+    if (commentEl) {
+        comment = commentEl.value.trim()
     }
+
 
     // callback func for after getting response, sends answer to cookie
     function sendToCookie(response) {
