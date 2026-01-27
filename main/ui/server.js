@@ -519,25 +519,48 @@ async function buildSurveyRecords(surveyId, token) {
   )
 
   const participants = pub.results?.participants || []
+  const questions = pub.questions || []
+
+  // Build questionNumber → question text map
+  const questionMap = {}
+  questions.forEach(q => {
+    // questionNumber sometimes comes back as string, sometimes number
+    questionMap[String(q.number)] = q.text
+  })
 
   const records = []
-  participants.forEach(p =>
+
+  participants.forEach(p => {
+    if (!Array.isArray(p.answers)) return
+
     p.answers.forEach(a => {
       records.push({
-        participantId:  p.participantId,
+        participantId: p.participantId,
         questionNumber: a.questionNumber,
-        response:       a.response,
-        comment:        a.comment
+        questionText: questionMap[String(a.questionNumber)] || "",
+        response: a.response,
+        comment: a.comment ?? ""
       })
     })
-  )
+  })
+
+  // CSV / preview field definitions with custom labels
+  const fields = [
+    { label: 'Participant ID', value: 'participantId' },
+    { label: 'Question Number', value: 'questionNumber' },
+    { label: 'Question', value: 'questionText' },
+    { label: 'Response', value: 'response' },
+    { label: 'Comment', value: 'comment' }
+  ]
 
   return {
     pub,
     records,
-    fields: ['participantId','questionNumber','response','comment']
+    fields
   }
 }
+
+
 
 // View published survey
 app.get('/publishedSurveys/:id', async (req, res, next) => {
@@ -664,17 +687,19 @@ app.get('/takeSurvey/:hash', async (req, res, next) => {
         const response = await api.get(req.originalUrl)
 
         if (req.query.page && req.query.page < response.data.questions.length+2 && req.query.page > 0) {
-            if (req.query.page == response.data.questions.length+1) {
-                res.render("takeSurveyConclusion", {
+            if (req.query.page == response.data.questions.length + 1) {
+                const parsedAnswers = JSON.parse(req.cookies.answers)
+                await api.patch(req.originalUrl, { answers: parsedAnswers.answers })
+
+                //clear cookie before sending response
+                res.clearCookie("answers")
+
+                //render conclusion page
+                return res.render("takeSurveyConclusion", {
                     layout: false,
                     title: response.data.surveyDesign.title,
                     conclusionText: response.data.surveyDesign.conclusionText,
                 })
-
-                // when this page is loaded, send cookie data to API
-            
-                const parsedAnswers = JSON.parse(req.cookies.answers)
-                await api.patch(req.originalUrl, { answers: parsedAnswers.answers })
             } else {
                 const questionTypes = (await import("./public/src/questionTypes.mjs")).default
                 const question = response.data.questions.filter(obj => obj.number == req.query.page)[0]
