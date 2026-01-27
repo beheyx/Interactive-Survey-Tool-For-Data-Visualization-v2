@@ -519,25 +519,48 @@ async function buildSurveyRecords(surveyId, token) {
   )
 
   const participants = pub.results?.participants || []
+  const questions = pub.questions || []
+
+  // Build questionNumber → question text map
+  const questionMap = {}
+  questions.forEach(q => {
+    // questionNumber sometimes comes back as string, sometimes number
+    questionMap[String(q.number)] = q.text
+  })
 
   const records = []
-  participants.forEach(p =>
+
+  participants.forEach(p => {
+    if (!Array.isArray(p.answers)) return
+
     p.answers.forEach(a => {
       records.push({
-        participantId:  p.participantId,
+        participantId: p.participantId,
         questionNumber: a.questionNumber,
-        response:       a.response,
-        comment:        a.comment
+        questionText: questionMap[String(a.questionNumber)] || "",
+        response: a.response,
+        comment: a.comment ?? ""
       })
     })
-  )
+  })
+
+  // CSV / preview field definitions with custom labels
+  const fields = [
+    { label: 'Participant ID', value: 'participantId' },
+    { label: 'Question Number', value: 'questionNumber' },
+    { label: 'Question', value: 'questionText' },
+    { label: 'Response', value: 'response' },
+    { label: 'Comment', value: 'comment' }
+  ]
 
   return {
     pub,
     records,
-    fields: ['participantId','questionNumber','response','comment']
+    fields
   }
 }
+
+
 
 // View published survey
 app.get('/publishedSurveys/:id', async (req, res, next) => {

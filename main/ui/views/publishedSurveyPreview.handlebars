@@ -20,7 +20,7 @@
   <thead>
     <tr>
       {{#each fields}}
-        <th>{{this}}</th>
+        <th>{{this.label}}</th>
       {{/each}}
     </tr>
   </thead>
@@ -29,7 +29,7 @@
     {{#each rows}}
       <tr>
         {{#each ../fields}}
-          <td>{{lookup .. this}}</td>
+          <td>{{lookup ../this value}}</td>
         {{/each}}
       </tr>
     {{/each}}
