@@ -664,17 +664,19 @@ app.get('/takeSurvey/:hash', async (req, res, next) => {
         const response = await api.get(req.originalUrl)
 
         if (req.query.page && req.query.page < response.data.questions.length+2 && req.query.page > 0) {
-            if (req.query.page == response.data.questions.length+1) {
-                res.render("takeSurveyConclusion", {
+            if (req.query.page == response.data.questions.length + 1) {
+                const parsedAnswers = JSON.parse(req.cookies.answers)
+                await api.patch(req.originalUrl, { answers: parsedAnswers.answers })
+
+                //clear cookie before sending response
+                res.clearCookie("answers")
+
+                //render conclusion page
+                return res.render("takeSurveyConclusion", {
                     layout: false,
                     title: response.data.surveyDesign.title,
                     conclusionText: response.data.surveyDesign.conclusionText,
                 })
-
-                // when this page is loaded, send cookie data to API
-            
-                const parsedAnswers = JSON.parse(req.cookies.answers)
-                await api.patch(req.originalUrl, { answers: parsedAnswers.answers })
             } else {
                 const questionTypes = (await import("./public/src/questionTypes.mjs")).default
                 const question = response.data.questions.filter(obj => obj.number == req.query.page)[0]
