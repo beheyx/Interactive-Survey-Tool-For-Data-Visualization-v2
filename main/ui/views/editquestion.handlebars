@@ -97,12 +97,14 @@
             </div>
         </div>
         <br>
-        {{#unless DEBUG}}
-            <iframe id="displayedImage" src="{{visualURL}}/{{visualizationContentId}}?editor=true" height="360" width="480"></iframe>
-        {{/unless}}
-        {{#if DEBUG}}
-            <iframe id="displayedImage" src="{{visualURL}}" height="360" width="480"></iframe>
-        {{/if}}
+        <div style="height: calc(100vh - 180px);">
+            {{#unless DEBUG}}
+                <iframe id="displayedImage" src="{{visualURL}}/{{visualizationContentId}}?editor=true" height="100%" width="100%"></iframe>
+            {{/unless}}
+            {{#if DEBUG}}
+                <iframe id="displayedImage" src="{{visualURL}}" height="100%" width="100%"></iframe>
+            {{/if}}
+        </div>
         <br>
         <button class="btn btn-danger float-right" type="button" id="remove-visualization-button">Remove Visualization</button>
         <br>

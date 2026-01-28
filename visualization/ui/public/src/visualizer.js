@@ -7,12 +7,17 @@ export let visualizationElement
 export let svgElement
 export const wrapper = document.getElementById("wrapper")                      // container that covers entire page
 export const visualContainer = document.getElementById("visual-container")     // container for the visual
-
+export const staticvis = document.getElementById("static-visualization").value
 
 const visualizerBase = {
     // called when the page loads regardless of role
     onPageLoad: function() {
-        
+        if (staticvis){
+            document.getElementById("zoom-container").setAttribute("hidden", "true")
+            wrapper.setAttribute("static",true)
+        } else {
+            document.getElementById("zoom-container").removeAttribute("hidden")
+        }
     },
     
     // called when the page loads as an editor

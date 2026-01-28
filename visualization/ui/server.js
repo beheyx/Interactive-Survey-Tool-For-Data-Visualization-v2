@@ -185,14 +185,24 @@ app.get('/:id/svg-data', async function(req,res,next) {
 // endpoint to load specific visualization
 app.get('/:id', async function(req,res,next) {
     try {
-        const firstQuery = Object.keys(req.query)[0];
-        if (firstQuery) {
+        const editing = req.query.editor;
+        const highlight = req.query.highlight;
+        const static = req.query.static;
+        if (editing) {
             res.render("visualizer", {
-                role: firstQuery
+                role: "editor",
+                static: static
+                // SVG will be loaded via AJAX to prevent UI freezing
+            })
+        } else if (highlight) {
+            res.render("visualizer", {
+                role: "highlight",
+                static: static
                 // SVG will be loaded via AJAX to prevent UI freezing
             })
         } else {
             res.render("visualizer", {
+                static: static
                 // SVG will be loaded via AJAX to prevent UI freezing
             })
         }
