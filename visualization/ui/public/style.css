@@ -120,6 +120,12 @@ body {
     display: flex;
     flex-direction: column;
 }
+
+#zoom-container[hidden] {
+    display: none;
+    z-index: 1;
+}
+
 .zoom-button {
     /* Responsive but not view-height based */
     font-size: clamp(1.2rem, 1rem + 0.25vw, 1.6rem);
@@ -161,6 +167,10 @@ body {
     min-height: 100%;
     align-items: center;
     cursor: grab;
+}
+
+#wrapper[static]{
+    cursor: default !important;
 }
 
 #wrapper.panning {
@@ -366,6 +376,11 @@ button, input {
     align-items: center;
     justify-content: center;
     transition: background-color 0.12s ease, transform 0.08s ease;
+}
+
+#help-button[hidden] {
+    display: none;
+    z-index: 1;
 }
 
 #help-button:hover {

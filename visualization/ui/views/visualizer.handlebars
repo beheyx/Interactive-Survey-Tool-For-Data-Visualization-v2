@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title>Visualizer</title>
-    
+    <data id="static-visualization" value={{static}}></data>
     <script type="module" src="src/visualizer.js" charset="utf-8" defer></script>
     <link rel="stylesheet" href="/style.css">
   </head>
@@ -13,7 +13,7 @@
         <button id="close-help-window-button">X</button>
         <iframe height="90%" width="90%" src="/help.html"></iframe>
       </div>
-      <div id="zoom-container">
+      <div id="zoom-container" hidden>
         <button id = "zoom-in" class="zoom-button">+</button>
         <button id = "zoom-out" class="zoom-button">-</button>
       </div>
