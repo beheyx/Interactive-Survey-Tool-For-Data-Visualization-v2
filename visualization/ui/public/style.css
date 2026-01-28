@@ -114,10 +114,13 @@ body {
 }
 
 /* Zoom buttons */
-.zoom-button {
+#zoom-container{
     position: absolute;
-    left: 2%;
-
+    left: 1%;
+    display: flex;
+    flex-direction: column;
+}
+.zoom-button {
     /* Responsive but not view-height based */
     font-size: clamp(1.2rem, 1rem + 0.25vw, 1.6rem);
 
@@ -132,6 +135,7 @@ body {
     border-radius: 50%;
     z-index: 12;
     padding: 0;
+    margin-top: 5px;
     border: 2px solid var(--line);
     background-color: var(--panel);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -151,14 +155,6 @@ body {
 .zoom-button:hover {
     transform: scale(1.1);
     background-color: #e0e0e0;
-}
-
-#zoom-in {
-    top: 2%;
-}
-
-#zoom-out {
-    top: 12%;
 }
 
 #wrapper {
