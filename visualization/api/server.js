@@ -201,9 +201,11 @@ app.use('*', function (err, req, res, next) {
 
 module.exports = app
 
-// start API server
-sequelize.sync().then(function () {
-    app.listen(process.env.VISUAL_API_PORT, function () {
-        console.log("== Server is running on port", process.env.VISUAL_API_PORT)
+// start API server only if this file is run directly (not imported by tests)
+if (require.main === module) {
+    sequelize.sync().then(function () {
+        app.listen(process.env.VISUAL_API_PORT, function () {
+            console.log("== Server is running on port", process.env.VISUAL_API_PORT)
+        })
     })
-})
+}
