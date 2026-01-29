@@ -18,8 +18,8 @@ const sequelize = require('../../../main/api/lib/sequelize')
 const { SurveyDesign } = require('../../../main/api/model/SurveyDesign')
 
 // testing constants
-const TEST_USER = { name:"testUser", password:"testPassword" }
-const TEST_USER2 = { name:"testUser2", password:"testPassword2" }
+const TEST_USER = { name:"testUser", password:"testPassword", confirm_password:"testPassword" }
+const TEST_USER2 = { name:"testUser2", password:"testPassword2", confirm_password:"testPassword2" }
 const DESIGN_POST_REQ_BODY = { name:"design" }
 const DESIGN_POST_REQ_BODY2 = { name:"design2" }
 const DESIGN_PATCH_REQ_BODY = { name:"design Updated", title:"my Survey", introText:"a lot of text", conclusionText:"a lot more text" }
@@ -28,9 +28,8 @@ const DESIGN_PATCH_REQ_BODY = { name:"design Updated", title:"my Survey", introT
 async function registerAndLogin(credentials) {
     const registerRes = await request(api).post('/users').send(credentials)
     const myId = registerRes.body.id
-    const loginRes = await request(api).post('/users/login').send(credentials)
-    const { header } = loginRes 
-    return {id: myId, res: loginRes, header: header}  
+    const token = registerRes.body.token
+    return {id: myId, token: token}
 }
 
 // before each test, reset test database
@@ -46,7 +45,7 @@ describe("POST /surveyDesigns - new survey design", () => {
     test("creates a new survey design in database, sends 201 status code and id", async () => {
         const loginDetails = await registerAndLogin(TEST_USER)  
 
-        const res = await request(api).post('/surveyDesigns').set("Cookie", [...loginDetails.header["set-cookie"]]).send(DESIGN_POST_REQ_BODY)
+        const res = await request(api).post('/surveyDesigns').set("Authorization", `Bearer ${loginDetails.token}`).send(DESIGN_POST_REQ_BODY)
 
         expect(res.statusCode).toBe(201) 
         expect(res.body).toHaveProperty('id')
@@ -57,7 +56,7 @@ describe("POST /surveyDesigns - new survey design", () => {
     test("sends 400 status code and error when name is not given", async () => {
         const loginDetails = await registerAndLogin(TEST_USER)  
 
-        const res = await request(api).post('/surveyDesigns').set("Cookie", [...loginDetails.header["set-cookie"]]).send({})
+        const res = await request(api).post('/surveyDesigns').set("Authorization", `Bearer ${loginDetails.token}`).send({})
 
         expect(res.statusCode).toBe(400)
         expect(res.body).toHaveProperty('error')
@@ -74,9 +73,9 @@ describe("POST /surveyDesigns - new survey design", () => {
 describe("GET /surveyDesigns/{id} - get survey design info", () => {
     test("sends appropriate response body and 200 status code", async () => {
         const loginDetails = await registerAndLogin(TEST_USER)  
-        const createRes = await request(api).post('/surveyDesigns').set("Cookie", [...loginDetails.header["set-cookie"]]).send(DESIGN_POST_REQ_BODY)
+        const createRes = await request(api).post('/surveyDesigns').set("Authorization", `Bearer ${loginDetails.token}`).send(DESIGN_POST_REQ_BODY)
 
-        const res = await request(api).get(`/surveyDesigns/${createRes.body.id}`).set("Cookie", [...loginDetails.header["set-cookie"]])
+        const res = await request(api).get(`/surveyDesigns/${createRes.body.id}`).set("Authorization", `Bearer ${loginDetails.token}`)
 
         expect(res.statusCode).toBe(200)
         expect(res.body).toHaveProperty('name', DESIGN_POST_REQ_BODY.name)
@@ -89,7 +88,7 @@ describe("GET /surveyDesigns/{id} - get survey design info", () => {
     test("sends 404 status code and error when resource with specified id does not exist", async () => {
         const loginDetails = await registerAndLogin(TEST_USER)  
 
-        const res = await request(api).get('/surveyDesigns/1').set("Cookie", [...loginDetails.header["set-cookie"]])
+        const res = await request(api).get('/surveyDesigns/1').set("Authorization", `Bearer ${loginDetails.token}`)
 
         expect(res.statusCode).toBe(404)
         expect(res.body).toHaveProperty('error')
@@ -98,10 +97,10 @@ describe("GET /surveyDesigns/{id} - get survey design info", () => {
     test("sends 401 status code and error when logged in as incorrect user", async () => {
         const loginDetails = await registerAndLogin(TEST_USER)  
 
-        const createRes = await request(api).post('/surveyDesigns').set("Cookie", [...loginDetails.header["set-cookie"]]).send(DESIGN_POST_REQ_BODY)
+        const createRes = await request(api).post('/surveyDesigns').set("Authorization", `Bearer ${loginDetails.token}`).send(DESIGN_POST_REQ_BODY)
         const loginDetails2 = await registerAndLogin(TEST_USER2)  
 
-        const res = await request(api).get(`/surveyDesigns/${createRes.body.id}`).set("Cookie", [...loginDetails2.header["set-cookie"]])  
+        const res = await request(api).get(`/surveyDesigns/${createRes.body.id}`).set("Authorization", `Bearer ${loginDetails2.token}`)  
 
         expect(res.statusCode).toBe(401)
         expect(res.body).toHaveProperty('error')
@@ -111,14 +110,14 @@ describe("GET /surveyDesigns/{id} - get survey design info", () => {
 describe("GET /users/{id}/surveyDesigns - get survey designs of user", () => {
     test("sends array of survey designs and 200 status code", async () => {
         const loginDetails = await registerAndLogin(TEST_USER)   
-        const createRes = await request(api).post('/surveyDesigns').set("Cookie", [...loginDetails.header["set-cookie"]]).send(DESIGN_POST_REQ_BODY)
-        const createRes2 = await request(api).post('/surveyDesigns').set("Cookie", [...loginDetails.header["set-cookie"]]).send(DESIGN_POST_REQ_BODY2)
+        const createRes = await request(api).post('/surveyDesigns').set("Authorization", `Bearer ${loginDetails.token}`).send(DESIGN_POST_REQ_BODY)
+        const createRes2 = await request(api).post('/surveyDesigns').set("Authorization", `Bearer ${loginDetails.token}`).send(DESIGN_POST_REQ_BODY2)
         const expectedArray = [
             {id:createRes.body.id, userId:loginDetails.id, name:DESIGN_POST_REQ_BODY.name}, 
             {id:createRes2.body.id, userId:loginDetails.id, name:DESIGN_POST_REQ_BODY2.name}
         ]
 
-        const res = await request(api).get(`/users/${loginDetails.id}/surveyDesigns`).set("Cookie", [...loginDetails.header["set-cookie"]])  
+        const res = await request(api).get(`/users/${loginDetails.id}/surveyDesigns`).set("Authorization", `Bearer ${loginDetails.token}`)  
 
         expect(res.statusCode).toBe(200)
         expect(res.body).toHaveProperty('surveyDesigns')
@@ -128,7 +127,7 @@ describe("GET /users/{id}/surveyDesigns - get survey designs of user", () => {
     test("sends 401 status code and error when logged in as incorrect user", async () => {
         const loginDetails = await registerAndLogin(TEST_USER) 
 
-        const res = await request(api).get(`/users/${loginDetails.id+1}/surveyDesigns`).set("Cookie", [...loginDetails.header["set-cookie"]])    
+        const res = await request(api).get(`/users/${loginDetails.id+1}/surveyDesigns`).set("Authorization", `Bearer ${loginDetails.token}`)    
         
         expect(res.statusCode).toBe(401)
         expect(res.body).toHaveProperty('error')
@@ -138,9 +137,9 @@ describe("GET /users/{id}/surveyDesigns - get survey designs of user", () => {
 describe("DELETE /surveyDesigns/{id} - delete survey design", () => {
     test("removes from database, sends 200 status code", async () => {
         const loginDetails = await registerAndLogin(TEST_USER)  
-        const createRes = await request(api).post('/surveyDesigns').set("Cookie", [...loginDetails.header["set-cookie"]]).send(DESIGN_POST_REQ_BODY) 
+        const createRes = await request(api).post('/surveyDesigns').set("Authorization", `Bearer ${loginDetails.token}`).send(DESIGN_POST_REQ_BODY) 
 
-        const res = await request(api).delete(`/surveyDesigns/${createRes.body.id}`).set("Cookie", [...loginDetails.header["set-cookie"]])
+        const res = await request(api).delete(`/surveyDesigns/${createRes.body.id}`).set("Authorization", `Bearer ${loginDetails.token}`)
 
         expect(res.statusCode).toBe(200)
         const deletedDesign = await SurveyDesign.findOne({ where: {id: createRes.body.id} })
@@ -150,7 +149,7 @@ describe("DELETE /surveyDesigns/{id} - delete survey design", () => {
     test("sends 404 status code and error when resource with specified id does not exist", async () => {
         const loginDetails = await registerAndLogin(TEST_USER)  
 
-        const res = await request(api).delete('/surveyDesigns/1').set("Cookie", [...loginDetails.header["set-cookie"]])
+        const res = await request(api).delete('/surveyDesigns/1').set("Authorization", `Bearer ${loginDetails.token}`)
 
         expect(res.statusCode).toBe(404)
         expect(res.body).toHaveProperty('error')
@@ -158,10 +157,10 @@ describe("DELETE /surveyDesigns/{id} - delete survey design", () => {
 
     test("sends 401 status code and error when logged in as incorrect user", async () => {
         const loginDetails = await registerAndLogin(TEST_USER)  
-        const createRes = await request(api).post('/surveyDesigns').set("Cookie", [...loginDetails.header["set-cookie"]]).send(DESIGN_POST_REQ_BODY)
+        const createRes = await request(api).post('/surveyDesigns').set("Authorization", `Bearer ${loginDetails.token}`).send(DESIGN_POST_REQ_BODY)
         const loginDetails2 = await registerAndLogin(TEST_USER2)  
 
-        const res = await request(api).delete(`/surveyDesigns/${createRes.body.id}`).set("Cookie", [...loginDetails2.header["set-cookie"]])  
+        const res = await request(api).delete(`/surveyDesigns/${createRes.body.id}`).set("Authorization", `Bearer ${loginDetails2.token}`)  
 
         expect(res.statusCode).toBe(401)
         expect(res.body).toHaveProperty('error')
@@ -171,9 +170,9 @@ describe("DELETE /surveyDesigns/{id} - delete survey design", () => {
 describe("PATCH /surveyDesigns/{id} - update survey design info", () => {
     test("updates info, sends 200 status code", async () => {
         const loginDetails = await registerAndLogin(TEST_USER)  
-        const createRes = await request(api).post('/surveyDesigns').set("Cookie", [...loginDetails.header["set-cookie"]]).send(DESIGN_POST_REQ_BODY) 
+        const createRes = await request(api).post('/surveyDesigns').set("Authorization", `Bearer ${loginDetails.token}`).send(DESIGN_POST_REQ_BODY) 
 
-        const res = await request(api).patch(`/surveyDesigns/${createRes.body.id}`).set("Cookie", [...loginDetails.header["set-cookie"]]).send(DESIGN_PATCH_REQ_BODY)  
+        const res = await request(api).patch(`/surveyDesigns/${createRes.body.id}`).set("Authorization", `Bearer ${loginDetails.token}`).send(DESIGN_PATCH_REQ_BODY)  
 
         expect(res.statusCode).toBe(200)
         const updatedDesign = await SurveyDesign.findOne({ where: {id: createRes.body.id} })
@@ -183,7 +182,7 @@ describe("PATCH /surveyDesigns/{id} - update survey design info", () => {
     test("sends 404 status code and error when resource with specified id does not exist", async () => {
         const loginDetails = await registerAndLogin(TEST_USER)  
 
-        const res = await request(api).patch('/surveyDesigns/1').set("Cookie", [...loginDetails.header["set-cookie"]]).send(DESIGN_PATCH_REQ_BODY)  
+        const res = await request(api).patch('/surveyDesigns/1').set("Authorization", `Bearer ${loginDetails.token}`).send(DESIGN_PATCH_REQ_BODY)  
 
         expect(res.statusCode).toBe(404)
         expect(res.body).toHaveProperty('error')
@@ -191,10 +190,10 @@ describe("PATCH /surveyDesigns/{id} - update survey design info", () => {
 
     test("sends 401 status code and error when logged in as incorrect user", async () => {
         const loginDetails = await registerAndLogin(TEST_USER)  
-        const createRes = await request(api).post('/surveyDesigns').set("Cookie", [...loginDetails.header["set-cookie"]]).send(DESIGN_POST_REQ_BODY)
+        const createRes = await request(api).post('/surveyDesigns').set("Authorization", `Bearer ${loginDetails.token}`).send(DESIGN_POST_REQ_BODY)
         const loginDetails2 = await registerAndLogin(TEST_USER2)  
 
-        const res = await request(api).patch(`/surveyDesigns/${createRes.body.id}`).set("Cookie", [...loginDetails2.header["set-cookie"]]).send(DESIGN_PATCH_REQ_BODY)  
+        const res = await request(api).patch(`/surveyDesigns/${createRes.body.id}`).set("Authorization", `Bearer ${loginDetails2.token}`).send(DESIGN_PATCH_REQ_BODY)  
 
         expect(res.statusCode).toBe(401)
         expect(res.body).toHaveProperty('error')

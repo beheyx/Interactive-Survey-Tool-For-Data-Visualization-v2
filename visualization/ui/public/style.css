@@ -114,10 +114,19 @@ body {
 }
 
 /* Zoom buttons */
-.zoom-button {
+#zoom-container{
     position: absolute;
-    left: 2%;
+    left: 1%;
+    display: flex;
+    flex-direction: column;
+}
 
+#zoom-container[hidden] {
+    display: none;
+    z-index: 1;
+}
+
+.zoom-button {
     /* Responsive but not view-height based */
     font-size: clamp(1.2rem, 1rem + 0.25vw, 1.6rem);
 
@@ -132,6 +141,7 @@ body {
     border-radius: 50%;
     z-index: 12;
     padding: 0;
+    margin-top: 5px;
     border: 2px solid var(--line);
     background-color: var(--panel);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -153,18 +163,14 @@ body {
     background-color: #e0e0e0;
 }
 
-#zoom-in {
-    top: 2%;
-}
-
-#zoom-out {
-    top: 12%;
-}
-
 #wrapper {
     min-height: 100%;
     align-items: center;
     cursor: grab;
+}
+
+#wrapper[static]{
+    cursor: default !important;
 }
 
 #wrapper.panning {
@@ -370,6 +376,11 @@ button, input {
     align-items: center;
     justify-content: center;
     transition: background-color 0.12s ease, transform 0.08s ease;
+}
+
+#help-button[hidden] {
+    display: none;
+    z-index: 1;
 }
 
 #help-button:hover {
