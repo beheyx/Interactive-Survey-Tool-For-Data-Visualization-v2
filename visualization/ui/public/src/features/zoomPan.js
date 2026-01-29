@@ -3,7 +3,7 @@
 // This code sets the mousedown behavior on the wrapper to panning, but this can be overwritten by decorators that come after
 // this one by changing wrapper.onmousedown under the onChangeMode function
 
-import { visualizationElement, svgElement, wrapper, debug, screenToSVG, page } from "../visualizer.js"
+import { visualizationElement, svgElement, wrapper, debug, screenToSVG, page, staticvis } from "../visualizer.js"
 
 let startPanning = null
 
@@ -13,8 +13,10 @@ export const zoomPan = (visualizer) => {
 
     decoratedVisualizer.onFirstLoadSvg = function() {
         visualizer.onFirstLoadSvg()
-        EnablePanning(decoratedVisualizer)
-        EnableZoom()
+        if (!staticvis){
+            EnablePanning(decoratedVisualizer)
+            EnableZoom()
+        }
     }
 
     decoratedVisualizer.onChangeMode = function() {
