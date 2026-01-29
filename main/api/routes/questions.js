@@ -20,6 +20,22 @@ const visualApi = axios.create({
   baseURL: process.env.VISUAL_API_URL
 })
 
+// Refresh question numbers after deletion
+async function renumberSurveyQuestions(surveyDesignId, transaction) {
+  const questions = await Question.findAll({
+    where: { surveyDesignId },
+    order: [['number', 'ASC'], ['id', 'ASC']],
+    transaction
+  })
+
+  for (let i = 0; i < questions.length; i++) {
+    const desired = i + 1
+    if (questions[i].number !== desired) {
+      await questions[i].update({ number: desired }, { transaction })
+    }
+  }
+}
+
 /*
  * Get specific question info
  */

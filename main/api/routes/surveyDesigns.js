@@ -84,31 +84,38 @@ router.get('/:id/questions', requireAuthentication, handleErrors( async (req, re
 			error: "You are not allowed to access this resource"
 		})
 	} else {
-		const questions = await Question.findAll({ where: { surveyDesignId: req.params.id} })	
+		const questions = await Question.findAll({
+  			where: { surveyDesignId: req.params.id },
+  			order: [['number', 'ASC'], ['id', 'ASC']]
+		})
 
 		res.status(200).send({questions: questions});	// sending as json response
 	}
 }))
 
 // Create new question
-router.post('/:id/questions', requireAuthentication, handleErrors( async (req, res, next) => {
-	const surveyDesign = await getResourceById(SurveyDesign, req.params.id)
-	const questions = await Question.findAll({where: {surveyDesignId: req.params.id}})
+router.post('/:id/questions', requireAuthentication, handleErrors(async (req, res, next) => {
+  const surveyDesign = await getResourceById(SurveyDesign, req.params.id)
 
-	// Get survey data from req
-	const questionData = {
-		surveyDesignId: req.params.id,
-		number: questions.length+1
-	}
+  if (req.userid != surveyDesign.userId) {
+    return res.status(401).send({ error: "You are not allowed to access this resource" })
+  }
 
-	// Create new survey design in database
-	const question = await Question.create(questionData, QuestionClientFields)
+  // Get next number based on max existing number (not count)
+  const maxNumber = await Question.max('number', { where: { surveyDesignId: req.params.id } })
+  const nextNumber = (maxNumber || 0) + 1
 
-	// Update parent survey design's updatedAt timestamp
-	await surveyDesign.changed('updatedAt', true);
-	await surveyDesign.save();
+  const questionData = {
+    surveyDesignId: req.params.id,
+    number: nextNumber
+  }
 
-	res.status(201).send({ id: question.id })
+  const question = await Question.create(questionData, QuestionClientFields)
+
+  await surveyDesign.changed('updatedAt', true)
+  await surveyDesign.save()
+
+  res.status(201).send({ id: question.id })
 }))
 
 // Publish a survey

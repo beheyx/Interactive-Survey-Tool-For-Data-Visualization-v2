@@ -126,6 +126,14 @@ function confirmDeleteDesign() {
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
+  function renumberDomQuestions() {
+    const blocks = document.querySelectorAll('.question-block');
+    blocks.forEach((b, i) => {
+      const numEl = b.querySelector('.question-number');
+      if (numEl) numEl.textContent = String(i + 1);
+    });
+  }
   const forms = document.querySelectorAll('.question-move-form');
 
   forms.forEach(function (form) {
@@ -171,14 +179,10 @@ document.addEventListener('DOMContentLoaded', function () {
           parent.insertBefore(neighbor, block);
         }
 
-        // Swap the visible question numbers
-        const numEl1 = block.querySelector('.question-number');
-        const numEl2 = neighbor.querySelector('.question-number');
-        if (numEl1 && numEl2) {
-          const tmp = numEl1.textContent;
-          numEl1.textContent = numEl2.textContent;
-          numEl2.textContent = tmp;
-        }
+        // Renumber all visible question numbers based on DOM order
+        renumberDomQuestions();
+
+
       } catch (err) {
         console.error(err);
         // Fallback: full reload if something goes wrong
