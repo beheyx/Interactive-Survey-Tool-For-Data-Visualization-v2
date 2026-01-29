@@ -201,16 +201,33 @@ app.get('/faq', async (req, res, next) => {
     }
 });
 
-// About Us page - same for all users
-app.get('/about', (req, res) => {
-    res.render('about-us', {
-        isAuthenticated: !!req.cookies.access_token,
-        activePage: 'about',
-        breadcrumbs: [
-            { label: 'Home', url: '/' },
-            { label: 'About Us', url: '/about' }
-        ]
-    });
+// About Us page - serves different version based on authentication
+app.get('/about', async (req, res, next) => {
+    try {
+        await api.get('/users', withAuth(req.cookies.access_token));
+
+        // Authenticated → Handlebars page with sidebar
+        res.render('about-us', {
+            isAuthenticated: true,
+            activePage: 'about',
+            breadcrumbs: [
+                { label: 'Home', url: '/' },
+                { label: 'About Us', url: '/about' }
+            ]
+        });
+    } catch (error) {
+        if (
+            error.response &&
+            (error.response.status === 401 || error.response.status === 403)
+        ) {
+            // Not authenticated → public page (no sidebar)
+            res.sendFile(
+                path.join(__dirname, 'public/about-public.html')
+            );
+        } else {
+            next(error);
+        }
+    }
 });
 
 
