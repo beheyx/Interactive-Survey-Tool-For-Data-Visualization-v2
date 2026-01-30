@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "jest --runInBand --forceExit --testPathIgnorePatterns=__tests__/connection.js",
-    "test:all": "jest --runInBand --forceExit",
-    "test:integration": "jest --runInBand --forceExit __tests__/connection.js",
+    "test": "jest --runInBand --forceExit",
     "start": "concurrently \"node main/api/server.js\" \"node visualization/api/server.js\" \"node visualization/ui/server.js\" \"node main/ui/server.js\"",
     "debug-main": "nodemon main/ui/server.js -debug",
     "debug": "concurrently \"npm run debug-main\" \"npm run dev-visual-ui\"",

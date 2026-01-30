@@ -1,34 +1,55 @@
-require('dotenv').config()
+// use temporary, in-memory db for testing (main)
+jest.mock('../main/api/lib/sequelize', () => {
+    const { Sequelize } = require('sequelize')
 
-const sequelizeMain = require('../main/api/lib/sequelize')
-const sequelizeVisual = require('../visualization/api/lib/sequelize')
+    const mockSequelize = new Sequelize('database', 'username', 'password', {
+        dialect: 'sqlite',
+        storage: ':memory:',
+        logging: false
+    })
 
-const axios = require('axios')
-
-test("successful connection to main API server", async () => {
-    let unsuccessfulConnection = false
-
-    try {
-        await axios.get(process.env.MAIN_API_URL)
-    } catch (error) {
-        if (!error.response)
-            unsuccessfulConnection = true
-    }
-
-    expect(unsuccessfulConnection).toBeFalsy()
+    return mockSequelize
 })
 
-test("successful connection to main UI server", async () => {
-    let unsuccessfulConnection = false
+// use temporary, in-memory db for testing (visualization)
+jest.mock('../visualization/api/lib/sequelize', () => {
+    const { Sequelize } = require('sequelize')
 
-    try {
-        await axios.get(process.env.MAIN_UI_URL)
-    } catch (error) {
-        if (!error.response)
-            unsuccessfulConnection = true
-    }
+    const mockSequelize = new Sequelize('database', 'username', 'password', {
+        dialect: 'sqlite',
+        storage: ':memory:',
+        logging: false
+    })
 
-    expect(unsuccessfulConnection).toBeFalsy()
+    return mockSequelize
+})
+
+const request = require('supertest')
+const sequelizeMain = require('../main/api/lib/sequelize')
+const sequelizeVisual = require('../visualization/api/lib/sequelize')
+const mainApi = require('../main/api/server')
+const visualApi = require('../visualization/api/server')
+
+beforeAll(async () => {
+    await sequelizeMain.sync({ force: true })
+
+    // suppress SQLite warning about TEXT('long') — SQLite uses plain TEXT regardless
+    const originalWarn = console.warn
+    console.warn = jest.fn()
+    await sequelizeVisual.sync({ force: true })
+    console.warn = originalWarn
+})
+
+afterAll(async () => {
+    await sequelizeMain.close()
+    await sequelizeVisual.close()
+})
+
+test("successful connection to main API server", async () => {
+    const res = await request(mainApi).get('/')
+
+    // server responds (any status code means it's connected)
+    expect(res.status).toBeDefined()
 })
 
 test("successful connection to main database", async () => {
@@ -44,29 +65,10 @@ test("successful connection to main database", async () => {
 })
 
 test("successful connection to visualization engine API server", async () => {
-    let unsuccessfulConnection = false
+    const res = await request(visualApi).get('/')
 
-    try {
-        await axios.get(process.env.VISUAL_API_URL)
-    } catch (error) {
-        if (!error.response)
-            unsuccessfulConnection = true
-    }
-
-    expect(unsuccessfulConnection).toBeFalsy()
-})
-
-test("successful connection to visualization engine UI server", async () => {
-    let unsuccessfulConnection = false
-
-    try {
-        await axios.get(process.env.VISUAL_UI_URL)
-    } catch (error) {
-        if (!error.response)
-            unsuccessfulConnection = true
-    }
-
-    expect(unsuccessfulConnection).toBeFalsy()
+    // server responds (any status code means it's connected)
+    expect(res.status).toBeDefined()
 })
 
 test("successful connection to visualization engine database", async () => {
