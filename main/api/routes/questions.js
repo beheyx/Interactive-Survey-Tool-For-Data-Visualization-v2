@@ -20,7 +20,7 @@ const visualApi = axios.create({
   baseURL: process.env.VISUAL_API_URL
 })
 
-// Refresh question numbers after deletion
+// Refresh question numbers after deletion (safe even with UNIQUE(surveyDesignId, number))
 async function renumberSurveyQuestions(surveyDesignId, transaction) {
   const questions = await Question.findAll({
     where: { surveyDesignId },
@@ -28,11 +28,15 @@ async function renumberSurveyQuestions(surveyDesignId, transaction) {
     transaction
   })
 
+  // Phase 1: move out of the way to avoid unique collisions
+  const OFFSET = 1000
+  for (const q of questions) {
+    await q.update({ number: q.number + OFFSET }, { transaction })
+  }
+
+  // Phase 2: rewrite 1..N
   for (let i = 0; i < questions.length; i++) {
-    const desired = i + 1
-    if (questions[i].number !== desired) {
-      await questions[i].update({ number: desired }, { transaction })
-    }
+    await questions[i].update({ number: i + 1 }, { transaction })
   }
 }
 
@@ -59,24 +63,30 @@ router.delete('/:id', requireAuthentication, handleErrors(async (req, res, next)
   const question = await getResourceById(Question, req.params.id)
   const surveyDesign = await getResourceById(SurveyDesign, question.surveyDesignId)
 
-  if (req.userid == surveyDesign.userId) {
+  if (req.userid != surveyDesign.userId) {
+    return res.status(401).send({ error: "You do not have access to this resource" })
+  }
+
+  await sequelize.transaction(async (t) => {
+    // delete visualization content first (no DB change, but keep behavior)
     if (question.visualizationContentId) {
       await visualApi.delete('/' + question.visualizationContentId)
     }
 
-    await question.destroy();
+    // delete question row
+    await question.destroy({ transaction: t })
 
-    // Update parent survey design's updatedAt timestamp
-    await surveyDesign.changed('updatedAt', true);
-    await surveyDesign.save();
+    // ✅ renumber remaining questions in this survey
+    await renumberSurveyQuestions(question.surveyDesignId, t)
 
-    res.status(200).send()
-  } else {
-    res.status(401).send({
-      error: "You do not have access to this resource"
-    })
-  }
+    // touch parent updatedAt inside the same transaction
+    await surveyDesign.changed('updatedAt', true)
+    await surveyDesign.save({ transaction: t })
+  })
+
+  res.status(200).send()
 }))
+
 
 /*
  * Update specific question
