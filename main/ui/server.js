@@ -1,5 +1,5 @@
 require('dotenv').config()
-const { Parser } = require('json2csv');
+const ExcelJS = require('exceljs') // using excel to download instead of csv for better formatting
 
 // express setup
 const express = require('express');
@@ -529,7 +529,8 @@ app.get('/questions/:id', async (req, res, next) => {
     }
 });
 
-async function buildSurveyRecords(surveyId, token) {
+async function buildSurveyPreviewData(surveyId, token) {
+
   const { data: pub } = await api.get(
     `/publishedSurveys/${surveyId}`,
     withAuth(token)
@@ -538,45 +539,104 @@ async function buildSurveyRecords(surveyId, token) {
   const participants = pub.results?.participants || []
   const questions = pub.questions || []
 
-  // Build questionNumber → question text map
-  const questionMap = {}
-  questions.forEach(q => {
-    // questionNumber sometimes comes back as string, sometimes number
-    questionMap[String(q.number)] = q.text
-  })
+  const questionTables = questions.map(question => {
 
-  const records = []
+    const rows = []
 
-  participants.forEach(p => {
-    if (!Array.isArray(p.answers)) return
+    participants.forEach(p => {
 
-    p.answers.forEach(a => {
-      records.push({
+      if (!Array.isArray(p.answers)) return
+
+      const answer = p.answers.find(
+        a => String(a.questionNumber) === String(question.number)
+      )
+
+      if (!answer) return
+
+      rows.push({
         participantId: p.participantId,
-        questionNumber: a.questionNumber,
-        questionText: questionMap[String(a.questionNumber)] || "",
-        response: a.response,
-        comment: a.comment ?? ""
+        response: answer.response,
+        comment: answer.comment ?? ""
       })
     })
+
+    return {
+      questionNumber: question.number,
+      questionText: question.text,
+      rows
+    }
   })
 
-  // CSV / preview field definitions with custom labels
-  const fields = [
-    { label: 'Participant ID', value: 'participantId' },
-    { label: 'Question Number', value: 'questionNumber' },
-    { label: 'Question', value: 'questionText' },
-    { label: 'Response', value: 'response' },
-    { label: 'Comment', value: 'comment' }
-  ]
-
-  return {
-    pub,
-    records,
-    fields
-  }
+  return {questionTables, pub}
 }
 
+
+
+async function buildSurveyWorkbook(surveyId, token) {
+
+  const { data: pub } = await api.get(
+    `/publishedSurveys/${surveyId}`,
+    withAuth(token)
+  )
+
+  const participants = pub.results?.participants || []
+  const questions = pub.questions || []
+
+  const workbook = new ExcelJS.Workbook()
+
+  questions.forEach(question => {
+
+    // Create sheet named after question number
+    const sheet = workbook.addWorksheet(`Question ${question.number}`)
+
+    // Row 1 → Question text
+    sheet.addRow([`Question ${question.number}: ${question.text}`])
+
+    // Make it bold (optional but nice)
+    sheet.getRow(1).font = { bold: true }
+
+    // Row 2 → headers
+    sheet.addRow([
+      'Participant ID',
+      'Response',
+      'Comment'
+    ])
+    sheet.getRow(2).font = { bold: true }
+
+    // Populate answers
+    participants.forEach(p => {
+
+      if (!Array.isArray(p.answers)) return
+
+      const answer = p.answers.find(
+        a => String(a.questionNumber) === String(question.number)
+      )
+
+      if (!answer) return
+
+      sheet.addRow([
+        p.participantId,
+        answer.response,
+        answer.comment ?? ""
+      ])
+    })
+
+    sheet.columns = [
+        { width: 20 },
+        { width: 40 },
+        { width: 40 }
+    ]
+    sheet.getColumn(1).alignment = { horizontal: 'left' }
+
+    // header stays frozen at top, question text stays frozen above that
+    sheet.views = [
+        { state: 'frozen', ySplit: 2 }
+    ]
+
+  })
+
+  return { pub, workbook }
+}
 
 
 // View published survey
@@ -597,22 +657,26 @@ app.get('/publishedSurveys/:id', async (req, res, next) => {
             closeDateTime = new Date(response.data.closeDateTime)
         }
 
-        if (req.query.downloadCSV) {
-            const { pub, records, fields } =
-                await buildSurveyRecords(req.params.id, req.cookies.access_token)
+        if (req.query.downloadExcel) {
 
-            const parser = new Parser({ fields })
-            const csv = parser.parse(records)
+            const { pub, workbook } =
+                await buildSurveyWorkbook(req.params.id, req.cookies.access_token)
 
-            return res
-                .status(200)
-                .set({
-                'Content-Type': 'text/csv',
-                'Content-Disposition':
-                    `attachment; filename="${pub.name.replace(/\W+/g,'_')}-${pub.status}-results.csv"`
-                })
-                .send(csv)
+            res.setHeader(
+                'Content-Type',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+
+            res.setHeader(
+                'Content-Disposition',
+                `attachment; filename="${pub.name.replace(/\W+/g,'_')}-${pub.status}-results.xlsx"`
+            )
+
+            await workbook.xlsx.write(res)
+
+            return res.end()
         }
+
 
         else {
             // Format dates and times for separate date/time inputs
@@ -657,19 +721,14 @@ app.get('/publishedSurveys/:id', async (req, res, next) => {
 
 app.get('/publishedSurveys/:id/preview', async (req, res, next) => {
   try {
-    const { pub, records, fields } =
-        await buildSurveyRecords(req.params.id, req.cookies.access_token)
-
-    // Limit rows for performance (VERY important)
-    const PREVIEW_LIMIT = 100
+    const { questionTables, pub } =
+        await buildSurveyPreviewData(req.params.id, req.cookies.access_token)
 
     res.render('publishedSurveyPreview', {
-      layout: false,
-      name: pub.name,
-      status: pub.status,
-      fields,
-      rows: records.slice(0, PREVIEW_LIMIT),
-      totalRows: records.length
+    layout: false, 
+    questionTables,
+    title: pub.name,
+
     })
   } catch (err) {
     next(err)
