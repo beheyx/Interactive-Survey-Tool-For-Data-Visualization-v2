@@ -1,40 +1,67 @@
-<!DOCTYPE html>
-<html>
 <head>
-  <meta charset="utf-8" />
-  <title>{{name}} – Preview</title>
-  <style>
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #ccc; padding: 6px; }
-    th { background: #f5f5f5; }
-  </style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/takesurveystyle.css">
+    <link rel="stylesheet" href="/style.css" />
+    <title> Preview Results</title>
+
 </head>
+
 <body>
-
-<h2>{{name}} ({{status}})</h2>
-<p>
-  Showing first {{rows.length}} of {{totalRows}} rows
-</p>
-
-<table>
-  <thead>
-    <tr>
-      {{#each fields}}
-        <th>{{this.label}}</th>
-      {{/each}}
-    </tr>
-  </thead>
-
-  <tbody>
-    {{#each rows}}
-      <tr>
-        {{#each ../fields}}
-          <td>{{lookup ../this value}}</td>
-        {{/each}}
-      </tr>
-    {{/each}}
-  </tbody>
-</table>
-
+        <!-- Title bar -->
+        <header class="landing-header">
+        <div class="landing-container">
+            <h1 class="landing-logo">
+            <a href="/home.html" style="text-decoration:none; color:inherit; cursor:pointer;">
+                Interactive Survey Tools
+            </a>
+            </h1>
+        </div>
+        </header>
 </body>
-</html>
+
+<div class="preview_page-container">
+
+  <div class="preview_header">
+
+    <h1 class="preview_title">
+        {{title}}
+    </h1>
+  </div>
+
+{{#each questionTables}}
+
+  <div class="preview_question-block">
+
+    <h2 class="preview_question-number">
+      Question {{questionNumber}}
+    </h2>
+
+    <p class="preview_question-text">
+      {{questionText}}
+    </p>
+
+    <table class="preview_results-table">
+      <thead>
+        <tr>
+          <th>Participant ID</th>
+          <th>Response</th>
+          <th>Comment</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {{#each rows}}
+          <tr>
+            <td>{{participantId}}</td>
+            <td>{{response}}</td>
+            <td>{{comment}}</td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+
+  </div>
+
+{{/each}}
+</div>

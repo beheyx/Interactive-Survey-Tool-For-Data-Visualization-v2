@@ -3044,3 +3044,45 @@ button.table-btn {
   color: #666;
   border-color: #bbb;
 }
+
+.preview_question-block{
+    margin-bottom: 50px;
+}
+
+.preview_question-text{
+    font-size:18px;
+    margin-bottom:10px;
+}
+
+.preview_results-table{
+    width:100%;
+    border-collapse: collapse;
+}
+
+.preview_results-table th{
+    background:#f5f6f7;
+    text-align:left;
+    padding:10px;
+}
+
+.preview_results-table td{
+    padding:10px;
+    border-top:1px solid #ddd;
+}
+
+.preview_page-container{
+    max-width: 1100px;   /* controls readability */
+    margin: 0 auto;      /* centers horizontally */
+    padding: 40px 20px;  /* breathing room */
+}
+
+.preview_header{
+    margin-bottom:40px;
+}
+
+.preview_title{
+    font-size:32px;
+    font-weight:700;
+    margin-bottom:6px;
+    text-align:center;
+}
