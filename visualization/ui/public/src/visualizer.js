@@ -12,7 +12,7 @@ export const staticvis = document.getElementById("static-visualization").value
 const visualizerBase = {
     // called when the page loads regardless of role
     onPageLoad: function() {
-        if (staticvis){
+        if (staticvis == "true"){
             document.getElementById("zoom-container").setAttribute("hidden", "true")
             wrapper.setAttribute("static",true)
         } else {
