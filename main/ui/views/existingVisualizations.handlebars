@@ -33,7 +33,15 @@
                 <input type="checkbox" class="row-checkbox" data-id="{{id}}" data-type="visualization">
               </td>
               <td class="col-name">
-                <a href="/visualizations/{{id}}" class="table-link">{{name}}</a>
+                <div class="name-cell">
+                  <a href="/visualizations/{{id}}" class="table-link">{{name}}</a>
+                  <button class="rename-icon" data-id="{{id}}" data-name="{{name}}" title="Rename">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                      <path d="m15 5 4 4"/>
+                    </svg>
+                  </button>
+                </div>
               </td>
               <td>{{createdAt}}</td>
               <td>{{updatedAt}}</td>
@@ -69,7 +77,69 @@
   </div>
 </div>
 
+<!-- Rename Visualization Popup -->
+<div class="popup" id="renameVisualizationPopup">
+  <div class="popup-content">
+    <h2>Rename Visualization</h2>
+    <form id="renameVisualizationForm">
+      <input type="hidden" id="renameVisualizationId" />
+      <input type="text" id="renameVisualizationName" placeholder="new name" />
+      <button type="submit" class="popup-create-button">Save</button>
+    </form>
+    <button type="button" class="popup-cancel-button" onclick="window.location.hash=''">Cancel</button>
+  </div>
+</div>
+
 <script>
+// Rename functionality for visualizations
+(function() {
+  const renameButtons = document.querySelectorAll('.rename-icon');
+  const renameForm = document.getElementById('renameVisualizationForm');
+  const renameIdInput = document.getElementById('renameVisualizationId');
+  const renameNameInput = document.getElementById('renameVisualizationName');
+
+  // Open rename popup when clicking rename button
+  renameButtons.forEach(btn => {
+    btn.addEventListener('click', function() {
+      const id = this.getAttribute('data-id');
+      const name = this.getAttribute('data-name');
+      renameIdInput.value = id;
+      renameNameInput.value = name;
+      window.location.hash = 'renameVisualizationPopup';
+      renameNameInput.focus();
+      renameNameInput.select();
+    });
+  });
+
+  // Handle rename form submission
+  if (renameForm) {
+    renameForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const id = renameIdInput.value;
+      const newName = renameNameInput.value.trim();
+
+      if (!newName) return;
+
+      try {
+        const response = await fetch(`/visualizations/${id}/PATCH`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: newName })
+        });
+
+        if (response.ok) {
+          window.location.reload();
+        } else {
+          alert('Failed to rename visualization');
+        }
+      } catch (error) {
+        console.error('Failed to rename visualization:', error);
+        alert('Failed to rename visualization');
+      }
+    });
+  }
+})();
+
 // Bulk select/delete functionality for visualizations
 (function() {
   const selectAll = document.getElementById('selectAllVisualizations');

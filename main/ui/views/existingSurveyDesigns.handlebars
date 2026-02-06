@@ -33,7 +33,15 @@
                 <input type="checkbox" class="row-checkbox" data-id="{{id}}" data-type="surveyDesign">
               </td>
               <td class="col-name">
-                <a href="/surveyDesigns/{{id}}" class="table-link">{{name}}</a>
+                <div class="name-cell">
+                  <a href="/surveyDesigns/{{id}}" class="table-link">{{name}}</a>
+                  <button class="rename-icon" data-id="{{id}}" data-name="{{name}}" title="Rename">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                      <path d="m15 5 4 4"/>
+                    </svg>
+                  </button>
+                </div>
               </td>
               <td>{{createdAt}}</td>
               <td>{{updatedAt}}</td>
@@ -69,7 +77,69 @@
   </div>
 </div>
 
+<!-- Rename Survey Design Popup -->
+<div class="popup" id="renameSurveyDesignPopup">
+  <div class="popup-content">
+    <h2>Rename Survey Design</h2>
+    <form id="renameSurveyDesignForm">
+      <input type="hidden" id="renameSurveyDesignId" />
+      <input type="text" id="renameSurveyDesignName" placeholder="new name" />
+      <button type="submit" class="popup-create-button">Save</button>
+    </form>
+    <button type="button" class="popup-cancel-button" onclick="window.location.hash=''">Cancel</button>
+  </div>
+</div>
+
 <script>
+// Rename functionality for survey designs
+(function() {
+  const renameButtons = document.querySelectorAll('.rename-icon');
+  const renameForm = document.getElementById('renameSurveyDesignForm');
+  const renameIdInput = document.getElementById('renameSurveyDesignId');
+  const renameNameInput = document.getElementById('renameSurveyDesignName');
+
+  // Open rename popup when clicking rename button
+  renameButtons.forEach(btn => {
+    btn.addEventListener('click', function() {
+      const id = this.getAttribute('data-id');
+      const name = this.getAttribute('data-name');
+      renameIdInput.value = id;
+      renameNameInput.value = name;
+      window.location.hash = 'renameSurveyDesignPopup';
+      renameNameInput.focus();
+      renameNameInput.select();
+    });
+  });
+
+  // Handle rename form submission
+  if (renameForm) {
+    renameForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const id = renameIdInput.value;
+      const newName = renameNameInput.value.trim();
+
+      if (!newName) return;
+
+      try {
+        const response = await fetch(`/surveyDesigns/${id}/PATCH`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: newName })
+        });
+
+        if (response.ok) {
+          window.location.reload();
+        } else {
+          alert('Failed to rename survey design');
+        }
+      } catch (error) {
+        console.error('Failed to rename survey design:', error);
+        alert('Failed to rename survey design');
+      }
+    });
+  }
+})();
+
 // Bulk select/delete functionality for survey designs
 (function() {
   const selectAll = document.getElementById('selectAllSurveyDesigns');
