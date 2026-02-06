@@ -29,6 +29,8 @@ const visualizerBase = {
             uploader.dataset.listenerAttached = "true";
         }
 
+        setupDragAndDrop()
+
         // help button
         document.getElementById("help-button").removeAttribute("hidden")
         document.getElementById("help-button").addEventListener("click", () => {
@@ -54,6 +56,8 @@ const visualizerBase = {
             uploader.addEventListener("change", handleSvgUpload);
             uploader.dataset.listenerAttached = "true";
         }
+
+        setupDragAndDrop()
 
         // create debug mode buttons
         document.getElementById("editor-button").removeAttribute("hidden")
@@ -558,8 +562,14 @@ addEventListener("DOMContentLoaded", async () => {
 });
 
 
+// Handler for the file input change event
 function handleSvgUpload(event){
     const file = event.target.files[0];
+    if (file) processFile(file);
+}
+
+// Validates and loads an image file (SVG, PNG, JPG) into the editor.
+function processFile(file) {
     if (!file) return;
 
     // Validate file type (case-insensitive)
@@ -583,6 +593,41 @@ function handleSvgUpload(event){
     } else {
         loadRaster(file)
     }
+}
+
+// Sets up drag and drop file upload for the visualization editor.
+function setupDragAndDrop() {
+    const overlay = document.getElementById("drop-zone-overlay");
+    let dragCounter = 0;
+
+    wrapper.addEventListener("dragenter", (e) => {
+        e.preventDefault();
+        dragCounter++;
+        if (overlay) overlay.removeAttribute("hidden");
+    });
+
+    // Required to allow drop
+    wrapper.addEventListener("dragover", (e) => {
+        e.preventDefault();
+    });
+
+    wrapper.addEventListener("dragleave", (e) => {
+        e.preventDefault();
+        dragCounter--;
+        if (dragCounter <= 0) {
+            dragCounter = 0;
+            if (overlay) overlay.setAttribute("hidden", "true");
+        }
+    });
+
+    wrapper.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dragCounter = 0;
+        if (overlay) overlay.setAttribute("hidden", "true");
+
+        const file = e.dataTransfer.files[0];
+        if (file) processFile(file);
+    });
 }
 
 async function loadSvgFromText(svgText) {
