@@ -570,8 +570,7 @@ async function buildSurveyPreviewData(surveyId, token) {
   return {questionTables, pub}
 }
 
-
-
+// Building the Excel output for survey results download so it looks nicer and organized 
 async function buildSurveyWorkbook(surveyId, token) {
 
   const { data: pub } = await api.get(
@@ -592,7 +591,7 @@ async function buildSurveyWorkbook(surveyId, token) {
     // Row 1 → Question text
     sheet.addRow([`Question ${question.number}: ${question.text}`])
 
-    // Make it bold (optional but nice)
+    // Make it bold
     sheet.getRow(1).font = { bold: true }
 
     // Row 2 → headers
@@ -601,7 +600,7 @@ async function buildSurveyWorkbook(surveyId, token) {
       'Response',
       'Comment'
     ])
-    sheet.getRow(2).font = { bold: true }
+    sheet.getRow(2).font = { bold: true } // Bold
 
     // Populate answers
     participants.forEach(p => {
@@ -637,7 +636,6 @@ async function buildSurveyWorkbook(surveyId, token) {
 
   return { pub, workbook }
 }
-
 
 // View published survey
 app.get('/publishedSurveys/:id', async (req, res, next) => {
@@ -719,6 +717,7 @@ app.get('/publishedSurveys/:id', async (req, res, next) => {
     }
 });
 
+// Allow user to preview results
 app.get('/publishedSurveys/:id/preview', async (req, res, next) => {
   try {
     const { questionTables, pub } =
