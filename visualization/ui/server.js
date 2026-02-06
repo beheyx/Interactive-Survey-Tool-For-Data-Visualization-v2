@@ -42,6 +42,7 @@ app.set("view engine", "handlebars")
 //file upload
 const multer = require("multer")
 const crypto = require("node:crypto")
+const { stat } = require('node:fs')
 const imageTypes = {
     "image/jpeg": "jpg",
     "image/png": "png"
@@ -185,25 +186,18 @@ app.get('/:id/svg-data', async function(req,res,next) {
 // endpoint to load specific visualization
 app.get('/:id', async function(req,res,next) {
     try {
-        const editing = req.query.editor;
-        const highlight = req.query.highlight;
-        const static = req.query.static;
-        if (editing) {
+        const firstQuery = Object.keys(req.query)[0];
+        let static = req.query.static;
+        static = static || false;
+        if (firstQuery != "static"){
             res.render("visualizer", {
-                role: "editor",
-                static: static
-                // SVG will be loaded via AJAX to prevent UI freezing
-            })
-        } else if (highlight) {
-            res.render("visualizer", {
-                role: "highlight",
+                role: firstQuery,
                 static: static
                 // SVG will be loaded via AJAX to prevent UI freezing
             })
         } else {
             res.render("visualizer", {
                 static: static
-                // SVG will be loaded via AJAX to prevent UI freezing
             })
         }
     } catch (e) {
