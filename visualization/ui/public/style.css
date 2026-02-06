@@ -461,3 +461,44 @@ button, input {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+/* Drop zone overlay for drag and drop file upload */
+#drop-zone-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+}
+
+#drop-zone-overlay[hidden] {
+    display: none;
+}
+
+.drop-zone-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 64px;
+    background-color: var(--bg);
+    border: 3px dashed var(--primary);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+#drop-zone-overlay p {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0;
+}
+
+#drop-zone-overlay small {
+    font-size: 0.9rem;
+    color: var(--line);
+    margin-top: 8px;
+}
