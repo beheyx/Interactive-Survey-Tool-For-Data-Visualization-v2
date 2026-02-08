@@ -71,6 +71,10 @@
     <h2>Create a New Survey Design</h2>
     <form action="/surveyDesigns" method="POST">
       <input type="text" name="name" placeholder="survey design name" />
+      <label class="popup-checkbox-label">
+        <input type="checkbox" name="openInEditor" value="true" checked />
+        Open in editor
+      </label>
       <button class="popup-create-button" id="create-survey-design-button">Create</button>
     </form>
     <button type="button" class="popup-cancel-button" onclick="window.location.hash=''">Cancel</button>
