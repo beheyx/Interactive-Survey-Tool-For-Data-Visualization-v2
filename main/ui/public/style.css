@@ -1573,6 +1573,152 @@ button.table-btn {
   font-weight: 600;
 }
 
+/* Survey Preview Styles */
+.survey-preview {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.preview-note {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #0369a1;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.preview-section {
+  margin-bottom: 32px;
+}
+
+.preview-section h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.preview-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.preview-question-card {
+  margin-bottom: 16px;
+}
+
+.preview-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 16px 0;
+}
+
+.preview-intro,
+.preview-conclusion-text {
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+.preview-button {
+  margin-top: 16px;
+  padding: 12px 24px;
+  background: #D73F09;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.preview-question-header {
+  font-size: 16px;
+  color: #4a4a4a;
+  margin-bottom: 8px;
+}
+
+.preview-required {
+  color: #777d87;
+  font-weight: normal;
+  margin-left: 8px;
+}
+
+.preview-question-text {
+  font-size: 18px;
+  color: #1f2937;
+  margin-bottom: 16px;
+}
+
+.preview-visualization {
+  margin-bottom: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.preview-iframe {
+  width: 100%;
+  height: 300px;
+  border: none;
+}
+
+.preview-answer-area {
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.preview-answer-label {
+  margin-bottom: 12px;
+  color: #374151;
+}
+
+.preview-textarea {
+  width: 100%;
+  height: 100px;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  resize: none;
+  background: #fff;
+}
+
+.preview-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.preview-choice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: not-allowed;
+}
+
+.preview-choice input {
+  cursor: not-allowed;
+}
+
+.preview-placeholder {
+  color: #9ca3af;
+  font-style: italic;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .qualtrics-layout {
