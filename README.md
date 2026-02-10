@@ -51,7 +51,9 @@ We need to set up the mySQL database in Docker:
 
 Run `docker compose up --build` to run the application. This may take a while. Visit `http://localhost:5000/` and `http://localhost:8000/` to verify.
 
-Troubleshoot: if you are having mySQL errors such as access denied or your docker is not loading API containers, try `sed -i 's/\r$//' wait-for.sh` for troubleshoot.
+### Troubleshoot
+- If you are having mySQL errors such as access denied or your docker is not loading API containers, try `sed -i 's/\r$//' wait-for.sh`
+- If you are having modules related errors like missing modules, try `npm install` to update and install all the dependencies needed.
 
 ### Cleaning
 Run `docker compose down` to clean up after you've tested.
