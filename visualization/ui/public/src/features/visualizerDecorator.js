@@ -12,9 +12,10 @@ import {exportButton} from "./exportButton.js"
 import {zoomPan} from "./zoomPan.js"
 import {selectElements} from "./selectElements.js"
 import {markPoints} from "./markPoints.js"
+import {detailTooltip} from "./detailTooltip.js"
 // ^ import your feature here
 
-const decorators = [exportButton, zoomPan, selectElements, markPoints]  // <-- add your feature to this array
+const decorators = [exportButton, zoomPan, selectElements, markPoints, detailTooltip]  // <-- add your feature to this array
 
 export const visualizerDecorator = (visualizer) => {
     let decoratedVisualizer = visualizer

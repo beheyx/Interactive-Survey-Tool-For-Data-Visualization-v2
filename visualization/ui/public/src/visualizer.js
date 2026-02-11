@@ -8,6 +8,7 @@ export let svgElement
 export const wrapper = document.getElementById("wrapper")                      // container that covers entire page
 export const visualContainer = document.getElementById("visual-container")     // container for the visual
 export const staticvis = (document.getElementById("static-visualization").value == "true")
+export const hoverDetails = {enabled: false}
 
 const visualizerBase = {
     // called when the page loads regardless of role
@@ -247,7 +248,7 @@ export const autosave = {
                     progressText.textContent = `Uploading ${svgSizeMB}MB...`
                 }
 
-                const requestBody = { svg: svgData }
+                const requestBody = { svg: svgData, detailsOnHover: hoverDetails["enabled"] }
 
                 const response = await fetch(baseUrl, {
                     method: "PUT",
@@ -378,7 +379,8 @@ async function loadSVGAsync() {
             if (!response.ok) throw new Error('Failed to load SVG')
 
             const data = await response.json()
-
+            hoverDetails["enabled"] = data.detailsOnHover
+            document.getElementById("checkTooltip").checked = hoverDetails["enabled"] 
             // Handle empty visualization state
             if (!data.svg || data.svg.trim() === '') {
                 const spinner = document.getElementById('svg-loading-spinner')

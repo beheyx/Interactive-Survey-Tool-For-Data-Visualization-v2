@@ -22,7 +22,7 @@ app.get('/:id', async (req, res, next) => {
 		// find visualization with matching id and return info
 		const visualization = await Visualization.findOne({ where: { id: req.params.id } })
         if (visualization) {
-            res.status(200).send({ svg: visualization.svg })
+            res.status(200).send({ svg: visualization.svg, detailsOnHover: visualization.detailsOnHover})
         } else {
             next()
         }

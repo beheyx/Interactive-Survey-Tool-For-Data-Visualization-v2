@@ -1,82 +1,96 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>Visualizer</title>
-    <data id="static-visualization" value={{static}}></data>
-    <script type="module" src="src/visualizer.js" charset="utf-8" defer></script>
-    <link rel="stylesheet" href="/style.css">
-  </head>
-  <body id="body">
-    <div id="wrapper" class={{role}}>
-      <div id="help-window" hidden>
-        <button id="close-help-window-button">X</button>
-        <iframe height="90%" width="90%" src="/help.html"></iframe>
-      </div>
-      <div id="zoom-container" hidden>
-        <button id = "zoom-in" class="zoom-button">+</button>
-        <button id = "zoom-out" class="zoom-button">-</button>
-      </div>
-      <button id = "editor-button" hidden>editor mode</button>
-      <button id = "participant-button" hidden>participant mode</button>
-      <div id="uploader-container" hidden>
-        <input
-        type="file"
-        id="svg-uploader"
-        accept=".svg, .jpg, .png"
-        style="margin: 10px;"
-        />
-      </div>
 
-      <div id="button-header" hidden>
+<head>
+  <meta charset="utf-8">
+  <title>Visualizer</title>
+  <data id="static-visualization" value={{static}}></data>
+  <script type="module" src="src/visualizer.js" charset="utf-8" defer></script>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"> </script>
+</head>
 
-        <small id="save-status"></small>
-        <div id="upload-progress-container" hidden>
-          <div id="upload-progress-bar">
-            <div id="upload-progress-fill"></div>
-          </div>
-          <small id="upload-progress-text"></small>
+<body id="body">
+  <div id="wrapper" class={{role}}>
+    <div id="help-window" hidden>
+      <button id="close-help-window-button">X</button>
+      <iframe height="90%" width="90%" src="/help.html"></iframe>
+    </div>
+    <div id="zoom-container" hidden>
+      <button id="zoom-in" class="zoom-button">+</button>
+      <button id="zoom-out" class="zoom-button">-</button>
+    </div>
+    <button id="editor-button" hidden>editor mode</button>
+    <button id="participant-button" hidden>participant mode</button>
+    <div id="uploader-container" hidden>
+      <input type="file" id="svg-uploader" accept=".svg, .jpg, .png" style="margin: 10px;" />
+    </div>
+
+    <div id="button-header" hidden>
+      <small id="save-status"></small>
+
+      <div id="upload-progress-container" hidden>
+        <div id="upload-progress-bar">
+          <div id="upload-progress-fill"></div>
         </div>
-
-        <div class="file dropdown" hidden>
-          File
-          <div class="dropdown-buttons file-buttons">
-          </div>
-        </div>
-        <div class="options dropdown" hidden>
-          Options
-          <div class="dropdown-buttons option-buttons">
-          </div>
-        </div>
-        <div class="tools dropdown" hidden>
-          Tools
-          <div class="dropdown-buttons tool-buttons">
-          </div>
-        </div>
-
-        <button id="help-button" hidden>?</button>
-
+        <small id="upload-progress-text"></small>
       </div>
 
-      <div id="drop-zone-overlay" hidden>
-        <div class="drop-zone-card">
-          <p>Drop image here</p>
-          <small>.svg, .png, .jpg</small>
+      <div class="file dropdown" hidden>
+        File
+        <div class="dropdown-buttons file-buttons">
         </div>
       </div>
 
-      <div id="visual-container" data-svg-loaded="{{#if svg}}true{{else}}false{{/if}}">
-        {{#if svg}}
-          {{{svg}}}
-        {{else}}
-          <div id="svg-loading-spinner">
-            <div class="spinner"></div>
-            <p>Loading visualization...</p>
-          </div>
-        {{/if}}
+      <div class="options dropdown" hidden>
+        Options
+        <div class="dropdown-buttons option-buttons">
+        </div>
       </div>
+
+      <div class="tools dropdown" hidden>
+        Tools
+        <div class="dropdown-buttons tool-buttons">
+        </div>
+      </div>
+
+      <button id="help-button" hidden>?</button>
 
     </div>
+
+    <div id="drop-zone-overlay" hidden>
+      <div class="drop-zone-card">
+        <p>Drop image here</p>
+        <small>.svg, .png, .jpg</small>
+      </div>
+    </div>
+
+    <div id="visual-container" data-svg-loaded="{{#if svg}}true{{else}}false{{/if}}">
+      {{#if svg}}
+      {{{svg}}}
+      {{else}}
+      <div id="svg-loading-spinner">
+        <div class="spinner"></div>
+        <p>Loading visualization...</p>
+      </div>
+      {{/if}}
+    </div>
     
-  </body>
+    <div id="tooltip-container" class="card" hidden>
+      <div class="card-body">
+        <div id="tooltip-setting" class="form-check" hidden>
+          <input class="form-check-input" type="checkbox" value="" id="checkTooltip">
+          <label class="form-check-label" for="checkTooltip">
+            Details on Hover?
+          </label>
+        </div>
+        <p id="tooltip-detail" class="card-text" hidden>No Information</p>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+
 </html>

@@ -176,7 +176,7 @@ app.get('/:id/photo', async function(req,res,next) {
 app.get('/:id/svg-data', async function(req,res,next) {
     try {
         const response = await api.get(`/${req.params.id}`)
-        res.status(200).json({ svg: response.data.svg })
+        res.status(200).json({ svg: response.data.svg, detailsOnHover: response.data.detailsOnHover})
     } catch (e) {
         console.error(`[UI Server] GET svg-data error:`, e.message)
         next(e)
