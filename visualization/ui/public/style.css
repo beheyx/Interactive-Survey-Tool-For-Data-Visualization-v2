@@ -4,7 +4,7 @@
   --line: #9aa0a6;
   --panel: #eeeeee;
   --bg: #ffffff;
-  --primary: #D73F09;
+  --primary: #D73F09 !important;
   --primary-dark: #B23307;
 }
 
@@ -191,7 +191,9 @@ body {
 #visual-container {
     min-width: 100%;
     min-height: 100%;
-    position: fixed;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 .selectElements .visual-element.selectable:hover,
@@ -338,7 +340,7 @@ button, input {
 }
 
 .tools .dropdown-buttons button {
-    background-color: #FF6B5A;
+    background-color: var(--primary-dark);
     color: white;
 }
 
@@ -501,4 +503,13 @@ button, input {
     font-size: 0.9rem;
     color: var(--line);
     margin-top: 8px;
+}
+
+/*tooltip container and settings*/
+#tooltip-container {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    z-index: 10;
+    max-width: 18rem;
 }
