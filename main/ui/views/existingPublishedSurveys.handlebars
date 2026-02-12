@@ -6,6 +6,9 @@
 <main class="existing-page">
   <div class="page-header">
     <h2>Your Published Surveys</h2>
+    <div class="header-actions">
+      <button class="bulk-delete-btn" id="bulkDeletePublishedSurveys" style="display: none;">Delete Selected</button>
+    </div>
   </div>
 
   <div class="table-container">
@@ -13,6 +16,9 @@
       <table class="data-table">
         <thead>
           <tr>
+            <th class="col-checkbox">
+              <input type="checkbox" id="selectAllPublishedSurveys" class="table-checkbox">
+            </th>
             <th class="col-name">Name</th>
             <th>Status</th>
             <th>Responses</th>
@@ -25,8 +31,19 @@
         <tbody>
           {{#each publishedSurveys}}
             <tr>
+              <td class="col-checkbox">
+                <input type="checkbox" class="row-checkbox" data-id="{{id}}" data-type="publishedSurvey">
+              </td>
               <td class="col-name">
-                <a href="/publishedSurveys/{{id}}" class="table-link">{{name}}</a>
+                <div class="name-cell">
+                  <a href="/publishedSurveys/{{id}}" class="table-link">{{name}}</a>
+                  <button class="rename-icon" data-id="{{id}}" data-name="{{name}}" title="Rename">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                      <path d="m15 5 4 4"/>
+                    </svg>
+                  </button>
+                </div>
               </td>
               <td>
                 <span class="survey-status status-{{status}}">{{status}}</span>
@@ -54,3 +71,132 @@
     {{/if}}
   </div>
 </main>
+
+<!-- Rename Published Survey Popup -->
+<div class="popup" id="renamePublishedSurveyPopup">
+  <div class="popup-content">
+    <h2>Rename Published Survey</h2>
+    <form id="renamePublishedSurveyForm">
+      <input type="hidden" id="renamePublishedSurveyId" />
+      <input type="text" id="renamePublishedSurveyName" placeholder="new name" />
+      <button type="submit" class="popup-create-button">Save</button>
+    </form>
+    <button type="button" class="popup-cancel-button" onclick="window.location.hash=''">Cancel</button>
+  </div>
+</div>
+
+<script>
+// Rename functionality for published surveys
+(function() {
+  const renameButtons = document.querySelectorAll('.rename-icon');
+  const renameForm = document.getElementById('renamePublishedSurveyForm');
+  const renameIdInput = document.getElementById('renamePublishedSurveyId');
+  const renameNameInput = document.getElementById('renamePublishedSurveyName');
+
+  // Open rename popup when clicking rename button
+  renameButtons.forEach(btn => {
+    btn.addEventListener('click', function() {
+      const id = this.getAttribute('data-id');
+      const name = this.getAttribute('data-name');
+      renameIdInput.value = id;
+      renameNameInput.value = name;
+      window.location.hash = 'renamePublishedSurveyPopup';
+      renameNameInput.focus();
+      renameNameInput.select();
+    });
+  });
+
+  // Handle rename form submission
+  if (renameForm) {
+    renameForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const id = renameIdInput.value;
+      const newName = renameNameInput.value.trim();
+
+      if (!newName) return;
+
+      try {
+        const response = await fetch(`/publishedSurveys/${id}/PATCH`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: newName })
+        });
+
+        if (response.ok) {
+          window.location.href = window.location.pathname;
+        } else {
+          alert('Failed to rename published survey');
+        }
+      } catch (error) {
+        console.error('Failed to rename published survey:', error);
+        alert('Failed to rename published survey');
+      }
+    });
+  }
+})();
+
+// Bulk select/delete functionality for published surveys
+(function() {
+  const selectAll = document.getElementById('selectAllPublishedSurveys');
+  const rowCheckboxes = document.querySelectorAll('.row-checkbox[data-type="publishedSurvey"]');
+  const bulkDeleteBtn = document.getElementById('bulkDeletePublishedSurveys');
+
+  // Select all checkbox
+  if (selectAll) {
+    selectAll.addEventListener('change', function() {
+      rowCheckboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+      });
+      toggleBulkDeleteButton();
+    });
+  }
+
+  // Individual checkboxes
+  rowCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      const allChecked = Array.from(rowCheckboxes).every(cb => cb.checked);
+      const someChecked = Array.from(rowCheckboxes).some(cb => cb.checked);
+      if (selectAll) {
+        selectAll.checked = allChecked;
+        selectAll.indeterminate = someChecked && !allChecked;
+      }
+      toggleBulkDeleteButton();
+    });
+  });
+
+  // Show/hide bulk delete button
+  function toggleBulkDeleteButton() {
+    const selectedCount = Array.from(rowCheckboxes).filter(cb => cb.checked).length;
+    if (bulkDeleteBtn) {
+      bulkDeleteBtn.style.display = selectedCount > 0 ? 'inline-block' : 'none';
+      bulkDeleteBtn.textContent = `Delete Selected (${selectedCount})`;
+    }
+  }
+
+  // Bulk delete handler
+  if (bulkDeleteBtn) {
+    bulkDeleteBtn.addEventListener('click', async function() {
+      const selected = Array.from(rowCheckboxes).filter(cb => cb.checked);
+      const count = selected.length;
+
+      if (count === 0) return;
+
+      if (confirm(`Are you sure you want to delete ${count} published survey${count > 1 ? 's' : ''}? This will also delete all responses.`)) {
+        // Delete each selected item sequentially
+        for (const checkbox of selected) {
+          const id = checkbox.getAttribute('data-id');
+          try {
+            await fetch(`/publishedSurveys/${id}/DELETE`, {
+              method: 'POST'
+            });
+          } catch (error) {
+            console.error(`Failed to delete published survey ${id}:`, error);
+          }
+        }
+        // Reload page after all deletes complete
+        window.location.reload();
+      }
+    });
+  }
+})();
+</script>

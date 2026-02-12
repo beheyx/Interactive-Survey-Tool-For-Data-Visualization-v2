@@ -980,9 +980,14 @@ app.post('/:resource/:id?/:method?', async (req, res, next) => {
                 response = await api.post(req.originalUrl, req.body, withAuth(req.cookies.access_token))
         }
 
-        // refresh
-        res.redirect(req.get('Referrer'))
-        
+        // If openInEditor is set and we have a created resource ID, redirect to editor
+        if (req.body.openInEditor && response.data && response.data.id) {
+            res.redirect(`/${req.params.resource}/${response.data.id}`)
+        } else {
+            // refresh
+            res.redirect(req.get('Referrer'))
+        }
+
     } catch (error) {
         next(error)
     }
