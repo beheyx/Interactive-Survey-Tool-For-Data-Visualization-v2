@@ -98,4 +98,4 @@ router.post('/content/:contentId/touch', handleErrors( async (req, res, next) =>
 	}
 }))
 
-module.exports = router;
+module.exports = router

@@ -537,7 +537,9 @@ async function buildSurveyPreviewData(surveyId, token) {
   )
 
   const participants = pub.results?.participants || []
-  const questions = pub.questions || []
+  const questions = (pub.questions || [])
+    .slice()
+    .sort((a, b) => (Number(a.number ?? 0) - Number(b.number ?? 0)) || (Number(a.id ?? 0) - Number(b.id ?? 0)))
 
   const questionTables = questions.map(question => {
 
@@ -579,7 +581,9 @@ async function buildSurveyWorkbook(surveyId, token) {
   )
 
   const participants = pub.results?.participants || []
-  const questions = pub.questions || []
+  const questions = (pub.questions || [])
+    .slice()
+    .sort((a, b) => (Number(a.number ?? 0) - Number(b.number ?? 0)) || (Number(a.id ?? 0) - Number(b.id ?? 0)))
 
   const workbook = new ExcelJS.Workbook()
 
@@ -760,10 +764,18 @@ app.post('/questions/:id/PATCH', async (req, res, next) => {
 app.get('/takeSurvey/:hash', async (req, res, next) => {
     try {
         const response = await api.get(req.originalUrl)
+        // Normalize published questions: sort + force sequential numbering (1..N)
+        const normalizedQuestions = (response.data.questions || [])
+            .slice()
+            .sort((a, b) => (Number(a.number ?? 0) - Number(b.number ?? 0)) || (Number(a.id ?? 0) - Number(b.id ?? 0)))
+            .map((q, idx) => ({ ...q, number: idx + 1 }))
+
+        // Overwrite the questions used by the rest of this handler
+        response.data.questions = normalizedQuestions
 
         if (req.query.page && req.query.page < response.data.questions.length+2 && req.query.page > 0) {
             if (req.query.page == response.data.questions.length + 1) {
-                const parsedAnswers = JSON.parse(req.cookies.answers)
+                const parsedAnswers = req.cookies.answers ? JSON.parse(req.cookies.answers) : { answers: [] }
                 await api.patch(req.originalUrl, { answers: parsedAnswers.answers })
 
                 //clear cookie before sending response
@@ -777,7 +789,8 @@ app.get('/takeSurvey/:hash', async (req, res, next) => {
                 })
             } else {
                 const questionTypes = (await import("./public/src/questionTypes.mjs")).default
-                const question = response.data.questions.filter(obj => obj.number == req.query.page)[0]
+                const question = response.data.questions[Number(req.query.page) - 1]
+                if (!question) return next()
 
                 let comment = ""
                 let userResponse = ""

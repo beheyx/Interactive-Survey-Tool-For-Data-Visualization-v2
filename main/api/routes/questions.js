@@ -76,7 +76,7 @@ router.delete('/:id', requireAuthentication, handleErrors(async (req, res, next)
     // delete question row
     await question.destroy({ transaction: t })
 
-    // ✅ renumber remaining questions in this survey
+    // renumber remaining questions in this survey
     await renumberSurveyQuestions(question.surveyDesignId, t)
 
     // touch parent updatedAt inside the same transaction
@@ -222,4 +222,4 @@ router.post('/:id/moveDown', requireAuthentication, handleErrors(async (req, res
   res.status(200).send()
 }))
 
-module.exports = router;
+module.exports = router

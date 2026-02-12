@@ -133,4 +133,4 @@ router.get('/:id/surveyDesigns', requireAuthentication, handleErrors(getUserColl
 router.get('/:id/publishedSurveys', requireAuthentication, handleErrors(getUserCollection(PublishedSurvey, 'publishedSurveys')))
 
 
-module.exports = router;
+module.exports = router
