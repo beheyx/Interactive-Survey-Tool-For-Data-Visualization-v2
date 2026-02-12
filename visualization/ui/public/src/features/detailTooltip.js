@@ -13,7 +13,17 @@ export const detailTooltip = (visualizer) => {
     // calls every time the SVG is loaded
     decoratedVisualizer.onLoadSvg = function() {
         visualizer.onLoadSvg()
-        // new code here
+        if (hoverDetails["enabled"] && !staticvis) {
+            document.getElementById("tooltip-container").removeAttribute("hidden");
+            document.getElementById("tooltip-detail").removeAttribute("hidden");
+        }
+        let children = svgElement.querySelectorAll('*')
+        for (let i = 0; i < children.length; i++) {
+            children[i].addEventListener('mouseenter', function(e){
+                let item = children[i]
+                document.getElementById("tooltip-detail").textContent = item.getAttribute("label") || item.id || item.getAttribute("visualId") || "No Information"
+            })
+        }
     }
 
     // calls on page DOM contents loaded, regardless of role
@@ -35,6 +45,11 @@ export const detailTooltip = (visualizer) => {
         document.getElementById("tooltip-setting").removeAttribute("hidden");
         document.getElementById("checkTooltip").addEventListener('change', function(e){
             hoverDetails["enabled"] = document.getElementById("checkTooltip").checked;
+            if (hoverDetails["enabled"]) {
+                document.getElementById("tooltip-detail").removeAttribute("hidden");
+            } else {
+                document.getElementById("tooltip-detail").hidden = true;
+            }
             autosave.save();
         });
     }
