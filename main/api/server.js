@@ -27,13 +27,32 @@ app.use('/questions', questionRoutes)
 app.use('/publishedSurveys', publishedSurveyRoutes)
 
 // Get specific published survey info (participant end)
-app.get('/takeSurvey/:hash', handleErrors( async (req, res, next) => {
-    const publishedSurvey = await PublishedSurvey.findOne({where: {linkHash: req.params.hash} })
-    
-    if (publishedSurvey)
-        res.status(200).json(publishedSurvey)
-    else
-        next()
+app.get('/takeSurvey/:hash', handleErrors(async (req, res, next) => {
+  const publishedSurvey = await PublishedSurvey.findOne({
+    where: { linkHash: req.params.hash }
+  })
+
+  if (!publishedSurvey) return next()
+
+  const payload = publishedSurvey.toJSON()
+
+  // Sort snapshot questions by number, then id
+  const sorted = Array.isArray(payload.questions)
+    ? [...payload.questions].sort((a, b) => {
+        const an = Number(a.number ?? 0)
+        const bn = Number(b.number ?? 0)
+        if (an !== bn) return an - bn
+        return Number(a.id ?? 0) - Number(b.id ?? 0)
+      })
+    : []
+
+  // Force sequential numbering in the response
+  payload.questions = sorted.map((q, idx) => ({
+    ...q,
+    number: idx + 1
+  }))
+
+  res.status(200).json(payload)
 }))
 
 // submit answers (participant end)

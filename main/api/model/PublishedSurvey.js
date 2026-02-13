@@ -3,6 +3,7 @@ const sequelize = require('../lib/sequelize')
 const crypto = require('crypto')
 
 const PublishedSurvey = sequelize.define('publishedSurvey', {
+  userId: { type: DataTypes.INTEGER, allowNull: false },
   name: { type: DataTypes.STRING, allowNull: false, unique: false },
   openDateTime: { type: DataTypes.DATE, allowNull: true, unique: false },
   closeDateTime: { type: DataTypes.DATE, allowNull: true, unique: false },
@@ -27,24 +28,32 @@ const PublishedSurvey = sequelize.define('publishedSurvey', {
   results: { type: DataTypes.JSON, allowNull: true, unique: false }
 }, {
   hooks: {
-    afterCreate: async (publishedSurvey, options) => {
-      
-      let updatedStatus
-      if (Date.now() < publishedSurvey.openDateTime.valueOf()) {
-        updatedStatus = "pending"
-      } else if (Date.now() < publishedSurvey.closeDateTime.valueOf()) {
-        updatedStatus = "in-progress"
-      } else {
-        updatedStatus = "closed"
-      }
-
-      const hash = crypto.createHash('sha256').update(String(publishedSurvey.id)).digest('hex')
-
-      publishedSurvey.status = updatedStatus
-      publishedSurvey.linkHash = hash
-      await publishedSurvey.save()
+  afterCreate: async (publishedSurvey, options) => {
+    let updatedStatus
+    if (Date.now() < publishedSurvey.openDateTime.valueOf()) {
+      updatedStatus = "pending"
+    } else if (Date.now() < publishedSurvey.closeDateTime.valueOf()) {
+      updatedStatus = "in-progress"
+    } else {
+      updatedStatus = "closed"
     }
+
+    const hash = crypto
+      .createHash('sha256')
+      .update(String(publishedSurvey.id))
+      .digest('hex')
+
+    publishedSurvey.status = updatedStatus
+    publishedSurvey.linkHash = hash
+
+    // Save using the SAME transaction as the create
+    await publishedSurvey.save({
+      transaction: options.transaction,
+      hooks: false
+    })
   }
+}
+
 })
 
 exports.PublishedSurvey = PublishedSurvey
