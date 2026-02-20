@@ -41,10 +41,6 @@ docker compose version
 
 # Quick Testing Guide for Your Local Machine
 ### Launching
-Rename the file `.env` for later use.
-
-Run `mv .env.local .env`.
-
 We need to set up the mySQL database in Docker:
 - first make sure the script is executable, run `chmod +x make_containers_NO_API.sh`
 - run the script `./make_containers_NO_API.sh`

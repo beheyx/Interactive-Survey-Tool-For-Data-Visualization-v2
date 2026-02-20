@@ -7,6 +7,13 @@ const app = express()
 const path = require('path')
 const fs = require('fs')
 
+function getResvg() {
+  // Lazy load so normal visualization pages never break
+  const { Resvg } = require("@resvg/resvg-js");
+  return Resvg;
+}
+
+
 // Enable gzip compression for all responses
 app.use(compression())
 
@@ -73,6 +80,51 @@ app.get('/', function(req,res,next) {
         role: "debug"
     })
 })
+
+function extractPhotoUrlFromForeignObject(svg) {
+  const m = svg.match(/<img[^>]*\ssrc="([^"]+\/photo)"[^>]*>/i);
+  return m ? m[1] : null;
+}
+
+function replaceForeignObjectWithImage(svg, dataUri) {
+  if (!dataUri) return svg;
+
+  // Remove the whole <foreignObject ...>...</foreignObject>
+  svg = svg.replace(/<foreignObject[\s\S]*?<\/foreignObject>/i, "");
+
+  // Insert an SVG <image> as the very first child inside <svg ...>
+  const imageTag =
+    `<image id="export-base-image" href="${dataUri}" ` +
+    `x="0" y="0" width="100%" height="100%" ` +
+    `preserveAspectRatio="none"></image>`;
+
+  return svg.replace(/<svg\b([^>]*)>/, `<svg$1>${imageTag}`);
+}
+
+function parsePointResponse(resp) {
+  if (!resp || typeof resp !== "string") return [];
+  return resp.split("|").map(s => {
+    const mx = s.match(/x:\s*([0-9.+-eE]+)/);
+    const my = s.match(/y:\s*([0-9.+-eE]+)/);
+    if (!mx || !my) return null;
+    return { x: Number(mx[1]), y: Number(my[1]) };
+  }).filter(Boolean);
+}
+
+function injectMarksIntoSvg(svg, points) {
+  const marks = points.map((p, i) => `
+    <g>
+      <circle cx="${p.x}" cy="${p.y}" r="8" fill="rgba(255,0,0,0.75)" stroke="white" stroke-width="2" />
+      <text x="${p.x + 10}" y="${p.y - 10}" font-size="14" fill="red" font-family="Arial">${i + 1}</text>
+    </g>
+  `).join("");
+
+  const layer = `<g class="export-mark-layer">${marks}</g>`;
+
+  if (!svg.includes("</svg>")) return svg + layer;
+  return svg.replace("</svg>", `${layer}</svg>`);
+}
+
 
 function clearBeforeUpload(req, res, next) {
     if (fs.existsSync(`${__dirname}/uploads/${req.params.id}.png`))
@@ -182,6 +234,55 @@ app.get('/:id/svg-data', async function(req,res,next) {
         next(e)
     }
 })
+
+// New endpoint: render PNG with marks from SVG stored in visual-api
+// /:id/marked.png?points=ENCODED_STRING
+app.get('/:id/marked.png', async function(req, res, next) {
+  try {
+    const Resvg = getResvg(); // lazy load here
+
+    const id = req.params.id;
+    const pointsStr = String(req.query.points || "");
+    const points = parsePointResponse(pointsStr);
+
+    // Same source as /svg-data
+    const response = await api.get(`/${id}`);
+    const svg = response?.data?.svg;
+
+    if (!svg || typeof svg !== "string" || !svg.trim().startsWith("<svg")) {
+      return res.status(404).send("No SVG found for this visualization.");
+    }
+
+    // Convert foreignObject <img src=".../photo"> into real SVG <image href="data:...">
+    let svgForRender = svg;
+    const photoUrl = extractPhotoUrlFromForeignObject(svgForRender);
+
+    if (photoUrl) {
+      const photoResp = await axios.get(photoUrl, { responseType: "arraybuffer" });
+      const contentType = photoResp.headers["content-type"] || "image/png";
+      const b64 = Buffer.from(photoResp.data).toString("base64");
+      const dataUri = `data:${contentType};base64,${b64}`;
+
+      svgForRender = replaceForeignObjectWithImage(svgForRender, dataUri);
+    }
+
+    // Add marks
+    const svgWithMarks = points.length
+      ? injectMarksIntoSvg(svgForRender, points)
+      : svgForRender;
+
+    // Render SVG -> PNG
+    const resvg = new Resvg(svgWithMarks, { fitTo: { mode: "original" } });
+    const pngData = resvg.render().asPng();
+
+    res.setHeader("Content-Type", "image/png");
+    res.status(200).send(Buffer.from(pngData));
+  } catch (e) {
+    console.error(`[UI Server] GET marked.png error:`, e);
+    next(e);
+  }
+});
+
 
 // endpoint to load specific visualization
 app.get('/:id', async function(req,res,next) {
