@@ -80,6 +80,7 @@ services:
       - "${VISUAL_UI_PORT}:8000"
     volumes:
       - .:/app
+      - /app/node_modules
     environment:
       - MAIN_API_URL=${MAIN_API_URL}
     depends_on:

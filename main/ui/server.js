@@ -6,6 +6,9 @@ const express = require('express');
 const compression = require('compression');
 const app = express();
 
+const { buildSurveyZipBundle, streamSurveyZip } = require("./public/src/export/surveyZipExport");
+
+
 // Enable gzip compression for all responses
 app.use(compression());
 
@@ -658,6 +661,30 @@ app.get('/publishedSurveys/:id', async (req, res, next) => {
         } else {
             closeDateTime = new Date(response.data.closeDateTime)
         }
+
+        if (req.query.downloadZip) {
+            const { data: pub } = await api.get(
+                `/publishedSurveys/${req.params.id}`,
+                withAuth(req.cookies.access_token)
+            );
+
+            const visualUiUrl = process.env.VISUAL_UI_INTERNAL_URL || process.env.VISUAL_UI_URL;
+
+            const { workbook, images } = await buildSurveyZipBundle({
+                pub,
+                visualUiUrl
+            });
+
+            await streamSurveyZip(res, {
+                pubName: pub.name,
+                pubStatus: pub.status,
+                workbook,
+                images
+            });
+
+            return;
+        }
+
 
         if (req.query.downloadExcel) {
 
