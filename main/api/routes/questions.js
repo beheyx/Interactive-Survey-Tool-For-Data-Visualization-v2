@@ -96,9 +96,6 @@ router.patch('/:id', requireAuthentication, handleErrors(async (req, res, next) 
   const surveyDesign = await getResourceById(SurveyDesign, question.surveyDesignId)
 
   if (req.userid == surveyDesign.userId) {
-
-    console.log("VISUALIZATION ID: ", req.body.visualizationId)
-
     let visualizationContentId = question.visualizationContentId
     if (req.body.visualizationId > 0) {
       const visualizationImport = await getResourceById(Visualization, req.body.visualizationId)
