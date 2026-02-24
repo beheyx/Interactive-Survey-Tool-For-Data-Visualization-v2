@@ -20,7 +20,7 @@ exports.getResourceById = async function (resourceType, id) {
         throw new Error404()
 }
 
-// this function wraps the lambda code of an API endpoint to automatically handle some errors 
+// this function wraps the lambda code of an API endpoint to automatically handle some errors
 exports.handleErrors = function (apiFunc) {
     return async (req, res, next) => {
         try {
@@ -32,6 +32,10 @@ exports.handleErrors = function (apiFunc) {
                 })
             } else if (e instanceof Error404) {
                 next()                              // 404 - missing resource
+            } else if (e.status && e.message) {     // custom status/message error
+                res.status(e.status).send({
+                    error: e.message
+                })
             } else {
                 next(e)                             // 500 - server error
             }

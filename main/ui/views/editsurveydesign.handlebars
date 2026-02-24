@@ -13,7 +13,7 @@
     </div>
     <div class="editor-actions">
         <button type="submit" form="survey-settings" class="action-button">Save Changes</button>
-        <a class="action-button action-button-success" href="#publishSurveyPopup">Publish</a>
+        <button type="button" class="action-button action-button-success" id="publishButton">Publish</button>
         <form id="deleteDesignForm" action="/surveyDesigns/{{id}}/DELETE" method="POST" style="display:inline;">
             <button type="button" class="action-button action-button-danger" onclick="showDeleteDesignModal()">
                 Delete
@@ -225,6 +225,36 @@ function confirmDeleteDesign() {
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
+  // Publish validation
+  const publishButton = document.getElementById('publishButton');
+  if (publishButton) {
+    publishButton.addEventListener('click', function() {
+      // Get all question blocks and check for valid questions
+      const questionBlocks = document.querySelectorAll('.question-block');
+
+      if (questionBlocks.length === 0) {
+        alert('Cannot publish: Please add at least one question to your survey.');
+        return;
+      }
+
+      // Check if at least one question has text (bg-light class indicates it has text)
+      let hasValidQuestion = false;
+      questionBlocks.forEach(function(block) {
+        if (block.querySelector('.bg-light')) {
+          hasValidQuestion = true;
+        }
+      });
+
+      if (!hasValidQuestion) {
+        alert('Cannot publish: Please fill in the text for at least one question.');
+        return;
+      }
+
+      // All validations passed, show the publish popup
+      window.location.hash = 'publishSurveyPopup';
+    });
+  }
 
   function renumberDomQuestions() {
     const blocks = document.querySelectorAll('.question-block');
