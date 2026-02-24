@@ -36,18 +36,20 @@
             </a>
             </h1>
 
+            {{#unless hideProgress}}
             <div class="progress-inline">
                 <span class="progress-text">100% Complete</span>
                 <div class="progress-bar header-bar">
                     <div class="progress-fill" style="width: 100%"></div>
                 </div>
             </div>
+            {{/unless}}
         </div>
         </header>
 
         <div class="conclusion_container">
             <div class="box welcome-box">
-                <h2 class="survey-title" style="color: #D73F09;">You have finished the survey</h2>
+                <h2 class="survey-title" style="color: #D73F09;">{{#if headingText}}{{headingText}}{{else}}You have finished the survey{{/if}}</h2>
                 <div class="question-text-box">
                     <span class="intro-text">{{conclusionText}}</span>
                 </div>

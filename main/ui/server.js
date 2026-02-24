@@ -791,6 +791,20 @@ app.post('/questions/:id/PATCH', async (req, res, next) => {
 app.get('/takeSurvey/:hash', async (req, res, next) => {
     try {
         const response = await api.get(req.originalUrl)
+
+        // Check if survey is accepting responses
+        if (response.data.status !== "in-progress") {
+            return res.render("takeSurveyConclusion", {
+                layout: false,
+                title: response.data.surveyDesign?.title || "Survey",
+                headingText: response.data.status === "pending" ? "Survey Not Yet Open" : "Survey Closed",
+                conclusionText: response.data.status === "pending"
+                    ? "This survey has not opened yet. Please check back later."
+                    : "This survey is now closed and is no longer accepting responses.",
+                hideProgress: true
+            })
+        }
+
         // Normalize published questions: sort + force sequential numbering (1..N)
         const normalizedQuestions = (response.data.questions || [])
             .slice()

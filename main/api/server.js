@@ -60,6 +60,11 @@ app.patch('/takeSurvey/:hash', handleErrors( async (req, res, next) => {
     const publishedSurvey = await PublishedSurvey.findOne({where: {linkHash: req.params.hash} })
 
     if (publishedSurvey) {
+        // Check if survey is open for responses
+        if (publishedSurvey.status !== "in-progress") {
+            return res.status(403).send({ error: "This survey is not currently accepting responses" })
+        }
+
         let results = null
         if (publishedSurvey.results)
             results = publishedSurvey.results
