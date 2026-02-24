@@ -34,9 +34,10 @@ async function createSurveyDesign(token) {
     return res.body.id
 }
 
-// Creates a question in a survey design
+// Creates a question in a survey design with text
 async function createQuestion(surveyDesignId, token) {
     const res = await request(api).post(`/surveyDesigns/${surveyDesignId}/questions`).set("Authorization", `Bearer ${token}`)
+    await request(api).patch(`/questions/${res.body.id}`).set("Authorization", `Bearer ${token}`).send({ text: "Test question" })
     return res.body.id
 }
 

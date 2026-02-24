@@ -33,12 +33,12 @@ async function createSurveyDesign(token) {
     return res.body.id
 }
 
-// Creates a question in a survey design
+// Creates a question in a survey design with text
 async function createQuestion(surveyDesignId, token, questionData = {}) {
     const res = await request(api).post(`/surveyDesigns/${surveyDesignId}/questions`).set("Authorization", `Bearer ${token}`)
-    if (Object.keys(questionData).length > 0) {
-        await request(api).patch(`/questions/${res.body.id}`).set("Authorization", `Bearer ${token}`).send(questionData)
-    }
+    // Always add text (default or provided) so question is not empty
+    const dataToSend = { text: "Test question", ...questionData }
+    await request(api).patch(`/questions/${res.body.id}`).set("Authorization", `Bearer ${token}`).send(dataToSend)
     return res.body.id
 }
 

@@ -312,7 +312,9 @@ describe("POST /surveyDesigns/{id}/publishedSurveys - publish a survey", () => {
     test("creates a published survey, sends 201 status code and id", async () => {
         const loginDetails = await registerAndLogin(TEST_USER)
         const createRes = await request(api).post('/surveyDesigns').set("Authorization", `Bearer ${loginDetails.token}`).send(DESIGN_POST_REQ_BODY)
-        await request(api).post(`/surveyDesigns/${createRes.body.id}/questions`).set("Authorization", `Bearer ${loginDetails.token}`)
+        const questionRes = await request(api).post(`/surveyDesigns/${createRes.body.id}/questions`).set("Authorization", `Bearer ${loginDetails.token}`)
+        // Add text to the question so it's not empty
+        await request(api).patch(`/questions/${questionRes.body.id}`).set("Authorization", `Bearer ${loginDetails.token}`).send({ text: "Test question" })
 
         const publishBody = {
             name: "Published Survey",
@@ -356,6 +358,39 @@ describe("POST /surveyDesigns/{id}/publishedSurveys - publish a survey", () => {
         const res = await request(api).post(`/surveyDesigns/${createRes.body.id}/publishedSurveys`).send(publishBody)
 
         expect(res.statusCode).toBe(401)
+        expect(res.body).toHaveProperty('error')
+    })
+
+    test("sends 400 status code when survey has no questions", async () => {
+        const loginDetails = await registerAndLogin(TEST_USER)
+        const createRes = await request(api).post('/surveyDesigns').set("Authorization", `Bearer ${loginDetails.token}`).send(DESIGN_POST_REQ_BODY)
+        const publishBody = {
+            name: "Published Survey",
+            openDateTime: new Date(Date.now() - 1000).toISOString(),
+            closeDateTime: new Date(Date.now() + 86400000).toISOString()
+        }
+
+        const res = await request(api).post(`/surveyDesigns/${createRes.body.id}/publishedSurveys`).set("Authorization", `Bearer ${loginDetails.token}`).send(publishBody)
+
+        expect(res.statusCode).toBe(400)
+        expect(res.body).toHaveProperty('error')
+    })
+
+    test("sends 400 status code when survey has only empty questions", async () => {
+        const loginDetails = await registerAndLogin(TEST_USER)
+        const createRes = await request(api).post('/surveyDesigns').set("Authorization", `Bearer ${loginDetails.token}`).send(DESIGN_POST_REQ_BODY)
+        // Create questions without text (empty questions)
+        await request(api).post(`/surveyDesigns/${createRes.body.id}/questions`).set("Authorization", `Bearer ${loginDetails.token}`)
+        await request(api).post(`/surveyDesigns/${createRes.body.id}/questions`).set("Authorization", `Bearer ${loginDetails.token}`)
+        const publishBody = {
+            name: "Published Survey",
+            openDateTime: new Date(Date.now() - 1000).toISOString(),
+            closeDateTime: new Date(Date.now() + 86400000).toISOString()
+        }
+
+        const res = await request(api).post(`/surveyDesigns/${createRes.body.id}/publishedSurveys`).set("Authorization", `Bearer ${loginDetails.token}`).send(publishBody)
+
+        expect(res.statusCode).toBe(400)
         expect(res.body).toHaveProperty('error')
     })
 })
