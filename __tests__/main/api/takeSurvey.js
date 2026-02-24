@@ -205,4 +205,44 @@ describe("PATCH /takeSurvey/{hash} - submit survey answers", () => {
         const updatedSurvey = await PublishedSurvey.findOne({ where: { id: published.id } })
         expect(updatedSurvey.results.participants[0].answers).toHaveLength(3)
     })
+
+    test("rejects responses when survey is closed", async () => {
+        const loginDetails = await registerAndLogin(TEST_USER)
+        const designId = await createSurveyDesign(loginDetails.token)
+        await createQuestion(designId, loginDetails.token)
+
+        // Publish with closeDateTime in the past (closed survey)
+        const closedBody = {
+            name: "Closed Survey",
+            openDateTime: new Date(Date.now() - 86400000).toISOString(),
+            closeDateTime: new Date(Date.now() - 1000).toISOString()
+        }
+        const pubRes = await request(api).post(`/surveyDesigns/${designId}/publishedSurveys`).set("Authorization", `Bearer ${loginDetails.token}`).send(closedBody)
+        const published = await PublishedSurvey.findOne({ where: { id: pubRes.body.id } })
+
+        const res = await request(api).patch(`/takeSurvey/${published.linkHash}`).send({ answers: [{ questionId: 1, answer: "Test" }] })
+
+        expect(res.statusCode).toBe(403)
+        expect(res.body).toHaveProperty('error')
+    })
+
+    test("rejects responses when survey is pending", async () => {
+        const loginDetails = await registerAndLogin(TEST_USER)
+        const designId = await createSurveyDesign(loginDetails.token)
+        await createQuestion(designId, loginDetails.token)
+
+        // Publish with openDateTime in the future (pending survey)
+        const pendingBody = {
+            name: "Pending Survey",
+            openDateTime: new Date(Date.now() + 86400000).toISOString(),
+            closeDateTime: new Date(Date.now() + 172800000).toISOString()
+        }
+        const pubRes = await request(api).post(`/surveyDesigns/${designId}/publishedSurveys`).set("Authorization", `Bearer ${loginDetails.token}`).send(pendingBody)
+        const published = await PublishedSurvey.findOne({ where: { id: pubRes.body.id } })
+
+        const res = await request(api).patch(`/takeSurvey/${published.linkHash}`).send({ answers: [{ questionId: 1, answer: "Test" }] })
+
+        expect(res.statusCode).toBe(403)
+        expect(res.body).toHaveProperty('error')
+    })
 })
