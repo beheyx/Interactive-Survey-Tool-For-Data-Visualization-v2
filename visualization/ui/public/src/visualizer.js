@@ -149,7 +149,14 @@ export const page = {
         newTool.textContent = toolName
 
         // clicking the button will change the mode accordingly
-        newTool.addEventListener("click", () => {this.mode = toolMode})
+        newTool.addEventListener("click", () => {
+            this.mode = toolMode;
+            if (this.mode == "detailEditor") {
+                document.getElementById("groupTooltip").removeAttribute("hidden")
+            } else {
+                document.getElementById("groupTooltip").hidden = true;
+            }
+        })
 
         // add button to DOM
         const toolButtons = document.getElementsByClassName("tool-buttons")[0]
