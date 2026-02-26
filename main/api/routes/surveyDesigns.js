@@ -148,6 +148,11 @@ router.post('/:id/publishedSurveys', requireAuthentication, handleErrors(async (
     // 3) Build published snapshot from the now-clean order, filtering empties
     const nonEmpty = all.filter(q => q.text && q.text.trim() !== '')
 
+    // Validate at least one non-empty question exists
+    if (nonEmpty.length === 0) {
+      throw { status: 400, message: "Cannot publish a survey without at least one question with text" }
+    }
+
     // Renumber *snapshot* sequentially (so published has 1..M with no blanks)
     const snapshotQuestions = nonEmpty.map((q, idx) => ({
       ...q.toJSON(),

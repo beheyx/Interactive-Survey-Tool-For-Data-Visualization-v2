@@ -866,6 +866,12 @@ body{margin:0; font:20px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Rob
   border: 1px solid #ffa726;
 }
 
+.status-in-progress {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #66bb6a;
+}
+
 /* Popup improvements for rename */
 .popup-rename-button, .popup-create-button {
   padding: 10px 24px;
