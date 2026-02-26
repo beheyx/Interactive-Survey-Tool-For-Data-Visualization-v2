@@ -143,6 +143,8 @@ export const page = {
     addTool: function(toolName, toolMode) {
         // tools dropdown is hidden by default, remove
         document.getElementsByClassName("tools")[0].removeAttribute("hidden")
+        //except options
+        document.getElementById("options-dropdown").hidden = true;
 
         // create the button element
         const newTool = document.createElement("button")
@@ -155,6 +157,12 @@ export const page = {
                 document.getElementById("groupTooltip").removeAttribute("hidden")
             } else {
                 document.getElementById("groupTooltip").hidden = true;
+            }
+
+            if (this.mode == "highlightTool" || this.mode == "setSelectable"){
+                document.getElementById("options-dropdown").removeAttribute("hidden")
+            } else {
+                document.getElementById("options-dropdown").hidden = true;
             }
         })
 
