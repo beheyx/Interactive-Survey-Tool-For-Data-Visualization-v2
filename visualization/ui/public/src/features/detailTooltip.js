@@ -22,6 +22,14 @@ export const detailTooltip = (visualizer) => {
         let children = svgElement.querySelectorAll('*')
         for (let i = 0; i < children.length; i++) {
             if (children[i].tagName != "foreignObject"){
+                if (page.mode == "detailEditor"){
+                    if (children[i].classList.contains("custom")){
+                        children[i].classList.add("createdDetail");
+                    }
+                } else {
+                    children[i].classList.remove('createdDetail');
+                }
+
                 children[i].addEventListener("click", function() {
                     if (page.mode == "detailEditor"){
                         selection = i;
@@ -102,6 +110,7 @@ export const detailTooltip = (visualizer) => {
             selection = null
             autosave.save();
         });
+        page.mode = "detailEditor"
     }
 
     // calls on page DOM contents loaded in debug mode
@@ -114,6 +123,34 @@ export const detailTooltip = (visualizer) => {
     decoratedVisualizer.onChangeMode = function() {
         visualizer.onChangeMode()
         // new code here
+        if (!svgElement) { return }
+        let children = svgElement.querySelectorAll('*')
+        for (let i = 0; i < children.length; i++) {
+            if (children[i].tagName != "foreignObject"){
+                if (page.mode == "detailEditor"){
+                    if (children[i].classList.contains("custom")){
+                        children[i].classList.add("createdDetail");
+                    }
+                } else {
+                    children[i].classList.remove('createdDetail');
+                }
+
+                children[i].addEventListener("click", function() {
+                    if (page.mode == "detailEditor"){
+                        selection = i;
+                        const item = children[i]
+                        document.getElementById("tooltip-detail").textContent = item.getAttribute("label") || item.id || item.getAttribute("visualId") || "No Information"
+                        document.getElementById("controlTooltip").focus();
+                    }
+                });
+                children[i].addEventListener('mouseenter', function(e){
+                    if (selection == null) {
+                        const item = children[i]
+                        document.getElementById("tooltip-detail").textContent = item.getAttribute("label") || item.id || item.getAttribute("visualId") || "No Information"
+                    }
+                })
+            }
+        }
     }
 
     return decoratedVisualizer

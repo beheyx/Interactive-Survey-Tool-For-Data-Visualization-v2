@@ -245,6 +245,12 @@ button, input {
     fill-opacity: 0%;
 }
 
+.createdDetail {
+    fill-opacity: 40% !important;
+    stroke-opacity: 40% !important;
+    filter: saturate(0.3) drop-shadow(0px 0px var(--visual-scale) cyan) saturate(-15);
+}
+
 /* Temporary box while drawing (also can be reused during drawing if needed) */
 #user-box {
     fill: blue;

@@ -246,6 +246,7 @@ function EnableBox() {
             autosave.save()
 
             box = null
+            page.mode = MODELABEL_CREATE
         }
     })
 }
@@ -321,5 +322,6 @@ function EnableLassoSelection() {
         }
 
         lassoPoints = []
+        page.mode = MODELABEL_LASSO
     })
 }
