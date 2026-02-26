@@ -12,10 +12,11 @@ const OPTIONTEXT_SET_ALL_SELECTABLE = "Make All Elements Selectable"
 const OPTIONTEXT_SET_ALL_NOT_SELECTABLE = "Make All Elements Not Selectable"
 
 const TOOLTEXT_SET_SELECTABLE = "Set Selectable"
-const TOOLTEXT_CREATE = "Box"          // renamed from "Create"
-const TOOLTEXT_LASSO = "Lasso"         // lasso tool
-const TOOLTEXT_DELETE = "Delete"
-const TOOLTEXT_HIGHLIGHT = "Highlight"
+const TOOLTEXT_CREATE = "Create Box"          // renamed from "Create"
+const TOOLTEXT_LASSO = "Create Lasso"         // lasso tool
+const TOOLTEXT_DELETE = "Delete Added Elements"
+const TOOLTEXT_HIGHLIGHT = "Highlight Elements"
+const TOOLTEXT_DETAIL = "Edit Details"
 
 const MODELABEL_SELECT_ELEMENTS = "selectElements"
 const MODELABEL_SET_SELECTABLE = "setSelectable"
@@ -23,6 +24,7 @@ const MODELABEL_CREATE = "create"      // still the mode for the Box tool
 const MODELABEL_LASSO = "lasso"        // mode for lasso selection
 const MODELABEL_DELETE = "delete"
 const MODELABEL_HIGHLIGHT_TOOL = "highlightTool"
+const MODELABEL_DETAIL_EDITOR = "detailEditor"
 
 const OPTIONTEXT_HIGHLIGHT_ALL = "Highlight All Elements"
 const OPTIONTEXT_CLEAR_HIGHLIGHTS = "Clear All Highlights"
@@ -128,6 +130,8 @@ function createToolButtons() {
     page.addTool(TOOLTEXT_LASSO, MODELABEL_LASSO)
     // add delete tool
     page.addTool(TOOLTEXT_DELETE, MODELABEL_DELETE)
+    // add delete tool
+    page.addTool(TOOLTEXT_DETAIL, MODELABEL_DETAIL_EDITOR)
 }
 
 // Enable user to select/deselect vector elements by clicking on them
@@ -242,6 +246,7 @@ function EnableBox() {
             autosave.save()
 
             box = null
+            page.mode = MODELABEL_CREATE
         }
     })
 }
@@ -317,5 +322,6 @@ function EnableLassoSelection() {
         }
 
         lassoPoints = []
+        page.mode = MODELABEL_LASSO
     })
 }

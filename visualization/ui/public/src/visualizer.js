@@ -143,13 +143,28 @@ export const page = {
     addTool: function(toolName, toolMode) {
         // tools dropdown is hidden by default, remove
         document.getElementsByClassName("tools")[0].removeAttribute("hidden")
+        //except options
+        document.getElementById("options-dropdown").hidden = true;
 
         // create the button element
         const newTool = document.createElement("button")
         newTool.textContent = toolName
 
         // clicking the button will change the mode accordingly
-        newTool.addEventListener("click", () => {this.mode = toolMode})
+        newTool.addEventListener("click", () => {
+            this.mode = toolMode;
+            if (this.mode == "detailEditor") {
+                document.getElementById("groupTooltip").removeAttribute("hidden")
+            } else {
+                document.getElementById("groupTooltip").hidden = true;
+            }
+
+            if (this.mode == "highlightTool" || this.mode == "setSelectable"){
+                document.getElementById("options-dropdown").removeAttribute("hidden")
+            } else {
+                document.getElementById("options-dropdown").hidden = true;
+            }
+        })
 
         // add button to DOM
         const toolButtons = document.getElementsByClassName("tool-buttons")[0]

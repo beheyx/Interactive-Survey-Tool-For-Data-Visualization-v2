@@ -43,7 +43,7 @@
         </div>
       </div>
 
-      <div class="options dropdown" hidden>
+      <div id="options-dropdown" class="options dropdown" hidden>
         Options
         <div class="dropdown-buttons option-buttons">
         </div>
@@ -85,7 +85,13 @@
             Details on Hover?
           </label>
         </div>
-        <p id="tooltip-detail" class="card-text" hidden>No Information</p>
+        <p id="tooltip-detail" class="card-text" style="margin-bottom: 0rem">No Information</p>
+        <div class="input-group mb-3" id="groupTooltip" style="margin-top: 0.5rem" hidden>
+          <input class="form-control" type="text" placeholder="Edit Label" id="controlTooltip">
+          <button id="modifyButton" class="btn btn-outline-primary" type="button">
+            Edit
+          </button>
+        </div>
       </div>
     </div>
 
