@@ -194,6 +194,7 @@ body {
     position: absolute;
     top: 0;
     left: 0;
+    overflow: visible;
 }
 
 .selectElements .visual-element.selectable:hover,
@@ -227,12 +228,17 @@ body {
     animation-iteration-count: infinite;
 }
 
-svg {
-    width: 100% !important;
-    height: 100% !important;
-    position: absolute;
-    z-index: 10;
+/* Let SVG keep its own aspect ratio */
+#visual-container svg {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
 }
+
+/* IMPORTANT: preserve aspect ratio in rendering */
+/* #visual-container svg {
+  preserveAspectRatio: xMidYMid meet; } /* CSS won't set this attribute, but ok to keep  */
 
 button, input {
     z-index: 11;

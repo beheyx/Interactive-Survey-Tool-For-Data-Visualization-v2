@@ -64,6 +64,7 @@ const VisualizationElement = class {
         this.defaultHeight = this.svg.viewBox?.baseVal?.height
             ? this.svg.viewBox.baseVal.height
             : (this.svg.height?.baseVal?.value ?? parseFloat(this.svg.getAttribute('height')) ?? 500)
+        this.aspect = this.defaultHeight / this.defaultWidth;
         this.resetScaleAndPosition()
         
         // on first time upload, mark all visual elements as selectable by default
@@ -261,8 +262,10 @@ const VisualizationElement = class {
      * Resets scale and position to calculated default which should fill the container
      */
     resetScaleAndPosition() {
-        const scale = this.defaultWidth > this.defaultHeight ? this.defaultWidth : this.defaultHeight
-        this.svg.setAttribute("viewBox", "0 0 " + scale + " " + scale)
+        // Keep the original aspect ratio (no forced square)
+        const w = this.defaultWidth || 500;
+        const h = this.defaultHeight || 500;
+        this.svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
     }
 
     /**
@@ -294,17 +297,26 @@ const VisualizationElement = class {
     }
 
     get scale() {
-        if (this.svg.viewBox?.baseVal?.width) {
-            return this.svg.viewBox.baseVal.width
-        }
-        return this._parseViewBox().width
+    // define scale as viewBox width
+    if (this.svg.viewBox?.baseVal?.width) return this.svg.viewBox.baseVal.width;
+    return this._parseViewBox().width;
     }
 
     set scale(num) {
-        if (num > 0) {
-            this.svg.setAttribute("viewBox", this.x + " " + this.y + " " +
-                num + " " + num)
-        }
+    if (num > 0) {
+        const w = num;
+        const h = num * (this.aspect || 1);
+        this.svg.setAttribute("viewBox", `${this.x} ${this.y} ${w} ${h}`);
+    }
+    }
+
+    get viewW() {
+        if (this.svg.viewBox?.baseVal?.width) return this.svg.viewBox.baseVal.width;
+        return this._parseViewBox().width;
+    }
+    get viewH() {
+        if (this.svg.viewBox?.baseVal?.height) return this.svg.viewBox.baseVal.height;
+        return this._parseViewBox().height;
     }
 
     get x() {
@@ -315,8 +327,7 @@ const VisualizationElement = class {
     }
 
     set x(pos) {
-        this.svg.setAttribute("viewBox", pos + " " + this.y + " " +
-            this.scale + " " + this.scale)
+        this.svg.setAttribute("viewBox", `${pos} ${this.y} ${this.viewW} ${this.viewH}`);
     }
 
     get y() {
@@ -327,8 +338,7 @@ const VisualizationElement = class {
     }
 
     set y(pos) {
-        this.svg.setAttribute("viewBox", this.x + " " + pos + " " +
-            this.scale + " " + this.scale)
+        this.svg.setAttribute("viewBox", `${this.x} ${pos} ${this.viewW} ${this.viewH}`);
     }
 }
 

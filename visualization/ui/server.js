@@ -86,19 +86,92 @@ function extractPhotoUrlFromForeignObject(svg) {
   return m ? m[1] : null;
 }
 
+function getAttr(tag, name) {
+  const m = tag.match(new RegExp(`\\b${name}="([^"]+)"`, "i"));
+  return m ? m[1] : null;
+}
+
 function replaceForeignObjectWithImage(svg, dataUri) {
   if (!dataUri) return svg;
 
-  // Remove the whole <foreignObject ...>...</foreignObject>
+  // Find the foreignObject opening tag so we can preserve its x/y/w/h
+  const foOpen = svg.match(/<foreignObject\b[^>]*>/i);
+  const foTag = foOpen ? foOpen[0] : null;
+
+  const x = foTag ? (getAttr(foTag, "x") ?? "0") : "0";
+  const y = foTag ? (getAttr(foTag, "y") ?? "0") : "0";
+  const w = foTag ? (getAttr(foTag, "width") ?? "100%") : "100%";
+  const h = foTag ? (getAttr(foTag, "height") ?? "100%") : "100%";
+
+  // Remove the whole foreignObject
   svg = svg.replace(/<foreignObject[\s\S]*?<\/foreignObject>/i, "");
 
-  // Insert an SVG <image> as the very first child inside <svg ...>
+  // Insert SVG <image> in the same box the foreignObject used
   const imageTag =
     `<image id="export-base-image" href="${dataUri}" ` +
-    `x="0" y="0" width="100%" height="100%" ` +
-    `preserveAspectRatio="none"></image>`;
+    `x="${x}" y="${y}" width="${w}" height="${h}" ` +
+    `preserveAspectRatio="xMidYMid meet"></image>`;
 
   return svg.replace(/<svg\b([^>]*)>/, `<svg$1>${imageTag}`);
+}
+
+function cropSvgToForeignObjectBox(svg) {
+  const m = svg.match(/<foreignObject\b[^>]*>/i);
+  if (!m) return svg;
+
+  const tag = m[0];
+  const get = (name) => {
+    const mm = tag.match(new RegExp(`\\b${name}="([^"]+)"`, "i"));
+    return mm ? mm[1] : null;
+  };
+
+  const x = Number(get("x") ?? 0);
+  const y = Number(get("y") ?? 0);
+  const w = Number(get("width"));
+  const h = Number(get("height"));
+
+  if (!Number.isFinite(w) || !Number.isFinite(h) || w <= 0 || h <= 0) return svg;
+
+  // ensure viewBox
+  if (/\bviewBox="/i.test(svg)) {
+    svg = svg.replace(/\bviewBox="[^"]*"/i, `viewBox="${x} ${y} ${w} ${h}"`);
+  } else {
+    svg = svg.replace(/<svg\b([^>]*)>/i, `<svg$1 viewBox="${x} ${y} ${w} ${h}">`);
+  }
+
+  // ensure explicit width/height so Resvg canvas matches
+  if (/\bwidth="/i.test(svg)) svg = svg.replace(/\bwidth="[^"]*"/i, `width="${w}"`);
+  else svg = svg.replace(/<svg\b([^>]*)>/i, `<svg$1 width="${w}">`);
+
+  if (/\bheight="/i.test(svg)) svg = svg.replace(/\bheight="[^"]*"/i, `height="${h}"`);
+  else svg = svg.replace(/<svg\b([^>]*)>/i, `<svg$1 height="${h}">`);
+
+  // keep aspect
+  if (/\bpreserveAspectRatio="/i.test(svg)) {
+    svg = svg.replace(/\bpreserveAspectRatio="[^"]*"/i, `preserveAspectRatio="xMidYMid meet"`);
+  } else {
+    svg = svg.replace(/<svg\b([^>]*)>/i, `<svg$1 preserveAspectRatio="xMidYMid meet">`);
+  }
+
+  return svg;
+}
+
+function removeCustomOverlays(svg) {
+  if (!svg || typeof svg !== "string") return svg;
+
+  // Remove any polygon/polyline/path/rect/etc created by tools (class contains "custom")
+  svg = svg.replace(
+    /<(polygon|polyline|path|rect|circle|ellipse|line)\b[^>]*class="[^"]*\bcustom\b[^"]*"[^>]*\/?>/gi,
+    ""
+  );
+
+  // Also handle non-self-closing form: <polygon ...>...</polygon>
+  svg = svg.replace(
+    /<(polygon|polyline|path|rect|circle|ellipse|line)\b[^>]*class="[^"]*\bcustom\b[^"]*"[^>]*>[\s\S]*?<\/\1>/gi,
+    ""
+  );
+
+  return svg;
 }
 
 function parsePointResponse(resp) {
@@ -124,7 +197,6 @@ function injectMarksIntoSvg(svg, points) {
   if (!svg.includes("</svg>")) return svg + layer;
   return svg.replace("</svg>", `${layer}</svg>`);
 }
-
 
 function clearBeforeUpload(req, res, next) {
     if (fs.existsSync(`${__dirname}/uploads/${req.params.id}.png`))
@@ -256,6 +328,9 @@ app.get('/:id/marked.png', async function(req, res, next) {
     // Convert foreignObject <img src=".../photo"> into real SVG <image href="data:...">
     let svgForRender = svg;
     const photoUrl = extractPhotoUrlFromForeignObject(svgForRender);
+    svgForRender = removeCustomOverlays(svgForRender);
+    // crop canvas to match the raster image box (prevents “small photo in big gray canvas”)
+    svgForRender = cropSvgToForeignObjectBox(svgForRender);
 
     if (photoUrl) {
       const photoResp = await axios.get(photoUrl, { responseType: "arraybuffer" });

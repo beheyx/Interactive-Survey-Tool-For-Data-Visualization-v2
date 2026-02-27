@@ -6,6 +6,7 @@ const OPTIONTEXT_CLEAR_MARKS = "Clear all marks"
 
 import { visualizationElement, svgElement, wrapper, debug, screenToSVG, page, visualContainer } from "../visualizer.js"
 
+
 export const markPoints = (visualizer) => {
 
     const decoratedVisualizer = Object.create(visualizer)
@@ -62,7 +63,7 @@ function enableMarkPoints() {
             }
 
             // create the circle element within the container to represent the mark
-            const pointCoordinates = screenToSVG(evt.clientX, evt.clientY)
+            const pointCoordinates = screenToSVG(evt.clientX, evt.clientY, visualizationElement.svg)
             const point = document.createElementNS("http://www.w3.org/2000/svg", "circle")
             markContainer.appendChild(point)
             point.outerHTML = `<circle cx=\"${pointCoordinates.x}\" cy=\"${pointCoordinates.y}\" class=\"mark\"></circle>`
