@@ -694,6 +694,16 @@ async function loadSvgFromText(svgText) {
     }
 }
 
+// helper: wait for an <img> to load so we can read naturalWidth/Height
+function loadImageSize(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
 async function loadRaster(file) {
     // Upload raster image to server
     const formData = new FormData()
@@ -717,26 +727,40 @@ async function loadRaster(file) {
     }
 
     // Create SVG wrapper with foreignObject for raster image
-    const newSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-    newSvg.setAttributeNS(null, "width", "500")
-    newSvg.setAttributeNS(null, "height", "500")
-    newSvg.setAttributeNS(null, "viewBox", "0 0 500 500")
+    const MAX = 500;
 
-    const foreignObject = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject')
-    foreignObject.setAttributeNS(null, 'x', '0')
-    foreignObject.setAttributeNS(null, 'y', '0')
-    foreignObject.setAttributeNS(null, 'width', '500')
-    foreignObject.setAttributeNS(null, 'height', '500')
+    // fileUrl is your blob URL (htmlImg.src = fileUrl)
+    const { w: rawW, h: rawH } = await loadImageSize(fileUrl);
 
-    const htmlImg = document.createElement('img')
-    htmlImg.src = fileUrl
-    htmlImg.style.width = '100%'
-    htmlImg.style.height = '100%'
-    htmlImg.style.objectFit = 'contain'
-    htmlImg.style.display = 'block'
+    // scale so the longer side is MAX
+    const scale = MAX / Math.max(rawW, rawH);
+    const w = Math.round(rawW * scale);
+    const h = Math.round(rawH * scale);
 
-    foreignObject.appendChild(htmlImg)
-    newSvg.appendChild(foreignObject)
+    // Create SVG wrapper with foreignObject for raster image
+    const newSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    newSvg.setAttributeNS(null, "width", String(w));
+    newSvg.setAttributeNS(null, "height", String(h));
+    newSvg.setAttributeNS(null, "viewBox", `0 0 ${w} ${h}`);
+    newSvg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+
+    const foreignObject = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+    foreignObject.setAttributeNS(null, 'x', '0');
+    foreignObject.setAttributeNS(null, 'y', '0');
+    foreignObject.setAttributeNS(null, 'width', String(w));
+    foreignObject.setAttributeNS(null, 'height', String(h));
+
+    const htmlImg = document.createElement('img');
+    htmlImg.src = fileUrl;
+    htmlImg.style.width = '100%';
+    htmlImg.style.height = '100%';
+
+    // once the container matches the image ratio, you can fill without distortion
+    htmlImg.style.objectFit = 'fill';   // or keep 'contain' (it won't letterbox now)
+    htmlImg.style.display = 'block';
+
+    foreignObject.appendChild(htmlImg);
+    newSvg.appendChild(foreignObject);
 
     svgElement = visualContainer.appendChild(newSvg);
 
@@ -766,12 +790,25 @@ async function loadRaster(file) {
 // Adapted from function transformPoint() (name was taken from Paul LeBeau's answer) 
 // Sourced on 1/30/2025
 // Source URL: https://stackoverflow.com/questions/48343436/how-to-convert-svg-element-coordinates-to-screen-coordinates
-export const screenToSVG = function(screenX, screenY) {
-    const p = DOMPoint.fromPoint(svgElement)
-    p.x = screenX
-    p.y = screenY
-    return p.matrixTransform(svgElement.getScreenCTM().inverse());
-}
+// export const screenToSVG = function(screenX, screenY) {
+//     const p = DOMPoint.fromPoint(svgElement)
+//     p.x = screenX
+//     p.y = screenY
+//     return p.matrixTransform(svgElement.getScreenCTM().inverse());
+// }
+export const screenToSVG = function(screenX, screenY, svg = visualizationElement?.svg || svgElement) {
+  if (!svg) return { x: 0, y: 0 };
+
+  const pt = svg.createSVGPoint();
+  pt.x = screenX;
+  pt.y = screenY;
+
+  const ctm = svg.getScreenCTM();
+  if (!ctm) return { x: 0, y: 0 };
+
+  const out = pt.matrixTransform(ctm.inverse());
+  return { x: out.x, y: out.y };
+};
 
 // this is in response for an iframe message for the count of selected elements, ids of selected elements, or selection based on array of ids
 window.addEventListener('message', (event) => {
