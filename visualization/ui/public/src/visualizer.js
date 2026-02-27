@@ -5,6 +5,7 @@ export let debug = false
 let visualizer
 export let visualizationElement
 export let svgElement
+let pendingMessages = []
 export const wrapper = document.getElementById("wrapper")                      // container that covers entire page
 export const visualContainer = document.getElementById("visual-container")     // container for the visual
 export const staticvis = (document.getElementById("static-visualization").value == "true")
@@ -571,6 +572,7 @@ addEventListener("DOMContentLoaded", async () => {
             visualizationElement = new VisualizationElement(svgElement)
             visualizer.onLoadSvg();
             visualizer.onFirstLoadSvg();
+            processPendingMessages()
         } catch (error) {
             console.error('Error creating VisualizationElement:', error)
         }
@@ -810,13 +812,13 @@ export const screenToSVG = function(screenX, screenY, svg = visualizationElement
   return { x: out.x, y: out.y };
 };
 
-// this is in response for an iframe message for the count of selected elements, ids of selected elements, or selection based on array of ids
-window.addEventListener('message', (event) => {
-    if (event.data == "count")
+// Processes a message from the parent window
+function processMessage(event) {
+    if (event.data == "count") {
         event.source.postMessage({ type: "count", count: visualizationElement.getNumberOfSelectedElements() }, "*")
-    else if (event.data == "ids")
+    } else if (event.data == "ids") {
         event.source.postMessage({ type: "ids", ids: visualizationElement.getSelectedIds() }, "*")
-    else if (event.data == "coordinates") {
+    } else if (event.data == "coordinates") {
         let coordinates = []
         const markContainer = document.getElementsByClassName("mark-container")[0]
         if (markContainer) {
@@ -837,11 +839,31 @@ window.addEventListener('message', (event) => {
         markContainer.classList.add("mark-container")
 
         for (const coordinate of event.data.markCoordinates) {
-            const x = coordinate.split(":")[1].slice(0,-1)
+            if (!coordinate) continue
+            const x = coordinate.split(":")[1]?.slice(0,-1)
             const y = coordinate.split(":")[2]
-            const point = document.createElementNS("http://www.w3.org/2000/svg", "circle")
-            markContainer.appendChild(point)
-            point.outerHTML = `<circle cx=\"${x}\" cy=\"${y}\" class=\"mark\"></circle>`
+            if (x && y) {
+                const point = document.createElementNS("http://www.w3.org/2000/svg", "circle")
+                markContainer.appendChild(point)
+                point.outerHTML = `<circle cx=\"${x}\" cy=\"${y}\" class=\"mark\"></circle>`
+            }
         }
     }
+}
+
+// Processes any messages that arrived before the visualization was ready
+export function processPendingMessages() {
+    for (const event of pendingMessages) {
+        processMessage(event)
+    }
+    pendingMessages = []
+}
+
+// Handles incoming messages from the parent window
+window.addEventListener('message', (event) => {
+    if (!visualizationElement) {
+        pendingMessages.push(event)
+        return
+    }
+    processMessage(event)
 })
