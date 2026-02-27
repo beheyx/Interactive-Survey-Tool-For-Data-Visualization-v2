@@ -59,7 +59,7 @@ function EnablePanning(visualizer) {
 
             // get scale of visualization as it is displayed in the window
             const svgBoundingBox = visualizationElement.svg.getBoundingClientRect()
-            const svgWindowScale = svgBoundingBox.height < svgBoundingBox.width ? svgBoundingBox.height : svgBoundingBox.width
+            const svgWindowScale = (svgBoundingBox.width + svgBoundingBox.height) / 2
 
             // panning speed adjusts based on visualization's programmed scale and its window scale 
             const speedModifier = visualizationElement.scale / svgWindowScale
