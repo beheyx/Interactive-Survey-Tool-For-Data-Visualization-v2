@@ -237,9 +237,8 @@ body {
 }
 
 /* IMPORTANT: preserve aspect ratio in rendering */
-#visual-container svg {
-  preserveAspectRatio: xMidYMid meet; /* CSS won't set this attribute, but ok to keep */
-}
+/* #visual-container svg {
+  preserveAspectRatio: xMidYMid meet; } /* CSS won't set this attribute, but ok to keep  */
 
 button, input {
     z-index: 11;
