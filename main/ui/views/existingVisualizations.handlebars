@@ -12,6 +12,12 @@
     </div>
   </div>
 
+  <div class="table-controls">
+    <div class="search-box">
+      <input type="text" id="tableSearch" placeholder="Search by name..." class="search-input">
+    </div>
+  </div>
+
   <div class="table-container">
     {{#if visualizations}}
       <table class="data-table">
@@ -268,5 +274,30 @@
   if (modifiedHeader) {
     sortTable('modified', 'desc');
   }
+})();
+</script>
+
+<script>
+// Table search/filter functionality
+(function() {
+  const searchInput = document.getElementById('tableSearch');
+  const table = document.querySelector('.data-table');
+  if (!searchInput || !table) return;
+
+  const tbody = table.querySelector('tbody');
+
+  searchInput.addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase().trim();
+    const rows = tbody.querySelectorAll('tr');
+
+    rows.forEach(row => {
+      const name = (row.dataset.name || '').toLowerCase();
+      if (name.includes(searchTerm)) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  });
 })();
 </script>
