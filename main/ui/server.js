@@ -75,6 +75,29 @@ app.engine("handlebars", exphbs.engine({
 
 app.set("view engine", "handlebars")
 
+// Helper function to format dates in PST timezone
+function formatDatePST(dateValue) {
+    if (!dateValue) return '';
+    const date = new Date(dateValue);
+    if (isNaN(date.getTime())) return '';
+    return date.toLocaleString('en-US', {
+        timeZone: 'America/Los_Angeles',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+    });
+}
+
+// Helper function to get timestamp for sorting
+function getTimestamp(dateValue) {
+    if (!dateValue) return 0;
+    const date = new Date(dateValue);
+    return isNaN(date.getTime()) ? 0 : date.getTime();
+}
+
 // Middleware to add authentication status and breadcrumbs to all renders
 app.use(async (req, res, next) => {
     // Store original render function
@@ -249,8 +272,17 @@ app.get('/existing-visualizations', async (req, res, next) => {
             visError = "Unable to load visualizations."
         }
 
+        // Add formatted dates (PST) and timestamps for sorting
+        const visualizations = userVisualizations?.data.visualizations?.map(v => ({
+            ...v,
+            createdAtFormatted: formatDatePST(v.createdAt),
+            updatedAtFormatted: formatDatePST(v.updatedAt),
+            createdAtTimestamp: getTimestamp(v.createdAt),
+            updatedAtTimestamp: getTimestamp(v.updatedAt)
+        }))
+
         res.render("existingVisualizations", {
-            visualizations: userVisualizations?.data.visualizations,
+            visualizations: visualizations,
             visError: visError,
             activePage: 'visualizations',
             breadcrumbs: [
@@ -282,8 +314,17 @@ app.get('/existing-survey-designs', async (req, res, next) => {
             surError = "Unable to load survey designs."
         }
 
+        // Add formatted dates (PST) and timestamps for sorting
+        const surveyDesigns = userSurveyDesigns?.data.surveyDesigns?.map(s => ({
+            ...s,
+            createdAtFormatted: formatDatePST(s.createdAt),
+            updatedAtFormatted: formatDatePST(s.updatedAt),
+            createdAtTimestamp: getTimestamp(s.createdAt),
+            updatedAtTimestamp: getTimestamp(s.updatedAt)
+        }))
+
         res.render("existingSurveyDesigns", {
-            surveyDesigns: userSurveyDesigns?.data.surveyDesigns,
+            surveyDesigns: surveyDesigns,
             surError: surError,
             activePage: 'surveys',
             breadcrumbs: [
@@ -315,8 +356,19 @@ app.get('/existing-published-surveys', async (req, res, next) => {
             pSurError = "Unable to load published surveys."
         }
 
+        // Add formatted dates (PST) and timestamps for sorting
+        const publishedSurveys = userPublishedSurveys?.data.publishedSurveys?.map(p => ({
+            ...p,
+            openDateTimeFormatted: formatDatePST(p.openDateTime),
+            closeDateTimeFormatted: formatDatePST(p.closeDateTime),
+            updatedAtFormatted: formatDatePST(p.updatedAt),
+            openDateTimeTimestamp: getTimestamp(p.openDateTime),
+            closeDateTimeTimestamp: getTimestamp(p.closeDateTime),
+            updatedAtTimestamp: getTimestamp(p.updatedAt)
+        }))
+
         res.render("existingPublishedSurveys", {
-            publishedSurveys: userPublishedSurveys?.data.publishedSurveys,
+            publishedSurveys: publishedSurveys,
             pSurError: pSurError,
             activePage: 'published',
             breadcrumbs: [

@@ -1072,6 +1072,32 @@ body{margin:0; font:20px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Rob
   letter-spacing: 0.3px;
 }
 
+.data-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.data-table th.sortable:hover {
+  background: #edf2f7;
+}
+
+.data-table th.sortable::after {
+  content: '⇅';
+  margin-left: 8px;
+  opacity: 0.3;
+  font-size: 12px;
+}
+
+.data-table th.sortable.sort-asc::after {
+  content: '↑';
+  opacity: 1;
+}
+
+.data-table th.sortable.sort-desc::after {
+  content: '↓';
+  opacity: 1;
+}
+
 .data-table .actions-header {
   text-align: right;
 }

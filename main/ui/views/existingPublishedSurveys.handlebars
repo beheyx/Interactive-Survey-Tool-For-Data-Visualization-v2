@@ -19,18 +19,18 @@
             <th class="col-checkbox">
               <input type="checkbox" id="selectAllPublishedSurveys" class="table-checkbox">
             </th>
-            <th class="col-name">Name</th>
-            <th>Status</th>
-            <th>Responses</th>
-            <th>Opens</th>
-            <th>Closes</th>
-            <th>Last Modified</th>
+            <th class="col-name sortable" data-sort="name">Name</th>
+            <th class="sortable" data-sort="status">Status</th>
+            <th class="sortable" data-sort="responses">Responses</th>
+            <th class="sortable" data-sort="opens">Opens</th>
+            <th class="sortable" data-sort="closes">Closes</th>
+            <th class="sortable sort-desc" data-sort="modified">Last Modified</th>
             <th class="actions-header">Actions</th>
           </tr>
         </thead>
         <tbody>
           {{#each publishedSurveys}}
-            <tr>
+            <tr data-name="{{name}}" data-status="{{status}}" data-responses="{{responseCount}}" data-opens="{{openDateTimeTimestamp}}" data-closes="{{closeDateTimeTimestamp}}" data-modified="{{updatedAtTimestamp}}">
               <td class="col-checkbox">
                 <input type="checkbox" class="row-checkbox" data-id="{{id}}" data-type="publishedSurvey">
               </td>
@@ -49,9 +49,9 @@
                 <span class="survey-status status-{{status}}">{{status}}</span>
               </td>
               <td class="table-meta">{{responseCount}}</td>
-              <td>{{openDateTime}}</td>
-              <td>{{closeDateTime}}</td>
-              <td>{{updatedAt}}</td>
+              <td>{{openDateTimeFormatted}}</td>
+              <td>{{closeDateTimeFormatted}}</td>
+              <td>{{updatedAtFormatted}}</td>
               <td class="actions-cell">
                 <a class="table-btn view-btn" href="/publishedSurveys/{{id}}">View</a>
               </td>
@@ -197,6 +197,67 @@
         window.location.reload();
       }
     });
+  }
+})();
+</script>
+
+<script>
+// Table sorting functionality
+(function() {
+  const table = document.querySelector('.data-table');
+  if (!table) return;
+
+  const headers = table.querySelectorAll('th.sortable');
+  const tbody = table.querySelector('tbody');
+
+  function sortTable(sortKey, direction) {
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+
+    rows.sort((a, b) => {
+      let aVal = a.dataset[sortKey] || '';
+      let bVal = b.dataset[sortKey] || '';
+
+      // For dates (timestamps) and numbers, compare numerically
+      if (sortKey === 'modified' || sortKey === 'opens' || sortKey === 'closes' || sortKey === 'responses') {
+        const aNum = Number(aVal) || 0;
+        const bNum = Number(bVal) || 0;
+        return direction === 'asc' ? aNum - bNum : bNum - aNum;
+      }
+
+      // For strings, compare alphabetically
+      aVal = String(aVal).toLowerCase();
+      bVal = String(bVal).toLowerCase();
+      if (direction === 'asc') {
+        return aVal.localeCompare(bVal);
+      } else {
+        return bVal.localeCompare(aVal);
+      }
+    });
+
+    // Re-append sorted rows
+    rows.forEach(row => tbody.appendChild(row));
+  }
+
+  headers.forEach(header => {
+    header.addEventListener('click', function() {
+      const sortKey = this.dataset.sort;
+      const isAsc = this.classList.contains('sort-asc');
+
+      // Remove sort classes from all headers
+      headers.forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
+
+      // Toggle direction
+      const newDirection = isAsc ? 'desc' : 'asc';
+      this.classList.add('sort-' + newDirection);
+
+      sortTable(sortKey, newDirection);
+    });
+  });
+
+  // Apply default sort on page load (most recently modified)
+  const modifiedHeader = table.querySelector('th[data-sort="modified"]');
+  if (modifiedHeader) {
+    sortTable('modified', 'desc');
   }
 })();
 </script>

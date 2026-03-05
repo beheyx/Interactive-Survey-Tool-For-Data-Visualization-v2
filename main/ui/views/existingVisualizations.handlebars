@@ -20,15 +20,15 @@
             <th class="col-checkbox">
               <input type="checkbox" id="selectAllVisualizations" class="table-checkbox">
             </th>
-            <th class="col-name">Name</th>
-            <th>Created</th>
-            <th>Last Modified</th>
+            <th class="col-name sortable" data-sort="name">Name</th>
+            <th class="sortable" data-sort="created">Created</th>
+            <th class="sortable sort-desc" data-sort="modified">Last Modified</th>
             <th class="actions-header">Actions</th>
           </tr>
         </thead>
         <tbody>
           {{#each visualizations}}
-            <tr>
+            <tr data-name="{{name}}" data-created="{{createdAtTimestamp}}" data-modified="{{updatedAtTimestamp}}">
               <td class="col-checkbox">
                 <input type="checkbox" class="row-checkbox" data-id="{{id}}" data-type="visualization">
               </td>
@@ -43,8 +43,8 @@
                   </button>
                 </div>
               </td>
-              <td>{{createdAt}}</td>
-              <td>{{updatedAt}}</td>
+              <td>{{createdAtFormatted}}</td>
+              <td>{{updatedAtFormatted}}</td>
               <td class="actions-cell">
                 <a class="table-btn edit-btn" href="/visualizations/{{id}}">Edit</a>
               </td>
@@ -206,6 +206,67 @@
         window.location.reload();
       }
     });
+  }
+})();
+</script>
+
+<script>
+// Table sorting functionality
+(function() {
+  const table = document.querySelector('.data-table');
+  if (!table) return;
+
+  const headers = table.querySelectorAll('th.sortable');
+  const tbody = table.querySelector('tbody');
+
+  function sortTable(sortKey, direction) {
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+
+    rows.sort((a, b) => {
+      let aVal = a.dataset[sortKey] || '';
+      let bVal = b.dataset[sortKey] || '';
+
+      // For dates (timestamps) and numbers, compare numerically
+      if (sortKey === 'created' || sortKey === 'modified') {
+        const aNum = Number(aVal) || 0;
+        const bNum = Number(bVal) || 0;
+        return direction === 'asc' ? aNum - bNum : bNum - aNum;
+      }
+
+      // For strings, compare alphabetically
+      aVal = String(aVal).toLowerCase();
+      bVal = String(bVal).toLowerCase();
+      if (direction === 'asc') {
+        return aVal.localeCompare(bVal);
+      } else {
+        return bVal.localeCompare(aVal);
+      }
+    });
+
+    // Re-append sorted rows
+    rows.forEach(row => tbody.appendChild(row));
+  }
+
+  headers.forEach(header => {
+    header.addEventListener('click', function() {
+      const sortKey = this.dataset.sort;
+      const isAsc = this.classList.contains('sort-asc');
+
+      // Remove sort classes from all headers
+      headers.forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
+
+      // Toggle direction
+      const newDirection = isAsc ? 'desc' : 'asc';
+      this.classList.add('sort-' + newDirection);
+
+      sortTable(sortKey, newDirection);
+    });
+  });
+
+  // Apply default sort on page load (most recently modified)
+  const modifiedHeader = table.querySelector('th[data-sort="modified"]');
+  if (modifiedHeader) {
+    sortTable('modified', 'desc');
   }
 })();
 </script>
