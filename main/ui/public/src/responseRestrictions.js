@@ -14,6 +14,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const typeInfo = questionTypes.filter(type => type.name == questionType)[0]
     typeInfo.onPageLoaded?.()
 
+    const iframe = document.getElementById("displayedImage")
+    if (iframe) {
+        iframe.addEventListener("load", () => {
+            typeInfo.onVisualLoaded?.()
+        })
+    }
+    
     function goToNextPage() {
         saveAnswer(() => {
             const questionNumber = document.getElementById("questionNumber").getAttribute("number")
