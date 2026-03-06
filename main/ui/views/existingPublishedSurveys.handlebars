@@ -73,6 +73,16 @@
           {{/each}}
         </tbody>
       </table>
+      <div class="pagination-controls">
+        <div class="pagination-info">
+          Showing <span id="showingStart">1</span>-<span id="showingEnd">10</span> of <span id="totalItems">0</span>
+        </div>
+        <div class="pagination-buttons">
+          <button id="prevPage" class="pagination-btn" disabled>Previous</button>
+          <span class="page-indicator">Page <span id="currentPage">1</span> of <span id="totalPages">1</span></span>
+          <button id="nextPage" class="pagination-btn">Next</button>
+        </div>
+      </div>
     {{else}}
       <div class="empty-state">
         <p>No published surveys yet. Publish a survey design to see it here!</p>
@@ -277,7 +287,7 @@
 </script>
 
 <script>
-// Table search and filter functionality
+// Table search, filter, and pagination functionality
 (function() {
   const searchInput = document.getElementById('tableSearch');
   const statusFilter = document.getElementById('statusFilter');
@@ -285,28 +295,84 @@
   if (!table) return;
 
   const tbody = table.querySelector('tbody');
+  const allRows = Array.from(tbody.querySelectorAll('tr'));
 
-  function filterTable() {
+  // Pagination elements
+  const prevBtn = document.getElementById('prevPage');
+  const nextBtn = document.getElementById('nextPage');
+  const currentPageSpan = document.getElementById('currentPage');
+  const totalPagesSpan = document.getElementById('totalPages');
+  const showingStartSpan = document.getElementById('showingStart');
+  const showingEndSpan = document.getElementById('showingEnd');
+  const totalItemsSpan = document.getElementById('totalItems');
+
+  let currentPage = 1;
+  const perPage = 25;
+  let filteredRows = allRows;
+
+  function filterRows() {
     const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
     const statusValue = statusFilter ? statusFilter.value.toLowerCase() : '';
-    const rows = tbody.querySelectorAll('tr');
 
-    rows.forEach(row => {
+    filteredRows = allRows.filter(row => {
       const name = (row.dataset.name || '').toLowerCase();
       const status = (row.dataset.status || '').toLowerCase();
 
       const matchesSearch = name.includes(searchTerm);
       const matchesStatus = !statusValue || status === statusValue;
 
-      if (matchesSearch && matchesStatus) {
-        row.style.display = '';
-      } else {
-        row.style.display = 'none';
-      }
+      return matchesSearch && matchesStatus;
     });
+    currentPage = 1;
+    renderPage();
   }
 
-  if (searchInput) searchInput.addEventListener('input', filterTable);
-  if (statusFilter) statusFilter.addEventListener('change', filterTable);
+  function renderPage() {
+    const totalItems = filteredRows.length;
+    const totalPages = Math.ceil(totalItems / perPage) || 1;
+
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    const startIndex = (currentPage - 1) * perPage;
+    const endIndex = Math.min(startIndex + perPage, totalItems);
+
+    // Hide all rows first
+    allRows.forEach(row => row.style.display = 'none');
+
+    // Show only rows for current page
+    filteredRows.slice(startIndex, endIndex).forEach(row => row.style.display = '');
+
+    // Update pagination info
+    if (currentPageSpan) currentPageSpan.textContent = currentPage;
+    if (totalPagesSpan) totalPagesSpan.textContent = totalPages;
+    if (showingStartSpan) showingStartSpan.textContent = totalItems > 0 ? startIndex + 1 : 0;
+    if (showingEndSpan) showingEndSpan.textContent = endIndex;
+    if (totalItemsSpan) totalItemsSpan.textContent = totalItems;
+
+    // Update button states
+    if (prevBtn) prevBtn.disabled = currentPage <= 1;
+    if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
+  }
+
+  // Event listeners
+  if (searchInput) searchInput.addEventListener('input', filterRows);
+  if (statusFilter) statusFilter.addEventListener('change', filterRows);
+  if (prevBtn) prevBtn.addEventListener('click', function() {
+    if (currentPage > 1) {
+      currentPage--;
+      renderPage();
+    }
+  });
+  if (nextBtn) nextBtn.addEventListener('click', function() {
+    const totalPages = Math.ceil(filteredRows.length / perPage) || 1;
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderPage();
+    }
+  });
+
+  // Initial render
+  renderPage();
 })();
 </script>
