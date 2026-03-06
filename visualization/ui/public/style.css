@@ -525,3 +525,29 @@ button, input {
     z-index: 10;
     max-width: 18rem;
 }
+
+.region-select-shape{
+  fill: rgba(215,63,9,0.15);
+  stroke: #D73F09;
+  stroke-width: 2px;
+  vector-effect: non-scaling-stroke;
+}
+
+.drawing-region{ cursor: crosshair; }
+
+/* Crosshair while selecting a region (regionBox/regionLasso modes + while dragging) */
+#wrapper.mode-region-box,
+#wrapper.mode-region-lasso,
+#wrapper.drawing-region {
+  cursor: crosshair !important;
+}
+
+/* Default panning cursor */
+#wrapper {
+  cursor: grab;
+}
+
+/* While actually panning (mouse down) */
+#wrapper.panning {
+  cursor: grabbing;
+}

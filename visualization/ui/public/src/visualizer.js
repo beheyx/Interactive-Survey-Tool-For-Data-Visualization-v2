@@ -849,6 +849,17 @@ function processMessage(event) {
             }
         }
     }
+    // --- NEW: region support ---
+    else if (event.data === "region") {
+        const region = (visualizer?.getRegionAnswer) ? visualizer.getRegionAnswer() : null
+        event.source.postMessage({ type: "region", region }, "*")
+    } else if (event.data?.setRegionMode) {
+        page.mode = event.data.setRegionMode
+    } else if (event.data?.clearRegion) {
+        if (visualizer?.clearRegion) visualizer.clearRegion()
+    } else if (event.data?.loadRegion) {
+        if (visualizer?.loadRegion) visualizer.loadRegion(event.data.loadRegion)
+    }
 }
 
 // Processes any messages that arrived before the visualization was ready

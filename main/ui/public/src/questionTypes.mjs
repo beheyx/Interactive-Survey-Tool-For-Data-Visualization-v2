@@ -512,6 +512,84 @@ const questionTypes = [
         },
     },
     /**************************************************************************** 
+    * Select Region
+    *****************************************************************************/
+    {
+        name: "Select Region",
+        label: "Select Region",
+        description: "User draws a box or lasso region on a visual as a response (returns coordinates).",
+        hasRequired: true,
+        hasMinMax: false,
+        hasChoices: false,
+        minText: "",
+        maxText: "",
+        requiresVisual: true,
+        visualModeLabel: "regionBox",
+        getPromptString: function(min, max) {
+            return "Draw a region on the visual to the left"
+        },
+        checkRequirement: function(min, max, required, onFailure, onSuccess) {
+            if (!required) return onSuccess()
+            const visualURL = document.getElementById("visualURL").getAttribute("url")
+            const visualWindow = document.getElementById("displayedImage").contentWindow
+
+            function messageListener(event) {
+                if (event.origin === visualURL && event.data.type === "region") {
+                    const region = event.data.region
+                    if (!region) return onFailure("You must draw a region on the visual.")
+
+                    if (region.type === "rect") {
+                        if (!(region.width > 0 && region.height > 0)) {
+                            return onFailure("Your box region is too small.")
+                        }
+                    } else if (region.type === "polygon") {
+                        if (!region.points || region.points.length < 3) {
+                            return onFailure("Your lasso region needs at least 3 points.")
+                        }
+                    } else {
+                        return onFailure("Invalid region selection.")
+                        }
+
+                    onSuccess()
+                }
+            }
+
+            window.addEventListener("message", messageListener, { once: true })
+            visualWindow.postMessage("region", visualURL)
+        },
+
+        getResponse: function(onGet) {
+            const visualURL = document.getElementById("visualURL").getAttribute("url")
+            const visualWindow = document.getElementById("displayedImage").contentWindow
+
+            function messageListener(event) {
+                if (event.origin === visualURL && event.data.type === "region") {
+                    const region = event.data.region
+                    onGet(region ? JSON.stringify(region) : "")
+                }
+            }
+
+            window.addEventListener("message", messageListener, { once: true })
+            visualWindow.postMessage("region", visualURL)
+        },
+
+        onVisualLoaded: function() {
+            const saved = document.getElementById("savedResponse").getAttribute("response")
+            if (!saved) return
+
+            let region = null
+            try { region = JSON.parse(saved) } catch { return }
+
+            const visualURL = document.getElementById("visualURL").getAttribute("url")
+            const visualWindow = document.getElementById("displayedImage").contentWindow
+            visualWindow.postMessage({ loadRegion: region }, visualURL)
+        },
+
+        pageRenderOptions: {
+            selectRegion: true
+        }
+    },
+    /**************************************************************************** 
      * No Response
     *****************************************************************************/
     {
