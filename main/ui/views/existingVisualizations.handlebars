@@ -227,22 +227,37 @@
 </script>
 
 <script>
-// Table sorting functionality
+// Table sorting, filtering, and pagination functionality (combined)
 (function() {
   const table = document.querySelector('.data-table');
   if (!table) return;
 
   const headers = table.querySelectorAll('th.sortable');
   const tbody = table.querySelector('tbody');
+  const searchInput = document.getElementById('tableSearch');
 
-  function sortTable(sortKey, direction) {
-    const rows = Array.from(tbody.querySelectorAll('tr'));
+  // Pagination elements
+  const prevBtn = document.getElementById('prevPage');
+  const nextBtn = document.getElementById('nextPage');
+  const currentPageSpan = document.getElementById('currentPage');
+  const totalPagesSpan = document.getElementById('totalPages');
+  const showingStartSpan = document.getElementById('showingStart');
+  const showingEndSpan = document.getElementById('showingEnd');
+  const totalItemsSpan = document.getElementById('totalItems');
 
-    rows.sort((a, b) => {
+  let allRows = Array.from(tbody.querySelectorAll('tr'));
+  let filteredRows = allRows;
+  let currentPage = 1;
+  const perPage = 25;
+  let currentSortKey = 'modified';
+  let currentSortDir = 'desc';
+
+  function sortRows(rows, sortKey, direction) {
+    return rows.slice().sort((a, b) => {
       let aVal = a.dataset[sortKey] || '';
       let bVal = b.dataset[sortKey] || '';
 
-      // For dates (timestamps) and numbers, compare numerically
+      // For dates (timestamps), compare numerically
       if (sortKey === 'created' || sortKey === 'modified') {
         const aNum = Number(aVal) || 0;
         const bNum = Number(bVal) || 0;
@@ -258,64 +273,19 @@
         return bVal.localeCompare(aVal);
       }
     });
-
-    // Re-append sorted rows
-    rows.forEach(row => tbody.appendChild(row));
   }
 
-  headers.forEach(header => {
-    header.addEventListener('click', function() {
-      const sortKey = this.dataset.sort;
-      const isAsc = this.classList.contains('sort-asc');
-
-      // Remove sort classes from all headers
-      headers.forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
-
-      // Toggle direction
-      const newDirection = isAsc ? 'desc' : 'asc';
-      this.classList.add('sort-' + newDirection);
-
-      sortTable(sortKey, newDirection);
-    });
-  });
-
-  // Apply default sort on page load (most recently modified)
-  const modifiedHeader = table.querySelector('th[data-sort="modified"]');
-  if (modifiedHeader) {
-    sortTable('modified', 'desc');
-  }
-})();
-</script>
-
-<script>
-// Table search and pagination functionality
-(function() {
-  const searchInput = document.getElementById('tableSearch');
-  const table = document.querySelector('.data-table');
-  if (!table) return;
-
-  const tbody = table.querySelector('tbody');
-  const allRows = Array.from(tbody.querySelectorAll('tr'));
-
-  // Pagination elements
-  const prevBtn = document.getElementById('prevPage');
-  const nextBtn = document.getElementById('nextPage');
-  const currentPageSpan = document.getElementById('currentPage');
-  const totalPagesSpan = document.getElementById('totalPages');
-  const showingStartSpan = document.getElementById('showingStart');
-  const showingEndSpan = document.getElementById('showingEnd');
-  const totalItemsSpan = document.getElementById('totalItems');
-
-  let currentPage = 1;
-  const perPage = 25;
-  let filteredRows = allRows;
-
-  function filterRows() {
+  function filterAndSort() {
     const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
-    filteredRows = allRows.filter(row => {
+
+    // Filter rows
+    let rows = allRows.filter(row => {
       const name = (row.dataset.name || '').toLowerCase();
       return name.includes(searchTerm);
     });
+
+    // Sort filtered rows
+    filteredRows = sortRows(rows, currentSortKey, currentSortDir);
     currentPage = 1;
     renderPage();
   }
@@ -329,6 +299,9 @@
 
     const startIndex = (currentPage - 1) * perPage;
     const endIndex = Math.min(startIndex + perPage, totalItems);
+
+    // Reorder rows in DOM to match sorted order
+    filteredRows.forEach(row => tbody.appendChild(row));
 
     // Hide all rows first
     allRows.forEach(row => row.style.display = 'none');
@@ -348,8 +321,31 @@
     if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
   }
 
-  // Event listeners
-  if (searchInput) searchInput.addEventListener('input', filterRows);
+  // Sort header click handlers
+  headers.forEach(header => {
+    header.addEventListener('click', function() {
+      const sortKey = this.dataset.sort;
+      const isAsc = this.classList.contains('sort-asc');
+
+      // Remove sort classes from all headers
+      headers.forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
+
+      // Toggle direction
+      currentSortDir = isAsc ? 'desc' : 'asc';
+      currentSortKey = sortKey;
+      this.classList.add('sort-' + currentSortDir);
+
+      // Re-sort and render
+      filteredRows = sortRows(filteredRows, currentSortKey, currentSortDir);
+      currentPage = 1;
+      renderPage();
+    });
+  });
+
+  // Filter event listeners
+  if (searchInput) searchInput.addEventListener('input', filterAndSort);
+
+  // Pagination event listeners
   if (prevBtn) prevBtn.addEventListener('click', function() {
     if (currentPage > 1) {
       currentPage--;
@@ -364,7 +360,12 @@
     }
   });
 
-  // Initial render
+  // Initial sort and render
+  filteredRows = sortRows(allRows, currentSortKey, currentSortDir);
+  const modifiedHeader = table.querySelector('th[data-sort="modified"]');
+  if (modifiedHeader) {
+    modifiedHeader.classList.add('sort-desc');
+  }
   renderPage();
 })();
 </script>
