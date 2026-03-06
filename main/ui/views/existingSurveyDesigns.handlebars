@@ -12,6 +12,12 @@
     </div>
   </div>
 
+  <div class="table-controls">
+    <div class="search-box">
+      <input type="text" id="tableSearch" placeholder="Search by name..." class="search-input">
+    </div>
+  </div>
+
   <div class="table-container">
     {{#if surveyDesigns}}
       <table class="data-table">
@@ -20,15 +26,15 @@
             <th class="col-checkbox">
               <input type="checkbox" id="selectAllSurveyDesigns" class="table-checkbox">
             </th>
-            <th class="col-name">Name</th>
-            <th>Created</th>
-            <th>Last Modified</th>
+            <th class="col-name sortable" data-sort="name">Name</th>
+            <th class="sortable" data-sort="created">Created</th>
+            <th class="sortable sort-desc" data-sort="modified">Last Modified</th>
             <th class="actions-header">Actions</th>
           </tr>
         </thead>
         <tbody>
           {{#each surveyDesigns}}
-            <tr>
+            <tr data-name="{{name}}" data-created="{{createdAtTimestamp}}" data-modified="{{updatedAtTimestamp}}">
               <td class="col-checkbox">
                 <input type="checkbox" class="row-checkbox" data-id="{{id}}" data-type="surveyDesign">
               </td>
@@ -43,8 +49,8 @@
                   </button>
                 </div>
               </td>
-              <td>{{createdAt}}</td>
-              <td>{{updatedAt}}</td>
+              <td>{{createdAtFormatted}}</td>
+              <td>{{updatedAtFormatted}}</td>
               <td class="actions-cell">
                 <a class="table-btn edit-btn" href="/surveyDesigns/{{id}}">Edit</a>
               </td>
@@ -52,6 +58,16 @@
           {{/each}}
         </tbody>
       </table>
+      <div class="pagination-controls">
+        <div class="pagination-info">
+          Showing <span id="showingStart">1</span>-<span id="showingEnd">10</span> of <span id="totalItems">0</span>
+        </div>
+        <div class="pagination-buttons">
+          <button id="prevPage" class="pagination-btn" disabled>Previous</button>
+          <span class="page-indicator">Page <span id="currentPage">1</span> of <span id="totalPages">1</span></span>
+          <button id="nextPage" class="pagination-btn">Next</button>
+        </div>
+      </div>
     {{else}}
       <div class="empty-state">
         <p>No survey designs yet. Create your first one!</p>
@@ -207,5 +223,149 @@
       }
     });
   }
+})();
+</script>
+
+<script>
+// Table sorting, filtering, and pagination functionality (combined)
+(function() {
+  const table = document.querySelector('.data-table');
+  if (!table) return;
+
+  const headers = table.querySelectorAll('th.sortable');
+  const tbody = table.querySelector('tbody');
+  const searchInput = document.getElementById('tableSearch');
+
+  // Pagination elements
+  const prevBtn = document.getElementById('prevPage');
+  const nextBtn = document.getElementById('nextPage');
+  const currentPageSpan = document.getElementById('currentPage');
+  const totalPagesSpan = document.getElementById('totalPages');
+  const showingStartSpan = document.getElementById('showingStart');
+  const showingEndSpan = document.getElementById('showingEnd');
+  const totalItemsSpan = document.getElementById('totalItems');
+
+  let allRows = Array.from(tbody.querySelectorAll('tr'));
+  let filteredRows = allRows;
+  let currentPage = 1;
+  const perPage = 25;
+  let currentSortKey = 'modified';
+  let currentSortDir = 'desc';
+
+  function sortRows(rows, sortKey, direction) {
+    return rows.slice().sort((a, b) => {
+      let aVal = a.dataset[sortKey] || '';
+      let bVal = b.dataset[sortKey] || '';
+
+      // For dates (timestamps), compare numerically
+      if (sortKey === 'created' || sortKey === 'modified') {
+        const aNum = Number(aVal) || 0;
+        const bNum = Number(bVal) || 0;
+        return direction === 'asc' ? aNum - bNum : bNum - aNum;
+      }
+
+      // For strings, compare alphabetically
+      aVal = String(aVal).toLowerCase();
+      bVal = String(bVal).toLowerCase();
+      if (direction === 'asc') {
+        return aVal.localeCompare(bVal);
+      } else {
+        return bVal.localeCompare(aVal);
+      }
+    });
+  }
+
+  function filterAndSort() {
+    const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+    // Filter rows
+    let rows = allRows.filter(row => {
+      const name = (row.dataset.name || '').toLowerCase();
+      return name.includes(searchTerm);
+    });
+
+    // Sort filtered rows
+    filteredRows = sortRows(rows, currentSortKey, currentSortDir);
+    currentPage = 1;
+    renderPage();
+  }
+
+  function renderPage() {
+    const totalItems = filteredRows.length;
+    const totalPages = Math.ceil(totalItems / perPage) || 1;
+
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    const startIndex = (currentPage - 1) * perPage;
+    const endIndex = Math.min(startIndex + perPage, totalItems);
+
+    // Reorder rows in DOM to match sorted order
+    filteredRows.forEach(row => tbody.appendChild(row));
+
+    // Hide all rows first
+    allRows.forEach(row => row.style.display = 'none');
+
+    // Show only rows for current page
+    filteredRows.slice(startIndex, endIndex).forEach(row => row.style.display = '');
+
+    // Update pagination info
+    if (currentPageSpan) currentPageSpan.textContent = currentPage;
+    if (totalPagesSpan) totalPagesSpan.textContent = totalPages;
+    if (showingStartSpan) showingStartSpan.textContent = totalItems > 0 ? startIndex + 1 : 0;
+    if (showingEndSpan) showingEndSpan.textContent = endIndex;
+    if (totalItemsSpan) totalItemsSpan.textContent = totalItems;
+
+    // Update button states
+    if (prevBtn) prevBtn.disabled = currentPage <= 1;
+    if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
+  }
+
+  // Sort header click handlers
+  headers.forEach(header => {
+    header.addEventListener('click', function() {
+      const sortKey = this.dataset.sort;
+      const isAsc = this.classList.contains('sort-asc');
+
+      // Remove sort classes from all headers
+      headers.forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
+
+      // Toggle direction
+      currentSortDir = isAsc ? 'desc' : 'asc';
+      currentSortKey = sortKey;
+      this.classList.add('sort-' + currentSortDir);
+
+      // Re-sort and render
+      filteredRows = sortRows(filteredRows, currentSortKey, currentSortDir);
+      currentPage = 1;
+      renderPage();
+    });
+  });
+
+  // Filter event listeners
+  if (searchInput) searchInput.addEventListener('input', filterAndSort);
+
+  // Pagination event listeners
+  if (prevBtn) prevBtn.addEventListener('click', function() {
+    if (currentPage > 1) {
+      currentPage--;
+      renderPage();
+    }
+  });
+  if (nextBtn) nextBtn.addEventListener('click', function() {
+    const totalPages = Math.ceil(filteredRows.length / perPage) || 1;
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderPage();
+    }
+  });
+
+  // Initial sort and render
+  filteredRows = sortRows(allRows, currentSortKey, currentSortDir);
+  const modifiedHeader = table.querySelector('th[data-sort="modified"]');
+  if (modifiedHeader) {
+    modifiedHeader.classList.add('sort-desc');
+  }
+  renderPage();
 })();
 </script>

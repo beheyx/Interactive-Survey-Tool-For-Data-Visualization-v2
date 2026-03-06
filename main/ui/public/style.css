@@ -1041,11 +1041,115 @@ body{margin:0; font:20px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Rob
   box-shadow: 0 1px 2px rgba(220, 53, 69, 0.2);
 }
 
+/* Table Controls - Search and Filter */
+.table-controls {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  flex: 1;
+  min-width: 200px;
+  max-width: 400px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 15px;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  background: white;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-input:focus {
+  border-color: #D73F09;
+  box-shadow: 0 0 0 3px rgba(215, 63, 9, 0.1);
+}
+
+.search-input::placeholder {
+  color: #9aa0a6;
+}
+
+.filter-box {
+  min-width: 150px;
+}
+
+.filter-select {
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 15px;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.filter-select:focus {
+  border-color: #D73F09;
+  box-shadow: 0 0 0 3px rgba(215, 63, 9, 0.1);
+}
+
+/* Pagination Controls */
+.pagination-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: #f7fafc;
+  border-top: 1px solid #e1e4e8;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.pagination-info {
+  font-size: 14px;
+  color: #4a5568;
+}
+
+.pagination-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pagination-btn {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #4a5568;
+  background: white;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #f7fafc;
+  border-color: #D73F09;
+  color: #D73F09;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-indicator {
+  font-size: 14px;
+  color: #4a5568;
+}
+
 /* Table Styles - Qualtrics-style with wider margins */
 .table-container {
   background: white;
   border-radius: 8px;
-  overflow: hidden;
+  overflow-x: auto;
   box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   border: 1px solid #e1e4e8;
   margin: 20px 0;
@@ -1070,6 +1174,32 @@ body{margin:0; font:20px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Rob
   text-transform: none;
   font-size: 13px;
   letter-spacing: 0.3px;
+}
+
+.data-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.data-table th.sortable:hover {
+  background: #edf2f7;
+}
+
+.data-table th.sortable::after {
+  content: '⇅';
+  margin-left: 8px;
+  opacity: 0.3;
+  font-size: 12px;
+}
+
+.data-table th.sortable.sort-asc::after {
+  content: '↑';
+  opacity: 1;
+}
+
+.data-table th.sortable.sort-desc::after {
+  content: '↓';
+  opacity: 1;
 }
 
 .data-table .actions-header {
@@ -1098,6 +1228,12 @@ body{margin:0; font:20px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Rob
 .col-name {
   width: 35%;
   min-width: 250px;
+}
+
+/* Narrower name column for tables with many columns (published surveys) */
+.data-table:has(th[data-sort="opens"]) .col-name {
+  width: 20%;
+  min-width: 180px;
 }
 
 .name-cell {
@@ -1187,6 +1323,42 @@ body{margin:0; font:20px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Rob
 .actions-cell {
   text-align: right;
   white-space: nowrap;
+}
+
+/* Published surveys table - compact styling for more columns */
+.existing-page .data-table th,
+.existing-page .data-table td {
+  padding: 16px 12px;
+}
+
+.existing-page .data-table td:not(.col-name):not(.col-checkbox):not(.actions-cell) {
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+/* Survey status badges */
+.survey-status {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-in-progress {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-closed {
+  background: #f8d7da;
+  color: #721c24;
 }
 
 .table-btn {
