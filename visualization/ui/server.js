@@ -59,7 +59,12 @@ const storage = multer.diskStorage({
             callback(null, `${__dirname}/uploads`)
         },
         filename: (req, file, callback) => {
-            callback(null, file.originalname)
+            // Normalize extension to lowercase, and convert .jpeg to .jpg
+            const parts = file.originalname.split('.');
+            let ext = parts.pop().toLowerCase();
+            if (ext === 'jpeg') ext = 'jpg';
+            const baseName = parts.join('.');
+            callback(null, baseName + '.' + ext)
         }
     })
     // fileFilter: (req, file, callback) => {
@@ -199,11 +204,13 @@ function injectMarksIntoSvg(svg, points) {
 }
 
 function clearBeforeUpload(req, res, next) {
-    if (fs.existsSync(`${__dirname}/uploads/${req.params.id}.png`))
-        fs.unlinkSync(`${__dirname}/uploads/${req.params.id}.png`)
-    else if (fs.existsSync(`${__dirname}/uploads/${req.params.id}.jpg`))
-        fs.unlinkSync(`${__dirname}/uploads/${req.params.id}.jpg`)
-
+    const basePath = `${__dirname}/uploads/${req.params.id}`;
+    const extensions = ['.png', '.jpg', '.jpeg'];
+    for (const ext of extensions) {
+        if (fs.existsSync(basePath + ext)) {
+            fs.unlinkSync(basePath + ext);
+        }
+    }
     next()
 }
 
@@ -282,14 +289,17 @@ app.put('/:id', async function(req,res,next) {
 // endpoint to load photo
 app.get('/:id/photo', async function(req,res,next) {
     try {
-        const pngPath = `${__dirname}/uploads/${req.params.id}.png`
-        const jpgPath = `${__dirname}/uploads/${req.params.id}.jpg`
+        const basePath = `${__dirname}/uploads/${req.params.id}`;
+        const extensions = ['.png', '.jpg', '.jpeg'];
 
-        if (fs.existsSync(pngPath)) {
-            res.sendFile(pngPath)
-        } else {
-            res.sendFile(jpgPath)
+        for (const ext of extensions) {
+            if (fs.existsSync(basePath + ext)) {
+                return res.sendFile(basePath + ext);
+            }
         }
+
+        // Fallback to jpg path (will 404 if not found)
+        res.sendFile(basePath + '.jpg')
     } catch (e) {
         console.error(`[UI Server] Error serving photo:`, e.message)
         next(e)
