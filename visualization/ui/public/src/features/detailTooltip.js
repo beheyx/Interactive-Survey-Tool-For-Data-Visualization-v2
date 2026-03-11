@@ -35,6 +35,8 @@ export const detailTooltip = (visualizer) => {
                         selection = i;
                         const item = children[i]
                         document.getElementById("tooltip-detail").textContent = item.getAttribute("label") || item.id || item.getAttribute("visualId") || "No Information"
+                        document.getElementById("controlTooltip").removeAttribute("disabled");
+                        document.getElementById("modifyButton").removeAttribute("disabled");
                         document.getElementById("controlTooltip").focus();
                     }
                 });
@@ -91,6 +93,8 @@ export const detailTooltip = (visualizer) => {
             if (e.target.tagName === "svg"){
                 document.getElementById("controlTooltip").blur();
                 selection = null;
+                document.getElementById("controlTooltip").setAttribute('disabled', true);
+                document.getElementById("modifyButton").setAttribute('disabled', true);
             }
         });
 
