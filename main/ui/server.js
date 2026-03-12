@@ -1070,6 +1070,15 @@ app.post('/publishedSurveys/:id/DELETE', async (req, res, next) => {
 app.post('/:resource/:id?/:method?', async (req, res, next) => {
     let response
 
+    // Set default name if empty (for new visualizations and survey designs)
+    if (!req.body.name || req.body.name.trim() === '') {
+        if (req.params.resource === 'visualizations') {
+            req.body.name = 'Untitled Visualization';
+        } else if (req.params.resource === 'surveyDesigns') {
+            req.body.name = 'Untitled Survey';
+        }
+    }
+
     try {
         // relay request to api
         switch (req.params.method) {
