@@ -569,6 +569,7 @@ app.get('/questions/:id', async (req, res, next) => {
             visualizationContentId: response.data.visualizationContentId,
             required: response.data.required,
             allowComment: response.data.allowComment,
+            commentText: response.data.commentText,
             visualURL: process.env.VISUAL_UI_URL,
             DEBUG: DEBUG,
             breadcrumbs: [
@@ -927,6 +928,7 @@ app.get('/takeSurvey/:hash', async (req, res, next) => {
                     choices: choices,
                     prompt: typeInfo.getPromptString(question.min, question.max),
                     allowComment: question.allowComment,
+                    commentText: question.commentText,
                     min: question.min,
                     max: question.max,
                     required: question.required,

@@ -7,6 +7,7 @@ const Question = sequelize.define('question', {
   type: { type: DataTypes.STRING, allowNull: true, unique: false },
   required: { type: DataTypes.BOOLEAN, allowNull: true, unique: false },
   allowComment: { type: DataTypes.BOOLEAN, allowNull: true, unique: false },
+  commentText: { type: DataTypes.TEXT, allowNull: true, unique: false, defaultValue: null}, //default null value for backwards compatibility
   min: { type: DataTypes.INTEGER, allowNull: true, unique: false },
   max: { type: DataTypes.INTEGER, allowNull: true, unique: false },
   choices: { type: DataTypes.STRING, allowNull: true, unique: false },
@@ -27,6 +28,15 @@ const Question = sequelize.define('question', {
 
 exports.Question = Question
 
+sequelize
+  .sync({ alter: true })
+  .then(() => {
+    console.log("Database synced");
+  })
+  .catch((err) => {
+    console.error("Error syncing database:", err);
+  });
+
 /*
  * Export an array containing the names of fields the client is allowed to set
  * on users.
@@ -38,6 +48,7 @@ exports.QuestionClientFields = [
   'type',
   'required',
   'allowComment',
+  'commentText',
   'min',
   'max',
   'choices',
