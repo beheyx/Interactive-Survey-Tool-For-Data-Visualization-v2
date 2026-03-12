@@ -132,26 +132,12 @@ document.addEventListener('DOMContentLoaded', () => {
         updateUnsavedWarning()
     })
 
-    // import button behavior
-    const importVisualizationButton = document.getElementById("import-vis-button")
-    importVisualizationButton.addEventListener("click", (event) => {
-        event.preventDefault()
-        if (document.getElementById("visualizationId").value != ""){
-            document.getElementById("question-form").submit()
-        }
-    })
-
     const visualizationDropdown = document.getElementById("visualizationId")
-    if (visualizationDropdown.value == ""){
-        importVisualizationButton.setAttribute("disabled", "true")
-    }
     visualizationDropdown.addEventListener("change", (event) => {
         newStatus["visualization"] = event.target.value
         updateUnsavedWarning()
-        if (event.target.value == ""){
-            importVisualizationButton.setAttribute("disabled", "true")
-        } else {
-            importVisualizationButton.removeAttribute("disabled")
+        if (event.target.value != ""){
+            document.getElementById("question-form").submit()
         }
     })
 
