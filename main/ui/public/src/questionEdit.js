@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const minElement = document.getElementById("min")
     const maxElement = document.getElementById("max")
     const typeDescription = document.getElementById("type-description")
+    const commentDiv = document.getElementById("commentDiv")
+    const commentText = document.getElementById("commentText")
     let typeInfo = null
 
     let oldStatus = {}
@@ -50,6 +52,21 @@ document.addEventListener('DOMContentLoaded', () => {
     requiredElement.addEventListener("change", updateMinReadOnlyStatus)
     commentElement.addEventListener("change", (event) =>{
         newStatus["comment"] = event.target.checked
+        if (event.target.checked){
+            commentDiv.removeAttribute("hidden")
+        } else {
+            commentDiv.setAttribute("hidden", "true")
+        }
+        updateUnsavedWarning()
+    })
+    // hide on initiation
+    if (!commentElement.checked){
+        commentDiv.setAttribute("hidden", "true")
+    }
+
+    // update whenever placeholder text is changed
+    commentText.addEventListener("change", (event) => {
+        newStatus["commentText"] = event.target.checked
         updateUnsavedWarning()
     })
 
@@ -232,6 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
     oldStatus["visualization"] = visualizationDropdown.value
     oldStatus["required"] = requiredElement.checked
     oldStatus["comment"] = commentElement.checked
+    oldStatus["commentText"] = commentText.value
     newStatus = JSON.parse(JSON.stringify(oldStatus))
     updateUnsavedWarning()
 })

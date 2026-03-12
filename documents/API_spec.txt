@@ -707,6 +707,11 @@ components:
           description: >
             Survey Participant can leave on comment on the question.
           example: true
+        commentText:
+          type: text
+          description: >
+            Text shown as comment placeholder text, if allowComment is true.
+          example: Explain your reasoning.
         min:
           type: integer
           description: >

@@ -55,6 +55,10 @@
     <div><label for="allowComment"><b>Allow taker comment?</b><a class="help-tooltip" data-faq-id="11" href="#">?</a></label>
         <input type="checkbox" id="allowComment" name="allowComment" value="true" {{#if allowComment}}checked{{/if}}>
     </div>
+    <div id="commentDiv">
+        <label for="commentText"><b>Comment text:</b></label>
+        <input id="commentText" type="text" name="commentText" class="form-control col" placeholder="This text will be the prompt for participant comments." value="{{commentText}}">
+    </div>
     <br>
 
     <div class="row">
