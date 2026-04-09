@@ -487,7 +487,28 @@ app.get('/surveyDesigns/:id', async (req, res, next) => {
             const questions = (questionResponse.data.questions || [])
                 .slice()
                 .sort((a, b) => a.number - b.number)
-            
+                .map(q => {
+                    // Parse choices from pipe-separated string to array for template rendering
+                    let choices = null;
+                    if (q.choices && q.choices.trim()) {
+                        const choiceItems = q.choices.split('|').filter(c => c.trim());
+                        if (choiceItems.length > 0) {
+                            choices = choiceItems.map((choice, i) => ({
+                                id: `choice${i}`,
+                                choice: choice.trim()
+                            }));
+                        }
+                    }
+                    return {
+                        ...q,
+                        choices,
+                        hasChoices: choices && choices.length > 0,
+                        multipleChoice: q.type === 'Multiple Choice',
+                        radioChoice: q.type === 'Radio Choice',
+                        shortAnswer: q.type === 'Short Answer'
+                    };
+                })
+
             res.render("editsurveydesign", {
                 name: response.data.name,
                 id: response.data.id,
