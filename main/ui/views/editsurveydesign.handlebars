@@ -118,25 +118,31 @@
 
             <div class="preview-answer-area">
               <p class="preview-answer-label"><strong>{{#if prompt}}{{prompt}}{{else}}Your answer:{{/if}}</strong></p>
-              {{#if (eq type "Short Answer")}}
+              {{#if shortAnswer}}
                 <textarea class="preview-textarea" disabled placeholder="Participant's answer will appear here..."></textarea>
-              {{else if (eq type "Multiple Choice")}}
+              {{else if multipleChoice}}
                 <div class="preview-choices">
-                  {{#each choices}}
-                    <label class="preview-choice">
-                      <input type="checkbox" disabled> {{this}}
-                    </label>
-                  {{/each}}
-                  {{#unless choices}}<em>No choices defined</em>{{/unless}}
+                  {{#if hasChoices}}
+                    {{#each choices}}
+                      <label class="preview-choice">
+                        <input type="checkbox" disabled> {{this.choice}}
+                      </label>
+                    {{/each}}
+                  {{else}}
+                    <em>No choices defined</em>
+                  {{/if}}
                 </div>
-              {{else if (eq type "Radio Choice")}}
+              {{else if radioChoice}}
                 <div class="preview-choices">
-                  {{#each choices}}
-                    <label class="preview-choice">
-                      <input type="radio" disabled> {{this}}
-                    </label>
-                  {{/each}}
-                  {{#unless choices}}<em>No choices defined</em>{{/unless}}
+                  {{#if hasChoices}}
+                    {{#each choices}}
+                      <label class="preview-choice">
+                        <input type="radio" disabled> {{this.choice}}
+                      </label>
+                    {{/each}}
+                  {{else}}
+                    <em>No choices defined</em>
+                  {{/if}}
                 </div>
               {{else}}
                 <p class="preview-placeholder"><em>{{type}}</em></p>
