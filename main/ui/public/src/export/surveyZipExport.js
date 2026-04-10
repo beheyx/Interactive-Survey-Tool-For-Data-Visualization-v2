@@ -21,11 +21,14 @@ async function buildSurveyZipBundle({ pub, visualUiUrl }) {
     sheet.addRow([`Question ${question.number}: ${question.text}`]);
     sheet.getRow(1).font = { bold: true };
 
+    sheet.addRow([`Question Type: ${question.type}`]);
+    sheet.getRow(2).font = { italic: true };
+
     sheet.addRow(["Participant ID", "Response", "Comment"]);
-    sheet.getRow(2).font = { bold: true };
+    sheet.getRow(3).font = { bold: true };
 
     sheet.columns = [{ width: 20 }, { width: 40 }, { width: 40 }];
-    sheet.views = [{ state: "frozen", ySplit: 2 }];
+    sheet.views = [{ state: "frozen", ySplit: 3 }];
 
     const isMarkPoints = question.type === "Mark Points";
 

@@ -621,6 +621,7 @@ async function buildSurveyPreviewData(surveyId, token) {
     return {
       questionNumber: question.number,
       questionText: question.text,
+      questionType: question.type,
       rows
     }
   })
@@ -628,7 +629,7 @@ async function buildSurveyPreviewData(surveyId, token) {
   return {questionTables, pub}
 }
 
-// Building the Excel output for survey results download so it looks nicer and organized 
+// Building the Excel output. Excel output only! not the zip bundle!
 async function buildSurveyWorkbook(surveyId, token) {
 
   const { data: pub } = await api.get(
@@ -650,17 +651,20 @@ async function buildSurveyWorkbook(surveyId, token) {
 
     // Row 1 → Question text
     sheet.addRow([`Question ${question.number}: ${question.text}`])
-
-    // Make it bold
     sheet.getRow(1).font = { bold: true }
 
-    // Row 2 → headers
+    // Row 2 → Question type
+    const questionType = question.type
+    sheet.addRow([`Question Type: ${questionType}`])
+    sheet.getRow(2).font = { italic: true }
+
+    // Row 3 → headers
     sheet.addRow([
       'Participant ID',
       'Response',
       'Comment'
     ])
-    sheet.getRow(2).font = { bold: true } // Bold
+    sheet.getRow(3).font = { bold: true } // Bold
 
     // Populate answers
     participants.forEach(p => {
@@ -689,7 +693,7 @@ async function buildSurveyWorkbook(surveyId, token) {
 
     // header stays frozen at top, question text stays frozen above that
     sheet.views = [
-        { state: 'frozen', ySplit: 2 }
+        { state: 'frozen', ySplit: 3 }
     ]
 
   })
