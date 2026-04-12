@@ -84,7 +84,7 @@ function EnablePanning(visualizer) {
 
 // Enable user to zoom the visual using scroll wheel and zoom buttons
 function EnableZoom() {
-    const zoomOutIntensity = 1.025
+    const zoomOutIntensity = 1.1
     const zoomInIntensity = 1 / zoomOutIntensity // inverse
 
     // helper to apply zoom and update CSS variable
