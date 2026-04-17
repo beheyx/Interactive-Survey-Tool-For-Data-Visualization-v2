@@ -50,6 +50,7 @@
     {{/each}}
     <p>{{questionError}}</p>
     <form action="/surveyDesigns/{{id}}/questions" method="POST">
+        <input type="hidden" name="openInEditor" value="true">
         <button class="action-button" type="submit">+ Add Question</button>
     </form>
   </div>

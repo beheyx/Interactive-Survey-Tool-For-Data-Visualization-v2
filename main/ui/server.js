@@ -1124,7 +1124,12 @@ app.post('/:resource/:id?/:method?', async (req, res, next) => {
 
         // If openInEditor is set and we have a created resource ID, redirect to editor
         if (req.body.openInEditor && response.data && response.data.id) {
-            res.redirect(`/${req.params.resource}/${response.data.id}`)
+            // Creating a question redirects to /questions/{id}
+            if (req.params.method === 'questions') {
+                res.redirect(`/questions/${response.data.id}`)
+            } else {
+                res.redirect(`/${req.params.resource}/${response.data.id}`)
+            }
         } else {
             // refresh
             res.redirect(req.get('Referrer'))
