@@ -12,7 +12,10 @@
         <h2>Editing {{name}}</h2>
     </div>
     <div class="editor-actions">
-        <button type="submit" form="survey-settings" class="action-button">Save Changes</button>
+        <form action="/surveyDesigns/{{id}}/questions" method="POST" style="display:inline;">
+            <input type="hidden" name="openInEditor" value="true">
+            <button class="action-button" type="submit">+ Add Question</button>
+        </form>
         <button type="button" class="action-button action-button-success" id="publishButton">Publish</button>
         <form id="deleteDesignForm" action="/surveyDesigns/{{id}}/DELETE" method="POST" style="display:inline;">
             <button type="button" class="action-button action-button-danger" onclick="showDeleteDesignModal()">
@@ -71,6 +74,8 @@
         <h3>Conclusion Text</h3>
         <p>This is the text the participant sees after completing the survey.</p>
         <textarea class="form-control" type="text" id="conclusionText" name="conclusionText" rows="4" cols="50" placeholder="Your conclusion text here">{{conclusionText}}</textarea>
+        <br><br>
+        <button type="submit" class="action-button">Save Settings</button>
     </form>
   </div>
 
