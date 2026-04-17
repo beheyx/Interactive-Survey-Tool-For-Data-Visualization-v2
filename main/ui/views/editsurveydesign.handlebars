@@ -238,6 +238,25 @@ function confirmDeleteDesign() {
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
+  // Handle URL hash - activate tab or scroll to question
+  const hash = window.location.hash;
+  if (hash) {
+    if (hash.startsWith('#question-')) {
+      // Scroll to the question element
+      const questionElement = document.getElementById(hash.substring(1));
+      if (questionElement) {
+        questionElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    } else {
+      // Activate tab
+      const tabButton = document.querySelector(`[data-bs-target="${hash}"]`);
+      if (tabButton) {
+        const tab = new bootstrap.Tab(tabButton);
+        tab.show();
+      }
+    }
+  }
+
   // Publish validation
   const publishButton = document.getElementById('publishButton');
   if (publishButton) {
@@ -327,6 +346,42 @@ document.addEventListener('DOMContentLoaded', function () {
       } catch (err) {
         console.error(err);
         // Fallback: full reload if something goes wrong
+        window.location.reload();
+      }
+    });
+  });
+
+  // Handle question delete forms with AJAX to prevent scroll reset
+  const deleteForms = document.querySelectorAll('.question-delete-form');
+  deleteForms.forEach(function (form) {
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const block = form.closest('.question-block');
+      if (!block) return;
+
+      if (!confirm('Are you sure you want to delete this question?')) {
+        return;
+      }
+
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+
+        if (!res.ok) {
+          throw new Error('Delete failed with status ' + res.status);
+        }
+
+        // Remove the question block from DOM
+        block.remove();
+
+        // Renumber remaining questions
+        renumberDomQuestions();
+
+      } catch (err) {
+        console.error(err);
         window.location.reload();
       }
     });
