@@ -48,6 +48,3 @@ document.addEventListener('DOMContentLoaded', () => {
         typeInfo.checkRequirement(min, max, required, (failText) => { document.getElementById("error-text").textContent = failText }, goToNextPage)
     })
 })
-
-
-
