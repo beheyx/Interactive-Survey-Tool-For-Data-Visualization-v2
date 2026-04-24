@@ -76,6 +76,48 @@ router.patch('/:id', requireAuthentication, handleErrors(async (req, res, next) 
   }
 }))
 
+// Duplicate survey design with all questions
+router.post('/:id/duplicate', requireAuthentication, handleErrors(async (req, res, next) => {
+  const originalDesign = await getResourceById(SurveyDesign, req.params.id)
+
+  if (req.userid != originalDesign.userId) {
+    return res.status(401).send({ error: "You are not allowed to access this resource" })
+  }
+
+  // Create new survey design with copied settings
+  const newDesign = await SurveyDesign.create({
+    userId: req.userid,
+    name: originalDesign.name + ' (Copy)',
+    title: originalDesign.title,
+    introText: originalDesign.introText,
+    conclusionText: originalDesign.conclusionText
+  })
+
+  // Copy all questions from original
+  const originalQuestions = await Question.findAll({
+    where: { surveyDesignId: req.params.id },
+    order: [['number', 'ASC']]
+  })
+
+  for (const q of originalQuestions) {
+    await Question.create({
+      surveyDesignId: newDesign.id,
+      number: q.number,
+      text: q.text,
+      type: q.type,
+      required: q.required,
+      allowComment: q.allowComment,
+      commentText: q.commentText,
+      min: q.min,
+      max: q.max,
+      choices: q.choices,
+      prompt: q.prompt
+    })
+  }
+
+  res.status(201).send({ id: newDesign.id })
+}))
+
 // Get questions belonging to design
 router.get('/:id/questions', requireAuthentication, handleErrors(async (req, res, next) => {
   const surveyDesign = await getResourceById(SurveyDesign, req.params.id)

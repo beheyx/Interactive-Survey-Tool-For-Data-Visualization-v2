@@ -1091,6 +1091,17 @@ app.post('/surveyDesigns/:id/DELETE', async (req, res, next) => {
   }
 });
 
+// Specific route for duplicating survey design
+app.post('/surveyDesigns/:id/duplicate', async (req, res, next) => {
+  try {
+    const response = await api.post(`/surveyDesigns/${req.params.id}/duplicate`, {}, withAuth(req.cookies.access_token));
+    // Redirect to the new duplicated survey design
+    return res.redirect(`/surveyDesigns/${response.data.id}`);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Specific route for deleting published surveys
 app.post('/publishedSurveys/:id/DELETE', async (req, res, next) => {
   try {
