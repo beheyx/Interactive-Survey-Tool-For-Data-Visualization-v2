@@ -65,11 +65,20 @@
                         {{/if}}
                         
                         {{#if multipleChoice}}
-                            {{#each choices}}
-                                <input class="multiple-choice-box" type="checkbox" id="{{this.id}}" name="{{this.id}}" value="{{this.choice}}" {{#if this.checked}}checked{{/if}}>
-                                <label for="{{this.id}}"> {{this.choice}}</label>
-                                <br>
-                            {{/each}}
+                            {{#ifEquals min 1}}
+                                {{#each choices}}
+                                    <input class="radio-choice" type="radio" id="{{this.id}}" name="radio" value="{{this.choice}}" {{#if this.checked}}checked{{/if}}>
+                                    <label for="{{this.id}}"> {{this.choice}}</label>
+                                    <br>
+                                {{/each}}
+                            {{/ifEquals}}
+                            {{#ifNotEquals min 1}}
+                                {{#each choices}}
+                                    <input class="multiple-choice-box" type="checkbox" id="{{this.id}}" name="{{this.id}}" value="{{this.choice}}" {{#if this.checked}}checked{{/if}}>
+                                    <label for="{{this.id}}"> {{this.choice}}</label>
+                                    <br>
+                                {{/each}}
+                            {{/ifNotEquals}}
                         {{/if}}
 
                         {{#if radioChoice}}

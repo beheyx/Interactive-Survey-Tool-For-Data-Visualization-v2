@@ -21,6 +21,15 @@ app.use(express.static(path.join(__dirname, "public"), { extensions: ['html'] })
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
+// Allows for value checking within values
+const Handlebars = require('handlebars');
+Handlebars.registerHelper('ifEquals', function(arg1, arg2, options) {
+    return (arg1 == arg2) ? options.fn(this) : options.inverse(this);
+});
+Handlebars.registerHelper('ifNotEquals', function(arg1, arg2, options) {
+    return (arg1 != arg2) ? options.fn(this) : options.inverse(this);
+});
+
 // setup axios API interface
 const DEBUG = process.argv[2] == "-debug"
 const axios = require('axios');
