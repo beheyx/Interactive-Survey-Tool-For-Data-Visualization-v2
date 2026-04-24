@@ -214,6 +214,68 @@ function clearBeforeUpload(req, res, next) {
     next()
 }
 
+function parseRegionResponse(resp) {
+  if (!resp || typeof resp !== "string") return [];
+
+  try {
+    const parsed = JSON.parse(resp);
+    const items = Array.isArray(parsed) ? parsed : [parsed];
+
+    return items.filter(r =>
+      r &&
+      (r.type === "rect" || r.type === "polygon")
+    );
+  } catch {
+    return [];
+  }
+}
+
+function injectRegionsIntoSvg(svg, regions) {
+  const shapes = regions.map((r, i) => {
+    if (r.type === "rect") {
+      return `
+        <g>
+          <rect
+            x="${Number(r.x)}"
+            y="${Number(r.y)}"
+            width="${Number(r.width)}"
+            height="${Number(r.height)}"
+            fill="rgba(255,0,0,0.18)"
+            stroke="red"
+            stroke-width="1"
+          />
+        </g>
+      `;
+    }
+
+    if (r.type === "polygon" && Array.isArray(r.points)) {
+      const points = r.points
+        .map(p => `${Number(p.x)},${Number(p.y)}`)
+        .join(" ");
+
+      const labelPoint = r.points[0] || { x: 0, y: 0 };
+
+      return `
+        <g>
+          <polygon
+            points="${points}"
+            fill="rgba(255,0,0,0.18)"
+            stroke="red"
+            stroke-width="1"
+          />
+        </g>
+      `;
+    }
+
+    return "";
+  }).join("");
+
+  const layer = `<g class="export-region-layer">${shapes}</g>`;
+
+  if (!svg.includes("</svg>")) return svg + layer;
+  return svg.replace("</svg>", `${layer}</svg>`);
+}
+
 // ui post
 app.post('/:id/photo', clearBeforeUpload, upload.single("file"), function(req,res,next) {
     
@@ -364,6 +426,51 @@ app.get('/:id/marked.png', async function(req, res, next) {
     res.status(200).send(Buffer.from(pngData));
   } catch (e) {
     console.error(`[UI Server] GET marked.png error:`, e);
+    next(e);
+  }
+});
+
+app.get('/:id/marked-region.png', async function(req, res, next) {
+  try {
+    const Resvg = getResvg();
+
+    const id = req.params.id;
+    const regionsStr = String(req.query.regions || "");
+    const regions = parseRegionResponse(regionsStr);
+
+    const response = await api.get(`/${id}`);
+    const svg = response?.data?.svg;
+
+    if (!svg || typeof svg !== "string" || !svg.trim().startsWith("<svg")) {
+      return res.status(404).send("No SVG found for this visualization.");
+    }
+
+    let svgForRender = svg;
+    const photoUrl = extractPhotoUrlFromForeignObject(svgForRender);
+
+    svgForRender = removeCustomOverlays(svgForRender);
+    svgForRender = cropSvgToForeignObjectBox(svgForRender);
+
+    if (photoUrl) {
+      const photoResp = await axios.get(photoUrl, { responseType: "arraybuffer" });
+      const contentType = photoResp.headers["content-type"] || "image/png";
+      const b64 = Buffer.from(photoResp.data).toString("base64");
+      const dataUri = `data:${contentType};base64,${b64}`;
+
+      svgForRender = replaceForeignObjectWithImage(svgForRender, dataUri);
+    }
+
+    const svgWithRegions = regions.length
+      ? injectRegionsIntoSvg(svgForRender, regions)
+      : svgForRender;
+
+    const resvg = new Resvg(svgWithRegions, { fitTo: { mode: "original" } });
+    const pngData = resvg.render().asPng();
+
+    res.setHeader("Content-Type", "image/png");
+    res.status(200).send(Buffer.from(pngData));
+  } catch (e) {
+    console.error(`[UI Server] GET marked-region.png error:`, e);
     next(e);
   }
 });
