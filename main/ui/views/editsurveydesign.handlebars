@@ -17,6 +17,9 @@
             <button class="action-button" type="submit">+ Add Question</button>
         </form>
         <button type="button" class="action-button action-button-success" id="publishButton">Publish</button>
+        <form action="/surveyDesigns/{{id}}/duplicate" method="POST" style="display:inline;">
+            <button type="submit" class="action-button">Duplicate</button>
+        </form>
         <form id="deleteDesignForm" action="/surveyDesigns/{{id}}/DELETE" method="POST" style="display:inline;">
             <button type="button" class="action-button action-button-danger" onclick="showDeleteDesignModal()">
                 Delete
