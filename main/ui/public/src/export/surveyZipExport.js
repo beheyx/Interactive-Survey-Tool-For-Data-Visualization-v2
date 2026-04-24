@@ -30,7 +30,8 @@ async function buildSurveyZipBundle({ pub, visualUiUrl }) {
     sheet.columns = [{ width: 20 }, { width: 40 }, { width: 40 }];
     sheet.views = [{ state: "frozen", ySplit: 3 }];
 
-    const isMarkPoints = question.type === "Mark Points";
+    const isImageBasedExport =
+      question.type === "Mark Points" || question.type === "Select Region";
 
     for (const p of participants) {
       if (!Array.isArray(p.answers)) continue;
@@ -41,7 +42,7 @@ async function buildSurveyZipBundle({ pub, visualUiUrl }) {
       const row = sheet.addRow([p.participantId, "", answer.comment ?? ""]);
       const respCell = row.getCell(2);
 
-      if (!isMarkPoints) {
+      if (!isImageBasedExport) {
         respCell.value = answer.response ?? "";
         continue;
       }
@@ -56,8 +57,12 @@ async function buildSurveyZipBundle({ pub, visualUiUrl }) {
         continue;
       }
 
-      const encodedPoints = encodeURIComponent(String(answer.response));
-      const markedUrl = `${visualUiUrl}/${question.visualizationContentId}/marked.png?points=${encodedPoints}`;
+    const encodedResponse = encodeURIComponent(String(answer.response));
+
+    const markedUrl =
+      question.type === "Select Region"
+        ? `${visualUiUrl}/${question.visualizationContentId}/marked-region.png?regions=${encodedResponse}`
+        : `${visualUiUrl}/${question.visualizationContentId}/marked.png?points=${encodedResponse}`;
 
 
       const pngResp = await axios.get(markedUrl, { responseType: "arraybuffer" });
