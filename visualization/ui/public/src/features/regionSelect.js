@@ -1,7 +1,6 @@
 // visualization/features/regionSelect.js
 //
 // Participant tool: box or lasso select a REGION and store coordinates (not SVG elements).
-// Coordinates are in SVG user units and remain correct with your pan/zoom (viewBox changes).
 
 import { wrapper, svgElement, screenToSVG, page, staticvis, debug } from "../visualizer.js"
 
@@ -83,6 +82,75 @@ export const regionSelect = (visualizer) => {
     }
   }
 
+function normalizeRect(region) {
+  if (!region) return null
+
+  if (region.width < 1 || region.height < 1) return null
+
+  return {
+    type: "rect",
+    x: round2(region.x),
+    y: round2(region.y),
+    width: round2(region.width),
+    height: round2(region.height),
+  }
+}
+
+function normalizePolygon(points) {
+  if (!points || points.length < 3) return null
+
+  const rounded = points.map(pt => ({
+    x: round2(pt.x),
+    y: round2(pt.y),
+  }))
+
+  return {
+    type: "polygon",
+    closed: true,
+    points: rounded,
+  }
+}
+
+function finalizeAnswer() {
+  if (!answer) return null
+
+  if (answer.type === "rect") {
+    answer = normalizeRect(answer)
+    if (answer) {
+      setOverlayD(buildRectD(answer.x, answer.y, answer.width, answer.height))
+    } else {
+      clearOverlay()
+    }
+  } else if (answer.type === "polygon") {
+    answer = normalizePolygon(lassoPts.length ? lassoPts : answer.points)
+    if (answer) {
+      setOverlayD(buildPolyD(answer.points, true))
+    } else {
+      clearOverlay()
+    }
+  }
+
+  return answer
+}
+
+function cloneAnswer(region) {
+  if (!region) return null
+
+  if (region.type === "rect") {
+    return { ...region }
+  }
+
+  if (region.type === "polygon") {
+    return {
+      type: "polygon",
+      closed: true,
+      points: (region.points || []).map(pt => ({ x: pt.x, y: pt.y })),
+    }
+  }
+
+  return null
+}
+
   function beginBox(evt) {
     evt.preventDefault()
     drawing = true
@@ -102,7 +170,7 @@ export const regionSelect = (visualizer) => {
     const p = screenToSVG(evt.clientX, evt.clientY)
     addLassoPoint(p)
 
-    answer = { type: "polygon", closed: false, points: lassoPts }
+    answer = { type: "polygon", closed: false, points: [] }
     setOverlayD(buildPolyD(lassoPts, false))
   }
 
@@ -118,7 +186,11 @@ export const regionSelect = (visualizer) => {
       setOverlayD(buildRectD(r.x, r.y, r.width, r.height))
     } else if (page.mode === MODE_REGION_LASSO) {
       addLassoPoint(p)
-      answer = { type: "polygon", closed: false, points: lassoPts }
+      answer = { 
+        type: "polygon", 
+        closed: false, 
+        points: lassoPts.map(pt => ({ x: pt.x, y: pt.y })), 
+    }
       setOverlayD(buildPolyD(lassoPts, false))
     }
   }
@@ -127,23 +199,7 @@ export const regionSelect = (visualizer) => {
     if (!drawing) return
     drawing = false
     wrapper.classList.remove("drawing-region")
-
-    if (!answer) return
-
-    if (answer.type === "rect") {
-      answer = {
-        type: "rect",
-        x: round2(answer.x),
-        y: round2(answer.y),
-        width: round2(answer.width),
-        height: round2(answer.height),
-      }
-      setOverlayD(buildRectD(answer.x, answer.y, answer.width, answer.height))
-    } else {
-      const rounded = lassoPts.map(pt => ({ x: round2(pt.x), y: round2(pt.y) }))
-      answer = { type: "polygon", closed: true, points: rounded }
-      setOverlayD(buildPolyD(rounded, true))
-    }
+    finalizeAnswer()
   }
 
   decorated.onFirstLoadSvg = function () {
@@ -176,8 +232,13 @@ export const regionSelect = (visualizer) => {
     wrapper.classList.toggle("mode-region-lasso", isLasso)
 
     // override default panning only in region modes
-    if (isBox) wrapper.onmousedown = beginBox
-    if (isLasso) wrapper.onmousedown = beginLasso
+    if (isBox) {
+      wrapper.onmousedown = beginBox
+    } else if (isLasso) {
+      wrapper.onmousedown = beginLasso
+    } else {
+      wrapper.onmousedown = null
+    }
   }
 
   document.addEventListener("mousemove", onMove)
@@ -185,7 +246,13 @@ export const regionSelect = (visualizer) => {
 
   // Exposed API for survey saving + postMessage handlers
   decorated.getRegionAnswer = function () {
-    return answer
+    if (drawing) {
+      drawing = false
+      wrapper.classList.remove("drawing-region")
+      finalizeAnswer()
+    }
+
+    return cloneAnswer(answer)
   }
 
   decorated.clearRegion = function () {
