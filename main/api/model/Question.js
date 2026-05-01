@@ -17,11 +17,12 @@ const Question = sequelize.define('question', {
 }, {
   hooks: {
     beforeCreate: (question, options) => {
-      question.min = 0
-      question.max = 0
-      question.type = "Multiple Choice"
-      question.required = false
-      question.allowComment = true
+      // Only set defaults if values aren't already provided
+      if (question.min === undefined || question.min === null) question.min = 0
+      if (question.max === undefined || question.max === null) question.max = 0
+      if (!question.type) question.type = "Multiple Choice"
+      if (question.required === undefined || question.required === null) question.required = false
+      if (question.allowComment === undefined || question.allowComment === null) question.allowComment = true
     }
   }
 })
