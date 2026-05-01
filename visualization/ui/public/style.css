@@ -551,3 +551,56 @@ button, input {
 #wrapper.panning {
   cursor: grabbing;
 }
+
+/* ===== FILE ICON TOOLBAR ===== */
+
+/* hide original File dropdown */
+.file.dropdown {
+    display: none !important;
+}
+
+/* toolbar position */
+#file-toolbar {
+    position: fixed;
+    left: 1%;
+    top: 140px;
+    z-index: 9999;
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* match zoom button style */
+.file-icon {
+    font-size: clamp(1.2rem, 1rem + 0.25vw, 1.6rem);
+
+    width: calc(2.4em);
+    height: calc(2.4em);
+
+    min-width: 2.4rem;
+    min-height: 2.4rem;
+
+    border-radius: 50%;
+    border: 2px solid var(--line);
+    background-color: var(--panel);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+    transition: transform 0.08s ease, background-color 0.12s ease;
+}
+
+/* hover */
+.file-icon:hover {
+    transform: scale(1.1);
+    background-color: #e0e0e0;
+}
+
+/* click */
+.file-icon:active {
+    background-color: #dadada;
+    transform: scale(0.95);
+}

@@ -545,6 +545,37 @@ async function loadSVGAsync() {
 
 // start loading svg once page has loaded
 addEventListener("DOMContentLoaded", async () => {
+    // ===== CREATE FILE TOOLBAR =====
+    const toolbar = document.createElement("div");
+    toolbar.id = "file-toolbar";
+
+    toolbar.innerHTML = `
+        <button class="file-icon" id="icon-save" title="Save">💾</button>
+        <button class="file-icon" id="icon-import" title="Import">📂</button>
+        <button class="file-icon" id="icon-export" title="Export">📤</button>
+    `;
+
+    document.body.appendChild(toolbar);
+
+
+    // ===== CONNECT ICONS TO EXISTING FILE BUTTONS =====
+    function triggerFileAction(action) {
+        const buttons = document.querySelectorAll(".file-buttons button");
+
+        for (let btn of buttons) {
+            if (btn.textContent.toLowerCase().includes(action)) {
+                btn.click();
+                return;
+            }
+        }
+
+        console.warn("File action not found:", action);
+    }
+
+    document.getElementById("icon-save").onclick = () => triggerFileAction("save");
+    document.getElementById("icon-import").onclick = () => triggerFileAction("import");
+    document.getElementById("icon-export").onclick = () => triggerFileAction("export");
+
     visualizer = visualizerDecorator(visualizerBase)
 
     page.addChangeModeListener(visualizer.onChangeMode)
