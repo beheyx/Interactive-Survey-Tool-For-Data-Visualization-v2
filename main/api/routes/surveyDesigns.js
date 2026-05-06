@@ -111,7 +111,9 @@ router.post('/:id/duplicate', requireAuthentication, handleErrors(async (req, re
       min: q.min,
       max: q.max,
       choices: q.choices,
-      prompt: q.prompt
+      disableZoom: q.disableZoom,
+      disablePan: q.disablePan,
+      visualizationContentId: q.visualizationContentId
     })
   }
 
