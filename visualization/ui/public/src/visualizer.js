@@ -16,9 +16,11 @@ const visualizerBase = {
     onPageLoad: function() {
         if (staticvis){
             document.getElementById("zoom-container").setAttribute("hidden", "true")
+            document.getElementById("file-toolbar").setAttribute("hidden", "true")
             wrapper.setAttribute("static",true)
         } else {
             document.getElementById("zoom-container").removeAttribute("hidden")
+            document.getElementById("file-toolbar").removeAttribute("hidden")
         }
     },
     
@@ -545,19 +547,6 @@ async function loadSVGAsync() {
 
 // start loading svg once page has loaded
 addEventListener("DOMContentLoaded", async () => {
-    // ===== CREATE FILE TOOLBAR =====
-    const toolbar = document.createElement("div");
-    toolbar.id = "file-toolbar";
-
-    toolbar.innerHTML = `
-        <button class="file-icon" id="icon-save" title="Save">💾</button>
-        <button class="file-icon" id="icon-import" title="Import">📂</button>
-        <button class="file-icon" id="icon-export" title="Export">📤</button>
-    `;
-
-    document.body.appendChild(toolbar);
-
-
     // ===== CONNECT ICONS TO EXISTING FILE BUTTONS =====
     function triggerFileAction(action) {
         const buttons = document.querySelectorAll(".file-buttons button");
