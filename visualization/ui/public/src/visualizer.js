@@ -47,7 +47,7 @@ const visualizerBase = {
     
     // called when the page loads as a participant
     onPageLoadAsParticipant: function() {
-    
+        document.getElementById("file-toolbar").setAttribute("hidden", "true")
     },
     
     // called when the page loads in debug mode
