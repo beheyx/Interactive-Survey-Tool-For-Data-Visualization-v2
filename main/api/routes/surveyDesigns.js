@@ -16,6 +16,12 @@ const router = express.Router()
 const cookieParser = require('cookie-parser')
 router.use(cookieParser())
 
+// setup axios API interface for visualization engine
+const axios = require('axios')
+const visualApi = axios.create({
+  baseURL: process.env.VISUAL_API_URL
+})
+
 // Create new survey design
 router.post('/', requireAuthentication, handleErrors(async (req, res, next) => {
   // Get survey data from req
@@ -100,6 +106,22 @@ router.post('/:id/duplicate', requireAuthentication, handleErrors(async (req, re
   })
 
   for (const q of originalQuestions) {
+    let newVisualizationContentId = null
+
+    // If question has a visualization, create a copy of it
+    if (q.visualizationContentId) {
+      try {
+        // Fetch the original visualization SVG
+        const originalVisual = await visualApi.get(`/${q.visualizationContentId}`)
+        // Create a new visualization with the same SVG
+        const newVisual = await visualApi.post('/', { svg: originalVisual.data.svg })
+        newVisualizationContentId = newVisual.data.id
+      } catch (err) {
+        console.error('Failed to duplicate visualization:', err.message)
+        // Continue without visualization if copy fails
+      }
+    }
+
     await Question.create({
       surveyDesignId: newDesign.id,
       number: q.number,
@@ -113,7 +135,7 @@ router.post('/:id/duplicate', requireAuthentication, handleErrors(async (req, re
       choices: q.choices,
       disableZoom: q.disableZoom,
       disablePan: q.disablePan,
-      visualizationContentId: q.visualizationContentId
+      visualizationContentId: newVisualizationContentId
     })
   }
 
