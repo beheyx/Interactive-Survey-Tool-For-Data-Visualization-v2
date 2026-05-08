@@ -115,52 +115,17 @@ body {
 
 /* Zoom buttons */
 #zoom-container{
+    padding-top: 10px;
     position: absolute;
     left: 1%;
     display: flex;
     flex-direction: column;
+    gap: 10px;
 }
 
 #zoom-container[hidden] {
     display: none;
     z-index: 1;
-}
-
-.zoom-button {
-    /* Responsive but not view-height based */
-    font-size: clamp(1.2rem, 1rem + 0.25vw, 1.6rem);
-
-    /* Circle size tied to font size */
-    width: calc(2.4em);
-    height: calc(2.4em);
-
-    /* Minimum size so preview thumbnails don't make it tiny */
-    min-width: 2.4rem;
-    min-height: 2.4rem;
-
-    border-radius: 50%;
-    z-index: 12;
-    padding: 0;
-    margin-top: 5px;
-    border: 2px solid var(--line);
-    background-color: var(--panel);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    cursor: pointer;
-    transition: transform 0.08s ease, background-color 0.12s ease;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.zoom-button:active {
-    background-color: #dadada;
-    transform: scale(0.95);
-}
-
-.zoom-button:hover {
-    transform: scale(1.1);
-    background-color: #e0e0e0;
 }
 
 #wrapper {
