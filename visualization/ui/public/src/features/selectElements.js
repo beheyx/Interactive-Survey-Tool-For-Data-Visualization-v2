@@ -12,38 +12,44 @@ const OPTIONTEXT_SET_ALL_SELECTABLE = "Make All Elements Selectable"
 const OPTIONTEXT_SET_ALL_NOT_SELECTABLE = "Make All Elements Not Selectable"
 
 const TOOLTEXT_SET_SELECTABLE = "Set Selectable"
-const TOOLTEXT_CREATE = "Create Box"          // renamed from "Create"
-const TOOLTEXT_LASSO = "Create Lasso"         // lasso tool
+const TOOLTEXT_CREATE = "Create Box"
+const TOOLTEXT_LASSO = "Create Lasso"
 const TOOLTEXT_DELETE = "Delete Added Elements"
 const TOOLTEXT_HIGHLIGHT = "Highlight Elements"
 const TOOLTEXT_DETAIL = "Edit Details"
 
 const MODELABEL_SELECT_ELEMENTS = "selectElements"
 const MODELABEL_SET_SELECTABLE = "setSelectable"
-const MODELABEL_CREATE = "create"      // still the mode for the Box tool
-const MODELABEL_LASSO = "lasso"        // mode for lasso selection
+const MODELABEL_CREATE = "create"
+const MODELABEL_LASSO = "lasso"
 const MODELABEL_DELETE = "delete"
 const MODELABEL_HIGHLIGHT_TOOL = "highlightTool"
 const MODELABEL_DETAIL_EDITOR = "detailEditor"
+
+// Used when cancelling out of lasso/box mode
+const MODELABEL_NONE = "none"
 
 const OPTIONTEXT_HIGHLIGHT_ALL = "Highlight All Elements"
 const OPTIONTEXT_CLEAR_HIGHLIGHTS = "Clear All Highlights"
 
 import { visualizationElement, svgElement, page, wrapper, debug, screenToSVG, autosave } from "../visualizer.js"
 
+// These are assigned inside EnableBox() and EnableLassoSelection()
+// so onChangeMode can cancel unfinished drawings when switching tools.
+let cancelBoxDrawing = () => {}
+let cancelLassoDrawing = () => {}
+
 export const selectElements = (visualizer) => {
     const decoratedVisualizer = Object.create(visualizer)
 
     decoratedVisualizer.onPageLoadAsParticipant = function() {
         visualizer.onPageLoadAsParticipant()
-        if (page.mode == MODELABEL_SELECT_ELEMENTS) {
 
-            // create select all button
+        if (page.mode == MODELABEL_SELECT_ELEMENTS) {
             page.addOption(OPTIONTEXT_SELECT_ALL, MODELABEL_SELECT_ELEMENTS, () => {
                 visualizationElement.selectAll()
             })
 
-            // create deselect all button
             page.addOption(OPTIONTEXT_DESELECT_ALL, MODELABEL_SELECT_ELEMENTS, () => {
                 visualizationElement.deselectAll()
             })
@@ -54,19 +60,16 @@ export const selectElements = (visualizer) => {
         visualizer.onFirstLoadSvg()
 
         if (wrapper.classList.contains("editor") || debug) {
-            // create set all selectable button
             page.addOption(OPTIONTEXT_SET_ALL_SELECTABLE, MODELABEL_SET_SELECTABLE, () => {
                 visualizationElement.setAllSelectable()
                 autosave.save()
             })
 
-            // create set all not selectable button
             page.addOption(OPTIONTEXT_SET_ALL_NOT_SELECTABLE, MODELABEL_SET_SELECTABLE, () => {
                 visualizationElement.setAllNotSelectable()
                 autosave.save()
             })
 
-            // create highlight all button
             page.addOption(OPTIONTEXT_HIGHLIGHT_ALL, MODELABEL_HIGHLIGHT_TOOL, () => {
                 for (const element of visualizationElement.visualElements) {
                     element.classList.add("highlight")
@@ -74,7 +77,6 @@ export const selectElements = (visualizer) => {
                 autosave.save()
             })
 
-            // create clear all highlights button
             page.addOption(OPTIONTEXT_CLEAR_HIGHLIGHTS, MODELABEL_HIGHLIGHT_TOOL, () => {
                 const highlighted = svgElement.getElementsByClassName("highlight")
                 while (highlighted.length > 0) {
@@ -95,22 +97,31 @@ export const selectElements = (visualizer) => {
         EnableSelection()
     }
 
-    // Back to the original onChangeMode, only adding a helper CSS class for cursor
     decoratedVisualizer.onChangeMode = function() {
         visualizer.onChangeMode()
 
-        const isLasso = (page.mode === MODELABEL_LASSO)
-        const isBox   = (page.mode === MODELABEL_CREATE)
+        const isLasso = page.mode === MODELABEL_LASSO
+        const isBox = page.mode === MODELABEL_CREATE
+
+        // If the user switches away from box mode while drawing,
+        // remove the unfinished rectangle.
+        if (!isBox) {
+            cancelBoxDrawing()
+        }
+
+        // If the user switches away from lasso mode while drawing,
+        // remove the unfinished lasso path.
+        if (!isLasso) {
+            cancelLassoDrawing()
+        }
 
         if (wrapper) {
-            // helper class if you want CSS-based styling
             wrapper.classList.toggle("mode-lasso", isLasso)
             wrapper.classList.toggle("mode-box", isBox)
-            // force cursor change for lasso/box modes
             wrapper.style.cursor = (isLasso || isBox) ? "crosshair" : ""
         }
 
-        // if entering box or lasso mode, disable any default mousedown event (panning)
+        // If entering box or lasso mode, disable default mousedown behavior like panning.
         if (isBox || isLasso) {
             wrapper.onmousedown = null
         }
@@ -120,23 +131,16 @@ export const selectElements = (visualizer) => {
 }
 
 function createToolButtons() {
-    // create highlight tool button
     page.addTool(TOOLTEXT_HIGHLIGHT, MODELABEL_HIGHLIGHT_TOOL)
-    // add set selectable tool
     page.addTool(TOOLTEXT_SET_SELECTABLE, MODELABEL_SET_SELECTABLE)
-    // add box tool (formerly "Create")
     page.addTool(TOOLTEXT_CREATE, MODELABEL_CREATE)
-    // add lasso selection tool
     page.addTool(TOOLTEXT_LASSO, MODELABEL_LASSO)
-    // add delete tool
     page.addTool(TOOLTEXT_DELETE, MODELABEL_DELETE)
-    // add delete tool
     page.addTool(TOOLTEXT_DETAIL, MODELABEL_DETAIL_EDITOR)
 }
 
 // Enable user to select/deselect vector elements by clicking on them
 function EnableSelection() {
-    // loop through all visual elements and add event listeners to each
     for (const visualElement of visualizationElement.visualElements) {
         EnableSelectionOfElement(visualElement)
     }
@@ -144,13 +148,12 @@ function EnableSelection() {
 
 // Enable user to select/deselect a single visual element
 function EnableSelectionOfElement(visualElement) {
-    // clicking on selectable element in select element mode marks/unmarks as "selected"
     visualElement.addEventListener("click", evt => {
-        if (page.mode == MODELABEL_SELECT_ELEMENTS)
+        if (page.mode == MODELABEL_SELECT_ELEMENTS) {
             visualizationElement.toggleSelection(evt.currentTarget)
+        }
     })
 
-    // clicking on element as an editor marks/unmarks as "selectable"
     visualElement.addEventListener("click", evt => {
         if (page.mode == MODELABEL_SET_SELECTABLE) {
             visualizationElement.toggleSelectable(evt.currentTarget)
@@ -158,7 +161,6 @@ function EnableSelectionOfElement(visualElement) {
         }
     })
 
-    // clicking on element in delete mode deletes it (only for custom elements)
     if (visualizationElement.isCustom(visualElement)) {
         visualElement.addEventListener("click", evt => {
             if (page.mode == MODELABEL_DELETE) {
@@ -168,7 +170,6 @@ function EnableSelectionOfElement(visualElement) {
         })
     }
 
-    // clicking on element in highlight mode highlights it
     visualElement.addEventListener("click", evt => {
         if (page.mode == MODELABEL_HIGHLIGHT_TOOL) {
             evt.currentTarget.classList.toggle("highlight")
@@ -184,7 +185,18 @@ function EnableBox() {
     let isStartDrawing = false
     let isDrawingBox = false
 
-    // when user presses mouse in box/create mode, enable box drawing
+    cancelBoxDrawing = function() {
+        isStartDrawing = false
+        isDrawingBox = false
+        boxStartingPoint = null
+
+        if (box && box.parentNode) {
+            box.parentNode.removeChild(box)
+        }
+
+        box = null
+    }
+
     wrapper.addEventListener("mousedown", evt => {
         if (page.mode == MODELABEL_CREATE) {
             evt.preventDefault()
@@ -193,73 +205,99 @@ function EnableBox() {
     })
 
     document.addEventListener("mousemove", evt => {
-        if (isStartDrawing) {       // when user has just started moving mouse after pressing down
+        if (page.mode !== MODELABEL_CREATE) {
+            cancelBoxDrawing()
+            return
+        }
+
+        if (isStartDrawing) {
             evt.preventDefault()
 
-            // create rectangle element to start drawing the box at the mouse point
             box = document.createElementNS("http://www.w3.org/2000/svg", "rect")
             box.setAttribute("width", 0)
             box.setAttribute("height", 0)
+
             boxStartingPoint = screenToSVG(evt.clientX, evt.clientY)
             box.setAttribute("x", boxStartingPoint.x)
             box.setAttribute("y", boxStartingPoint.y)
-            box.setAttribute("id", "user-box")  // used for CSS while drawing
+            box.setAttribute("id", "user-box")
 
             visualizationElement.svg.appendChild(box)
 
             isDrawingBox = true
             isStartDrawing = false
-        } else if (isDrawingBox) {  // when user continues to move mouse
-            // prevent mouse from highlighting text while drawing
+        } else if (isDrawingBox) {
             evt.preventDefault()
 
-            // calculate box dimensions based on where mouse has moved from its starting point
             const newPoint = screenToSVG(evt.clientX, evt.clientY)
             const newWidth = newPoint.x - boxStartingPoint.x
             const newHeight = newPoint.y - boxStartingPoint.y
 
-            // width and height grow box to the right and down respectively
-            // if the user moves the mouse to the left or up (indicated by negative dimensions),
-            // the box needs to be shifted accordingly in the same direction to appear to grow in that direction
             if (newWidth <= 0) {
                 box.setAttribute("x", boxStartingPoint.x + newWidth)
-            }
-            if (newHeight <= 0) {
-                box.setAttribute("y", boxStartingPoint.y + newHeight)
+            } else {
+                box.setAttribute("x", boxStartingPoint.x)
             }
 
-            // set new box dimensions, can only be positive
+            if (newHeight <= 0) {
+                box.setAttribute("y", boxStartingPoint.y + newHeight)
+            } else {
+                box.setAttribute("y", boxStartingPoint.y)
+            }
+
             box.setAttribute("width", Math.abs(newWidth))
             box.setAttribute("height", Math.abs(newHeight))
         }
     })
 
     document.addEventListener("mouseup", evt => {
-        // user is no longer drawing on mouse release
+        if (!isDrawingBox && !isStartDrawing) return
+
         isDrawingBox = false
         isStartDrawing = false
-        // if the user was drawing, save the box as a selectable element
+
         if (box) {
-            box.removeAttribute("id")   // no longer in "drawing" state
+            box.removeAttribute("id")
             visualizationElement.addVisualElement(box)
             EnableSelectionOfElement(box)
             autosave.save()
 
             box = null
-            page.mode = MODELABEL_CREATE
+            boxStartingPoint = null
+        }
+    })
+
+    // Right-click cancels the unfinished box and leaves box mode.
+    wrapper.addEventListener("contextmenu", evt => {
+        if (page.mode === MODELABEL_CREATE) {
+            evt.preventDefault()
+            cancelBoxDrawing()
+            page.mode = MODELABEL_NONE
+
+            wrapper.classList.remove("mode-box")
+            wrapper.style.cursor = ""
         }
     })
 }
 
 // Enable user to lasso-select by drawing a freehand polygon.
-// This is now parallel to EnableBox, but uses polyline + polygon,
-// and does NOT multi-select existing elements.
+// This creates a persistent polygon custom element.
 function EnableLassoSelection() {
     let isLassoing = false
     let lassoPoints = []
     let lassoPath = null
 
-    // start lasso on mousedown in lasso mode
+    cancelLassoDrawing = function() {
+        isLassoing = false
+        lassoPoints = []
+
+        if (lassoPath && lassoPath.parentNode) {
+            lassoPath.parentNode.removeChild(lassoPath)
+        }
+
+        lassoPath = null
+    }
+
     wrapper.addEventListener("mousedown", evt => {
         if (page.mode == MODELABEL_LASSO) {
             evt.preventDefault()
@@ -269,22 +307,27 @@ function EnableLassoSelection() {
             const startPoint = screenToSVG(evt.clientX, evt.clientY)
             lassoPoints.push(startPoint)
 
-            // create a polyline as the visible lasso while drawing
             lassoPath = document.createElementNS("http://www.w3.org/2000/svg", "polyline")
             lassoPath.setAttribute("points", `${startPoint.x},${startPoint.y}`)
-            lassoPath.setAttribute("id", "lasso-path")     // for direct targeting if desired
-            lassoPath.setAttribute("class", "lasso-path")  // styled via CSS
+            lassoPath.setAttribute("id", "lasso-path")
+            lassoPath.setAttribute("class", "lasso-path")
             lassoPath.setAttribute("vector-effect", "non-scaling-stroke")
             lassoPath.setAttribute("pointer-events", "none")
+
             visualizationElement.svg.appendChild(lassoPath)
         }
     })
 
-    // track the lasso path while moving
     document.addEventListener("mousemove", evt => {
+        if (page.mode !== MODELABEL_LASSO) {
+            cancelLassoDrawing()
+            return
+        }
+
         if (!isLassoing || !lassoPath) return
 
         evt.preventDefault()
+
         const point = screenToSVG(evt.clientX, evt.clientY)
         lassoPoints.push(point)
 
@@ -292,25 +335,20 @@ function EnableLassoSelection() {
         lassoPath.setAttribute("points", pointsAttr)
     })
 
-    // on mouseup, finalize lasso and create a persistent polygon custom element
     document.addEventListener("mouseup", evt => {
         if (!isLassoing) return
 
         isLassoing = false
 
-        // remove temporary polyline
         if (lassoPath && lassoPath.parentNode) {
             lassoPath.parentNode.removeChild(lassoPath)
         }
+
         lassoPath = null
 
-        // Only do anything if we have a "real" polygon
         if (lassoPoints.length >= 3) {
             const pointsAttr = lassoPoints.map(p => `${p.x},${p.y}`).join(" ")
 
-            // Create the final polygon as a custom visual element.
-            // We let visualizationElement.addVisualElement decide classes
-            // (likely "visual-element custom") so CSS treats it like a box.
             const lassoPolygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon")
             lassoPolygon.setAttribute("points", pointsAttr)
 
@@ -322,6 +360,17 @@ function EnableLassoSelection() {
         }
 
         lassoPoints = []
-        page.mode = MODELABEL_LASSO
+    })
+
+    // Right-click cancels the unfinished lasso and leaves lasso mode.
+    wrapper.addEventListener("contextmenu", evt => {
+        if (page.mode === MODELABEL_LASSO) {
+            evt.preventDefault()
+            cancelLassoDrawing()
+            page.mode = MODELABEL_NONE
+
+            wrapper.classList.remove("mode-lasso")
+            wrapper.style.cursor = ""
+        }
     })
 }
