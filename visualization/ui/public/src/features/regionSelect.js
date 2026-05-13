@@ -104,6 +104,16 @@ function normalizePolygon(points) {
     y: round2(pt.y),
   }))
 
+  // Remove duplicate closing point if one exists
+  const first = rounded[0]
+  const last = rounded[rounded.length - 1]
+
+  if (first && last && first.x === last.x && first.y === last.y) {
+    rounded.pop()
+  }
+
+  if (rounded.length < 3) return null
+
   return {
     type: "polygon",
     closed: true,
@@ -197,6 +207,15 @@ function cloneAnswer(region) {
 
   function onUp() {
     if (!drawing) return
+
+    if (page.mode === MODE_REGION_LASSO) {
+      answer = {
+        type: "polygon",
+        closed: false,
+        points: lassoPts.map(pt => ({ x: pt.x, y: pt.y })),
+      }
+    }
+
     drawing = false
     wrapper.classList.remove("drawing-region")
     finalizeAnswer()
@@ -214,7 +233,6 @@ function cloneAnswer(region) {
 
     if (!isRegionContext) return
 
-    // Optional safety: never show in editor iframe
     if (params.get("editor") === "true") return
 
     page.addTool("Box Region", MODE_REGION_BOX)
@@ -233,16 +251,17 @@ function cloneAnswer(region) {
 
     // override default panning only in region modes
     if (isBox) {
-      wrapper.onmousedown = beginBox
+      wrapper.onpointerdown = beginBox
     } else if (isLasso) {
-      wrapper.onmousedown = beginLasso
+      wrapper.onpointerdown = beginLasso
     } else {
-      wrapper.onmousedown = null
+      wrapper.onpointerdown = null
     }
   }
 
-  document.addEventListener("mousemove", onMove)
-  document.addEventListener("mouseup", onUp)
+  document.addEventListener("pointermove", onMove)
+  document.addEventListener("pointerup", onUp)
+  document.addEventListener("pointercancel", onUp)  
 
   // Exposed API for survey saving + postMessage handlers
   decorated.getRegionAnswer = function () {
