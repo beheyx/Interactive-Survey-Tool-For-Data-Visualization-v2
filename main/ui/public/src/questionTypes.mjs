@@ -500,7 +500,7 @@ const questionTypes = [
             // send message to iframe to get selected element ids
             visualWindow.postMessage("coordinates", visualURL)
         },
-        onVisualLoaded: function() {
+        onVisualLoaded: function(max) {
             // get saved ids of selected elements
             const savedResponse = document.getElementById("savedResponse").getAttribute("response")
             const coordinates = savedResponse.split('|')
@@ -509,6 +509,7 @@ const questionTypes = [
             const visualURL = document.getElementById("visualURL").getAttribute("url")
             const visualWindow = document.getElementById("displayedImage").contentWindow
             visualWindow.postMessage({ markCoordinates: coordinates }, visualURL)  
+            visualWindow.postMessage({ setMax: max }, visualURL) 
         },
     },
     /**************************************************************************** 

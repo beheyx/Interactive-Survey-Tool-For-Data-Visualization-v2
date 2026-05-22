@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const iframe = document.getElementById("displayedImage")
     if (iframe) {
         iframe.addEventListener("load", () => {
-            typeInfo.onVisualLoaded?.()
+            typeInfo.onVisualLoaded?.(max)
         })
     }
     
