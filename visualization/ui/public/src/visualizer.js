@@ -565,6 +565,35 @@ addEventListener("DOMContentLoaded", async () => {
     document.getElementById("icon-import").onclick = () => triggerFileAction("import");
     document.getElementById("icon-export").onclick = () => triggerFileAction("export");
 
+    // Rotate buttons
+    function rotateImage(degrees) {
+        if (!svgElement) return;
+        const foreignObj = svgElement.querySelector("foreignObject");
+        if (!foreignObj) return;
+
+        const bbox = foreignObj.getBBox();
+        const cx = bbox.x + bbox.width / 2;
+        const cy = bbox.y + bbox.height / 2;
+
+        const currentTransform = foreignObj.getAttribute("transform") || "";
+        const rotateMatch = currentTransform.match(/rotate\(([^,)]+)/);
+        const currentRotation = rotateMatch ? parseFloat(rotateMatch[1]) : 0;
+        const newRotation = currentRotation + degrees;
+
+        let newTransform;
+        if (rotateMatch) {
+            newTransform = currentTransform.replace(/rotate\([^)]+\)/, `rotate(${newRotation}, ${cx}, ${cy})`);
+        } else {
+            newTransform = `rotate(${newRotation}, ${cx}, ${cy}) ${currentTransform}`.trim();
+        }
+
+        foreignObj.setAttribute("transform", newTransform);
+        autosave.save();
+    }
+
+    document.getElementById("icon-rotate-left").onclick = () => rotateImage(-90);
+    document.getElementById("icon-rotate-right").onclick = () => rotateImage(90);
+
     visualizer = visualizerDecorator(visualizerBase)
 
     page.addChangeModeListener(visualizer.onChangeMode)

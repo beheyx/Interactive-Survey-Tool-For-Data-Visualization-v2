@@ -46,6 +46,24 @@ const api = (DEBUG) ? (
     })
 )
 
+const surveyDraftAnswers = new Map()
+
+function getDraftKey(hash, req, res) {
+    let participantDraftId = req.cookies.participant_draft_id
+
+    if (!participantDraftId) {
+        participantDraftId =
+            Date.now().toString(36) + Math.random().toString(36).slice(2)
+
+        res.cookie("participant_draft_id", participantDraftId, {
+            httpOnly: true,
+            sameSite: "lax"
+        })
+    }
+
+    return `${hash}:${participantDraftId}`
+}
+
 // use this function as a parameter in an API call to send auth data
 // this function just returns the authorization header using the parameter 'token'
 function withAuth(token) {
@@ -895,21 +913,35 @@ app.get('/takeSurvey/:hash', async (req, res, next) => {
         // Normalize published questions: sort + force sequential numbering (1..N)
         const normalizedQuestions = (response.data.questions || [])
             .slice()
-            .sort((a, b) => (Number(a.number ?? 0) - Number(b.number ?? 0)) || (Number(a.id ?? 0) - Number(b.id ?? 0)))
+            .sort((a, b) =>
+                (Number(a.number ?? 0) - Number(b.number ?? 0)) ||
+                (Number(a.id ?? 0) - Number(b.id ?? 0))
+            )
             .map((q, idx) => ({ ...q, number: idx + 1 }))
 
         // Overwrite the questions used by the rest of this handler
         response.data.questions = normalizedQuestions
 
-        if (req.query.page && req.query.page < response.data.questions.length+2 && req.query.page > 0) {
+        if (
+            req.query.page &&
+            req.query.page < response.data.questions.length + 2 &&
+            req.query.page > 0
+        ) {
             if (req.query.page == response.data.questions.length + 1) {
-                const parsedAnswers = req.cookies.answers ? JSON.parse(req.cookies.answers) : { answers: [] }
-                await api.patch(req.originalUrl, { answers: parsedAnswers.answers })
+                const draftKey = getDraftKey(req.params.hash, req, res)
+                const parsedAnswers = surveyDraftAnswers.get(draftKey) || { answers: [] }
 
-                //clear cookie before sending response
+                await api.patch(req.originalUrl, {
+                    answers: parsedAnswers.answers
+                })
+
+                // Clear temporary server-side draft data
+                surveyDraftAnswers.delete(draftKey)
+
+                // Clear old cookie if it exists from previous versions
                 res.clearCookie("answers")
+                res.clearCookie("participant_draft_id")
 
-                //render conclusion page
                 return res.render("takeSurveyConclusion", {
                     layout: false,
                     title: response.data.surveyDesign.title,
@@ -922,17 +954,19 @@ app.get('/takeSurvey/:hash', async (req, res, next) => {
 
                 let comment = ""
                 let userResponse = ""
-                if (req.cookies.answers) {
-                    const parsedAnswers = JSON.parse(req.cookies.answers)
 
-                    if (parsedAnswers.hash == req.params.hash) {
-                        const matchingAnswers = parsedAnswers.answers.filter(obj => obj?.questionNumber == question.number)
+                const draftKey = getDraftKey(req.params.hash, req, res)
+                const parsedAnswers = surveyDraftAnswers.get(draftKey)
 
-                        if (matchingAnswers.length > 0) {
-                            const match = matchingAnswers[0]
-                            comment = match.comment
-                            userResponse = match.response
-                        }
+                if (parsedAnswers) {
+                    const matchingAnswers = parsedAnswers.answers.filter(
+                        obj => obj?.questionNumber == question.number
+                    )
+
+                    if (matchingAnswers.length > 0) {
+                        const match = matchingAnswers[0]
+                        comment = match.comment
+                        userResponse = match.response
                     }
                 }
 
@@ -941,11 +975,18 @@ app.get('/takeSurvey/:hash', async (req, res, next) => {
                 let choices = []
                 if (typeInfo.hasChoices) {
                     const qChoices = question.choices.split('|')
-                    const userSelections = userResponse.split('|')
+                    const userSelections = typeof userResponse === "string"
+                        ? userResponse.split('|')
+                        : []
 
-                    for (let i = 0; i < qChoices.length; i++)
-                        choices.push({ id: `choice${i}`, choice: qChoices[i], checked: userSelections.includes(qChoices[i]) })
-                }        
+                    for (let i = 0; i < qChoices.length; i++) {
+                        choices.push({
+                            id: `choice${i}`,
+                            choice: qChoices[i],
+                            checked: userSelections.includes(qChoices[i])
+                        })
+                    }
+                }
 
                 res.render("takeSurveyPage", {
                     layout: false,
@@ -956,9 +997,9 @@ app.get('/takeSurvey/:hash', async (req, res, next) => {
                     visualModeLabel: typeInfo.visualModeLabel,
                     visualizationContentId: question.visualizationContentId,
                     number: question.number,
-                    progress: question.number-1,
+                    progress: question.number - 1,
                     total: response.data.questions.length,
-                    percent: (((question.number-1) / response.data.questions.length) * 100).toFixed(2),
+                    percent: (((question.number - 1) / response.data.questions.length) * 100).toFixed(2),
                     choices: choices,
                     prompt: typeInfo.getPromptString(question.min, question.max),
                     allowComment: question.allowComment,
@@ -969,9 +1010,11 @@ app.get('/takeSurvey/:hash', async (req, res, next) => {
                     questionType: question.type,
                     comment: comment,
                     response: userResponse,
-                    prev: question.number-1,
-                    next: question.number+1,
-                    nextText: (question.number == response.data.questions.length) ? "Finish & Submit" : "Next Question",
+                    prev: question.number - 1,
+                    next: question.number + 1,
+                    nextText: (question.number == response.data.questions.length)
+                        ? "Finish & Submit"
+                        : "Next Question",
                     DEBUG: DEBUG,
                     ...typeInfo?.pageRenderOptions
                 })
@@ -986,13 +1029,10 @@ app.get('/takeSurvey/:hash', async (req, res, next) => {
         } else {
             next()
         }
-
-        
     } catch (error) {
         next(error)
     }
 })
-
 
 app.get('/profile', async (req, res, next) => {
     try {
@@ -1019,30 +1059,51 @@ app.get('/profile', async (req, res, next) => {
     }
 });
 
-// for saving cookie data while taking survey
+// for saving temporary answer data while taking survey
 app.patch('/takeSurvey/:hash', async (req, res, next) => {
-    let answers = null
-    if (req.cookies.answers) {
-        answers = JSON.parse(req.cookies.answers)
-    }
-
-    if (!answers || answers.hash != req.params.hash) {
-        answers = { hash: req.params.hash, answers: [] }
-    }
-
-    let isReplacement = false
-    for (let i = 0; i < answers.answers.length && !isReplacement; i++) {
-        if (answers.answers[i] && answers.answers[i].questionNumber == req.body.answer.questionNumber) {
-            answers.answers[i] = req.body.answer
-            isReplacement = true
+    try {
+        if (!req.body.answer) {
+            return res.status(400).send({
+                error: "Missing answer"
+            })
         }
+
+        const draftKey = getDraftKey(req.params.hash, req, res)
+
+        let answers = surveyDraftAnswers.get(draftKey)
+
+        if (!answers) {
+            answers = {
+                hash: req.params.hash,
+                answers: []
+            }
+        }
+
+        let isReplacement = false
+
+        for (let i = 0; i < answers.answers.length && !isReplacement; i++) {
+            if (
+                answers.answers[i] &&
+                answers.answers[i].questionNumber == req.body.answer.questionNumber
+            ) {
+                answers.answers[i] = req.body.answer
+                isReplacement = true
+            }
+        }
+
+        if (!isReplacement) {
+            answers.answers.push(req.body.answer)
+        }
+
+        surveyDraftAnswers.set(draftKey, answers)
+
+        // Clear old oversized cookie if it exists from previous versions
+        res.clearCookie("answers")
+
+        res.status(200).send()
+    } catch (error) {
+        next(error)
     }
-
-    if (!isReplacement)
-        answers.answers.push(req.body.answer)
-
-    res.cookie("answers", JSON.stringify(answers), { httpOnly: true })
-    res.send()
 })
 
 // handle ui button for editing published survey dates

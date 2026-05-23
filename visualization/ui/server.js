@@ -99,7 +99,7 @@ function getAttr(tag, name) {
 function replaceForeignObjectWithImage(svg, dataUri) {
   if (!dataUri) return svg;
 
-  // Find the foreignObject opening tag so we can preserve its x/y/w/h
+  // Find the foreignObject opening tag so we can preserve its x/y/w/h and transform
   const foOpen = svg.match(/<foreignObject\b[^>]*>/i);
   const foTag = foOpen ? foOpen[0] : null;
 
@@ -107,14 +107,16 @@ function replaceForeignObjectWithImage(svg, dataUri) {
   const y = foTag ? (getAttr(foTag, "y") ?? "0") : "0";
   const w = foTag ? (getAttr(foTag, "width") ?? "100%") : "100%";
   const h = foTag ? (getAttr(foTag, "height") ?? "100%") : "100%";
+  const transform = foTag ? getAttr(foTag, "transform") : null;
 
   // Remove the whole foreignObject
   svg = svg.replace(/<foreignObject[\s\S]*?<\/foreignObject>/i, "");
 
-  // Insert SVG <image> in the same box the foreignObject used
+  // Insert SVG <image> in the same box the foreignObject used, preserving transform
+  const transformAttr = transform ? `transform="${transform}" ` : "";
   const imageTag =
     `<image id="export-base-image" href="${dataUri}" ` +
-    `x="${x}" y="${y}" width="${w}" height="${h}" ` +
+    `x="${x}" y="${y}" width="${w}" height="${h}" ${transformAttr}` +
     `preserveAspectRatio="xMidYMid meet"></image>`;
 
   return svg.replace(/<svg\b([^>]*)>/, `<svg$1>${imageTag}`);
@@ -134,22 +136,53 @@ function cropSvgToForeignObjectBox(svg) {
   const y = Number(get("y") ?? 0);
   const w = Number(get("width"));
   const h = Number(get("height"));
+  const transform = get("transform");
 
   if (!Number.isFinite(w) || !Number.isFinite(h) || w <= 0 || h <= 0) return svg;
 
-  // ensure viewBox
+  // If there's a rotation transform, calculate the rotated bounding box
+  let viewX = x, viewY = y, viewW = w, viewH = h;
+  if (transform) {
+    const rotateMatch = transform.match(/rotate\(([^,)]+)/);
+    if (rotateMatch) {
+      const angle = parseFloat(rotateMatch[1]);
+      // For 90 or 270 rotations, swap width and height
+      const normalizedAngle = ((angle % 360) + 360) % 360;
+      if (normalizedAngle === 90 || normalizedAngle === 270) {
+        const cx = x + w / 2;
+        const cy = y + h / 2;
+        viewW = h;
+        viewH = w;
+        viewX = cx - viewW / 2;
+        viewY = cy - viewH / 2;
+      } else if (normalizedAngle !== 0 && normalizedAngle !== 180) {
+        // For non-90 rotations, expand viewBox to fit rotated bounds
+        const cx = x + w / 2;
+        const cy = y + h / 2;
+        const rad = (angle * Math.PI) / 180;
+        const cos = Math.abs(Math.cos(rad));
+        const sin = Math.abs(Math.sin(rad));
+        viewW = w * cos + h * sin;
+        viewH = w * sin + h * cos;
+        viewX = cx - viewW / 2;
+        viewY = cy - viewH / 2;
+      }
+    }
+  }
+
+  // ensure viewBox 
   if (/\bviewBox="/i.test(svg)) {
-    svg = svg.replace(/\bviewBox="[^"]*"/i, `viewBox="${x} ${y} ${w} ${h}"`);
+    svg = svg.replace(/\bviewBox="[^"]*"/i, `viewBox="${viewX} ${viewY} ${viewW} ${viewH}"`);
   } else {
-    svg = svg.replace(/<svg\b([^>]*)>/i, `<svg$1 viewBox="${x} ${y} ${w} ${h}">`);
+    svg = svg.replace(/<svg\b([^>]*)>/i, `<svg$1 viewBox="${viewX} ${viewY} ${viewW} ${viewH}">`);
   }
 
   // ensure explicit width/height so Resvg canvas matches
-  if (/\bwidth="/i.test(svg)) svg = svg.replace(/\bwidth="[^"]*"/i, `width="${w}"`);
-  else svg = svg.replace(/<svg\b([^>]*)>/i, `<svg$1 width="${w}">`);
+  if (/\bwidth="/i.test(svg)) svg = svg.replace(/\bwidth="[^"]*"/i, `width="${viewW}"`);
+  else svg = svg.replace(/<svg\b([^>]*)>/i, `<svg$1 width="${viewW}">`);
 
-  if (/\bheight="/i.test(svg)) svg = svg.replace(/\bheight="[^"]*"/i, `height="${h}"`);
-  else svg = svg.replace(/<svg\b([^>]*)>/i, `<svg$1 height="${h}">`);
+  if (/\bheight="/i.test(svg)) svg = svg.replace(/\bheight="[^"]*"/i, `height="${viewH}"`);
+  else svg = svg.replace(/<svg\b([^>]*)>/i, `<svg$1 height="${viewH}">`);
 
   // keep aspect
   if (/\bpreserveAspectRatio="/i.test(svg)) {

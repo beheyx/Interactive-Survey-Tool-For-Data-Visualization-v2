@@ -56,34 +56,56 @@ app.get('/takeSurvey/:hash', handleErrors(async (req, res, next) => {
 }))
 
 // submit answers (participant end)
-app.patch('/takeSurvey/:hash', handleErrors( async (req, res, next) => {
-    const publishedSurvey = await PublishedSurvey.findOne({where: {linkHash: req.params.hash} })
+app.patch('/takeSurvey/:hash', handleErrors(async (req, res, next) => {
+    const publishedSurvey = await PublishedSurvey.findOne({
+        where: { linkHash: req.params.hash }
+    })
 
-    if (publishedSurvey) {
-        // Check if survey is open for responses
-        if (publishedSurvey.status !== "in-progress") {
-            return res.status(403).send({ error: "This survey is not currently accepting responses" })
-        }
-
-        let results = null
-        if (publishedSurvey.results)
-            results = publishedSurvey.results
-        else
-            results = { participants: [] }
-
-        const newParticipant = { participantId: results.participants.length, answers: req.body.answers }
-        results.participants.push(newParticipant)
-
-        await PublishedSurvey.update({ results: results }, {where: { id: publishedSurvey.id }})
-
-        // Update the updatedAt timestamp
-        await publishedSurvey.changed('updatedAt', true);
-        await publishedSurvey.save();
-
-        res.status(200).send()
-    } else {
-        next()
+    if (!publishedSurvey) {
+        return next()
     }
+
+    // Check if survey is open for responses
+    if (publishedSurvey.status !== "in-progress") {
+        return res.status(403).send({
+            error: "This survey is not currently accepting responses"
+        })
+    }
+
+    let results = publishedSurvey.results || { participants: [] }
+
+    let answers = []
+
+    // Existing API/test format
+    if (Array.isArray(req.body.answers)) {
+        answers = req.body.answers
+    }
+
+    // Single-answer format from responseSave.js
+    else if (req.body.answer) {
+        answers = [req.body.answer]
+    }
+
+    else {
+        return res.status(400).send({
+            error: "Missing answers"
+        })
+    }
+
+    const newParticipant = {
+        participantId: results.participants.length,
+        answers: answers
+    }
+
+    results.participants.push(newParticipant)
+
+    publishedSurvey.results = results
+    publishedSurvey.changed('results', true)
+    publishedSurvey.changed('updatedAt', true)
+
+    await publishedSurvey.save()
+
+    res.status(200).send()
 }))
 
 
