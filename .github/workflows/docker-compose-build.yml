@@ -3,6 +3,8 @@ name: Docker Compose Building Check (Bash)
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -44,17 +46,23 @@ jobs:
           done
           echo "Active containers:"
           docker ps -a
-        
+      
+      - name: Install dependencies
+        run: |
+          npm install
+
       - name: Start Docker compose
         run: |
           docker compose up --build -d
-
-      # Tests can go here but this is just to check if it builds.
       
       - name: Tear down compose
         if: always()
         run: |
           docker compose down --volumes --remove-orphans
+
+      - name: Run npm test
+        run: |
+          npm test
 
       - name: Remove leftover MySQL containers
         if: always()
