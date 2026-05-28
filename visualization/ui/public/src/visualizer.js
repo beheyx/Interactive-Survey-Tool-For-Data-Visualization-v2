@@ -927,29 +927,3 @@ window.addEventListener('message', (event) => {
     }
     processMessage(event)
 })
-
-//handles modal close and open
-const helpWindow = document.getElementById("help-window");
-const helpButton = document.getElementById("help-button");
-const closeHelpWindowButton = document.getElementById("close-help-window-button");
-const fileToolbar = document.getElementById("file-toolbar");
-
-let toolbarWasVisible = false;
-
-function openModal() {
-  toolbarWasVisible = !fileToolbar.hidden;
-
-  helpWindow.hidden = false;
-  fileToolbar.hidden = true;
-}
-
-function closeModal() {
-  helpWindow.hidden = true;
-
-  if (toolbarWasVisible) {
-    fileToolbar.hidden = false;
-  }
-}
-
-helpButton.addEventListener("click", openModal);
-closeHelpWindowButton.addEventListener("click", closeModal);
