@@ -1,60 +1,250 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Help</title>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Help</title>
 
-        <link rel="stylesheet" href="/style.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sakura.css/css/sakura.css" type="text/css">
-        <!-- The above link is to a CSS library called sakura which can be found here: https://oxal.org/projects/sakura/
-        It is licensed under MIT:
-        
-            MIT License
+  <link rel="stylesheet" href="/style.css">
 
-            Copyright (c) 2016 Mitesh Shah
+  <style>
+    html {
+      scrollbar-width: thin;
+      scrollbar-color: #b8b8b8 #f1f5f9;
+    }
 
-            Permission is hereby granted, free of charge, to any person obtaining a copy
-            of this software and associated documentation files (the "Software"), to deal
-            in the Software without restriction, including without limitation the rights
-            to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-            copies of the Software, and to permit persons to whom the Software is
-            furnished to do so, subject to the following conditions:
+    body::-webkit-scrollbar {
+      width: 10px;
+    }
 
-            The above copyright notice and this permission notice shall be included in all
-            copies or substantial portions of the Software.
+    body::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
 
-            THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-            IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-            FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-            AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-            LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-            OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-            SOFTWARE.
+    body::-webkit-scrollbar-thumb {
+      background: #a8a8a8;
+      border-radius: 10px;
+    }
 
-        -->
-    </head>
-    <body>
+    body::-webkit-scrollbar-thumb:hover {
+      background: #676463;
+    }
 
+    body {
+      margin: 0;
+      padding: 0;
+      background: white;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #1a202c;
+    }
 
-    <h4>Uploading an Image</h4>
-    <p>You may upload a raster image, of which the file types JPEG and PNG are supported, or a vector image, of which the file type SVG is supported. CAUTION: Importing a new image overwrites all changes.</p>
-    
-    <h4>The "Highlight" Tool</h4>
-    <p>Click on an element to highlight it. A highlighted element will appear highlighted to a survey participant if they are not expected to leave a response directly on the visual. This is helpful for drawing attention to an element for a short answer or multiple choice type question.</p>
+    .help-section {
+      padding: 36px 42px 48px;
+      min-height: auto;
+    }
 
-    <h4>The "Set Selectable" Tool</h4>
-    <p>For an element to be selectable means it can be selected in response to a question if the question type allows it. Elements that are highlighted dark blue are selectable, cyan are not selectable. Click on an element to toggle its selectability.</p>
+    .help-header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
 
-    <h4>The "Create" Tool</h4>
-    <p>Click and drag to draw an interactive box. The box will be invisible unless it is selectable and a user hovers their mouse over it, or if the box is highlighted. The box is selectable by default.</p>
+    .help-title {
+      font-size: 40px;
+      font-weight: 700;
+      color: #1a202c;
+      margin-bottom: 12px;
+    }
 
-    <h4>The "Delete" Tool</h4>
-    <p>Click on box created using the "create" tool to delete it.</p>
+    .help-subtitle {
+      font-size: 18px;
+      color: #64748b;
+      max-width: 650px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
 
-    <h4>Exporting</h4>
-    <p>The visualization is saved in SVG format. Click export to download the visualization as an SVG file.</p>
+    .help-content {
+      max-width: 900px;
+      margin: 0 auto;
+    }
 
-    
-    </body>
+    .help-category-title {
+      font-size: 28px;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 3px solid #D73F09;
+    }
+
+    .help-item {
+      background: white;
+      border: 2px solid #eda287;
+      border-radius: 12px;
+      padding: 24px 32px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      transition: all 0.2s;
+    }
+
+    .help-item:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.10);
+      border: 2px solid #D73F09;
+      transform: translateY(-2px);
+    }
+
+    .help-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .help-question {
+      font-size: 21px;
+      font-weight: 700;
+      color: #1a202c;
+      margin: 0 0 12px;
+      line-height: 1.4;
+    }
+
+    .help-answer {
+      font-size: 17px;
+      color: #4a5568;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .help-category {
+        margin-bottom: 64px;
+    }
+
+    @media (max-width: 768px) {
+      .help-section {
+        padding: 28px 24px 40px;
+      }
+
+      .help-title {
+        font-size: 32px;
+      }
+
+      .help-subtitle {
+        font-size: 16px;
+      }
+
+      .help-category-title {
+        font-size: 24px;
+      }
+
+      .help-item {
+        padding: 20px 24px;
+      }
+
+      .help-question {
+        font-size: 18px;
+      }
+
+      .help-answer {
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <section class="help-section">
+    <div class="help-header">
+      <h1 class="help-title">Visualizer Help</h1>
+      <p class="help-subtitle">
+        Learn the basic workflow for creating a visualization and how each tool works.
+      </p>
+    </div>
+
+    <div class="help-content">
+
+      <!-- Section 1: Overall Flow -->
+      <div class="help-category">
+        <h2 class="help-category-title">Overall Workflow</h2>
+
+        <div class="help-item">
+          <h3 class="help-question">1. Import an Image</h3>
+          <p class="help-answer">
+            Start by importing an image into the visualizer. Supported file types include SVG, PNG, and JPEG. 
+            Importing a new image will replace the current visualization, so make sure to save or export your work first if needed.
+          </p>
+        </div>
+
+        <div class="help-item">
+          <h3 class="help-question">2. Edit the Visualization</h3>
+          <p class="help-answer">
+            After importing an image, use the tools menu to highlight elements, make elements selectable, create new interactive areas, 
+            or edit details. These tools let you control how participants interact with the visualization in a survey.
+          </p>
+        </div>
+
+        <div class="help-item">
+          <h3 class="help-question">3. Save Your Work</h3>
+          <p class="help-answer">
+            Work is automatically saved as you make changes. You can also use the save button to manually store your changes. Saving keeps your edited visualization available for later use in your survey design.
+          </p>
+        </div>
+
+        <div class="help-item">
+          <h3 class="help-question">4. Export the Visualization</h3>
+          <p class="help-answer">
+            Use the export button to download the visualization as an SVG file. This is useful if you want to keep a copy outside the application.
+          </p>
+        </div>
+      </div>
+
+      <!-- Section 2: Tools Guide -->
+      <div class="help-category tools-guide-section">
+        <h2 class="help-category-title">Tools Guide</h2>
+
+        <div class="help-item">
+          <h3 class="help-question">Highlight Elements</h3>
+          <p class="help-answer">
+            Click on an element to highlight it. Highlighting is useful when you want to draw attention to part of the visualization, 
+            especially for short answer or multiple choice questions where the participant does not directly select the visual element.
+          </p>
+        </div>
+
+        <div class="help-item">
+          <h3 class="help-question">Set Selectable</h3>
+          <p class="help-answer">
+            Use this tool to control whether an element can be selected by a participant. Dark blue elements are selectable, while cyan elements 
+            are not selectable. Click an element to toggle its selectability.
+          </p>
+        </div>
+
+        <div class="help-item">
+          <h3 class="help-question">Create Box</h3>
+          <p class="help-answer">
+            Click and draw to create a rectangular interactive area. The box is selectable by default and can be used when the original image 
+            does not already have a selectable element in the area you need.
+          </p>
+        </div>
+
+        <div class="help-item">
+          <h3 class="help-question">Create Lasso</h3>
+          <p class="help-answer">
+            Use this tool to draw a custom-shaped interactive area. This is helpful when the area you want participants to select is not a simple rectangle.
+          </p>
+        </div>
+
+        <div class="help-item">
+          <h3 class="help-question">Delete Added Elements</h3>
+          <p class="help-answer">
+            Use this tool to delete elements that were manually added with the Create Box or Create Lasso tools. This does not remove the original image itself.
+          </p>
+        </div>
+
+        <div class="help-item">
+          <h3 class="help-question">Edit Details</h3>
+          <p class="help-answer">
+            Use this tool to edit information connected to an element, such as its label or details shown when users interact with it.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</body>
 </html>

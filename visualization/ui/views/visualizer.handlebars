@@ -15,14 +15,31 @@
   <div id="wrapper" class={{role}}>
     <div id="help-window" hidden>
       <button id="close-help-window-button">X</button>
-      <iframe height="90%" width="90%" src="/help.html"></iframe>
+      <iframe height="90%" width="100%" src="/help.html"></iframe>
     </div>
     <div id="zoom-container" hidden>
-      <button id="zoom-in" class="file-icon" title="Zoom In">
-        <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      <button id="zoom-in" class="file-icon" data-tooltip="Zoom In">
+        <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
       </button>
-      <button id="zoom-out" class="file-icon" title="Zoom Out">
-       <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+
+      <button id="zoom-reset" class="file-icon" data-tooltip="Reset to Saved Zoom">
+        <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"
+            viewBox="0 0 24 24" fill="none" stroke="#000000"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 9V4h5"></path>
+          <path d="M20 9V4h-5"></path>
+          <path d="M4 15v5h5"></path>
+          <path d="M20 15v5h-5"></path>
+        </svg>
+      </button>
+
+      <button id="zoom-out" class="file-icon" data-tooltip="Zoom Out">
+        <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
       </button>
     </div>
     <button id="editor-button" hidden>editor mode</button>
@@ -32,28 +49,28 @@
     </div>
 
     <div id="file-toolbar" hidden>
-      <button class="file-icon" id="icon-save" title="Save">
+      <button class="file-icon" id="icon-save" data-tooltip="Save">
         <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
           <polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline>
         </svg>
       </button>
-      <button class="file-icon" id="icon-import" title="Import">
+      <button class="file-icon" id="icon-import" data-tooltip="Import">
         <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5"/>
         </svg>
       </button>
-      <button class="file-icon" id="icon-export" title="Export">
+      <button class="file-icon" id="icon-export" data-tooltip="Export">
         <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 8l-5-5-5 5M12 4.2v10.3"/>
         </svg>
       </button>
-      <button class="file-icon" id="icon-rotate-left" title="Rotate Left">
+      <button class="file-icon" id="icon-rotate-left" data-tooltip="Rotate Left">
         <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M2.5 2v6h6M2.66 15.57a10 10 0 1 0 .57-8.38"/>
         </svg>
       </button>
-      <button class="file-icon" id="icon-rotate-right" title="Rotate Right">
+      <button class="file-icon" id="icon-rotate-right" data-tooltip="Rotate Right">
         <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38"/>
         </svg>

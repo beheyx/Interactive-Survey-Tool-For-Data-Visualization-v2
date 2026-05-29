@@ -119,6 +119,11 @@ function EnableZoom() {
     // --- Zoom buttons (keep original behavior) ---
     const zoomInBtn = document.getElementById("zoom-in")
     const zoomOutBtn = document.getElementById("zoom-out")
+    const zoomResetBtn = document.getElementById("zoom-reset")
+
+    const originalScale = visualizationElement.scale
+    const originalX = visualizationElement.x
+    const originalY = visualizationElement.y
 
     if (zoomInBtn) {
         zoomInBtn.addEventListener("click", () => {
@@ -129,6 +134,19 @@ function EnableZoom() {
     if (zoomOutBtn) {
         zoomOutBtn.addEventListener("click", () => {
             applyZoomFactor(zoomOutIntensity)
+        })
+    }
+    
+    if (zoomResetBtn) {
+        zoomResetBtn.addEventListener("click", () => {
+            visualizationElement.scale = originalScale
+            visualizationElement.x = originalX
+            visualizationElement.y = originalY
+
+            document.body.style.setProperty(
+                "--zoom-scale",
+                visualizationElement.scale / 80 + "px"
+            )
         })
     }
 }
