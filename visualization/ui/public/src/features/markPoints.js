@@ -62,7 +62,7 @@ function enableMarkPoints() {
                 }
             }
 
-            // 
+            // read maximum values from the iframe
             const max = document.getElementById("question-max").value
             const total = markContainer.getElementsByClassName("mark").length 
 

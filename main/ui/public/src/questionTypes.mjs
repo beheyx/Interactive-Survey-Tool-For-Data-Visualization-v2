@@ -386,7 +386,7 @@ const questionTypes = [
             // send message to iframe to get selected element ids
             visualWindow.postMessage("ids", visualURL)
         },
-        onVisualLoaded: function() {
+        onVisualLoaded: function(max) {
             // get saved ids of selected elements
             const savedResponse = document.getElementById("savedResponse").getAttribute("response")
             const selectedIds = savedResponse.split('|')
@@ -395,6 +395,7 @@ const questionTypes = [
             const visualURL = document.getElementById("visualURL").getAttribute("url")
             const visualWindow = document.getElementById("displayedImage").contentWindow
             visualWindow.postMessage({ selectIds: selectedIds }, visualURL)  
+            visualWindow.postMessage({ setMax: max }, visualURL)
         },
     },
     /**************************************************************************** 

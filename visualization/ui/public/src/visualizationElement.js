@@ -79,8 +79,13 @@ const VisualizationElement = class {
      * @param {Element} element 
      */
     select(element) {
-        if (element.classList.contains(SELECTABLE_LABEL))
-            element.classList.add(SELECTION_LABEL)
+        if (element.classList.contains(SELECTABLE_LABEL)){
+            const max = document.getElementById("question-max").value
+            const total = this.getNumberOfSelectedElements()
+            if (max <= 0 || total < max) {
+                element.classList.add(SELECTION_LABEL)
+            }
+        }
     }
 
     /**
@@ -96,10 +101,15 @@ const VisualizationElement = class {
      * @param {Element} element 
      */
     toggleSelection(element) {
-        if (element.classList.contains(SELECTABLE_LABEL) && !element.classList.contains(SELECTION_LABEL))
-            element.classList.add(SELECTION_LABEL)
-        else
+        if (element.classList.contains(SELECTABLE_LABEL) && !element.classList.contains(SELECTION_LABEL)){
+            const max = document.getElementById("question-max").value
+            const total = this.getNumberOfSelectedElements()
+            if (max <= 0 || total < max) {
+                element.classList.add(SELECTION_LABEL)
+            }
+        } else {
             element.classList.remove(SELECTION_LABEL)
+        }
     }
 
     /**
