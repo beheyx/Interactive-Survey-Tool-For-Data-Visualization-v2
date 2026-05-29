@@ -908,6 +908,8 @@ function processMessage(event) {
         if (visualizer?.clearRegion) visualizer.clearRegion()
     } else if (event.data?.loadRegion) {
         if (visualizer?.loadRegion) visualizer.loadRegion(event.data.loadRegion)
+    } else if (event.data.setMax) {
+        document.getElementById("question-max").value = event.data.setMax
     }
 }
 
