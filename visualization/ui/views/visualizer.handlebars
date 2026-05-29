@@ -19,10 +19,27 @@
     </div>
     <div id="zoom-container" hidden>
       <button id="zoom-in" class="file-icon" data-tooltip="Zoom In">
-        <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
       </button>
+
+      <button id="zoom-reset" class="file-icon" data-tooltip="Reset to Saved Zoom">
+        <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"
+            viewBox="0 0 24 24" fill="none" stroke="#000000"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 9V4h5"></path>
+          <path d="M20 9V4h-5"></path>
+          <path d="M4 15v5h5"></path>
+          <path d="M20 15v5h-5"></path>
+        </svg>
+      </button>
+
       <button id="zoom-out" class="file-icon" data-tooltip="Zoom Out">
-       <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
       </button>
     </div>
     <button id="editor-button" hidden>editor mode</button>

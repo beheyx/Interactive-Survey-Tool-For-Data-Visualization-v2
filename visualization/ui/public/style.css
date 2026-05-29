@@ -530,7 +530,7 @@ button, input {
 #file-toolbar {
     position: fixed;
     left: 1%;
-    top: 140px;
+    top: 193px;
     z-index: 9999;
 
     display: flex;
