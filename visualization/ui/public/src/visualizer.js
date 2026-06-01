@@ -568,14 +568,40 @@ addEventListener("DOMContentLoaded", async () => {
     // Rotate buttons
     function rotateImage(degrees) {
         if (!svgElement) return;
-        const foreignObj = svgElement.querySelector("foreignObject");
-        if (!foreignObj) return;
 
-        const bbox = foreignObj.getBBox();
+        // Find the main visual element to rotate
+        let targetElement = svgElement.querySelector("foreignObject");
+
+        // If not found, look for a group element
+        if (!targetElement) {
+            const group = svgElement.querySelector("g");
+            if (group) {
+                targetElement = group;
+            } else {
+                // Group all visual content together
+                const children = Array.from(svgElement.children).filter(
+                    child => !child.classList.contains('custom') &&
+                             child.tagName !== 'defs' &&
+                             child.tagName !== 'style'
+                );
+                if (children.length === 0) return;
+
+                // Wrap content in a group for rotation
+                const wrapper = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                wrapper.setAttribute("id", "rotation-wrapper");
+                children.forEach(child => wrapper.appendChild(child));
+                svgElement.insertBefore(wrapper, svgElement.firstChild);
+                targetElement = wrapper;
+            }
+        }
+
+        if (!targetElement) return;
+
+        const bbox = targetElement.getBBox();
         const cx = bbox.x + bbox.width / 2;
         const cy = bbox.y + bbox.height / 2;
 
-        const currentTransform = foreignObj.getAttribute("transform") || "";
+        const currentTransform = targetElement.getAttribute("transform") || "";
         const rotateMatch = currentTransform.match(/rotate\(([^,)]+)/);
         const currentRotation = rotateMatch ? parseFloat(rotateMatch[1]) : 0;
         const newRotation = currentRotation + degrees;
@@ -587,7 +613,7 @@ addEventListener("DOMContentLoaded", async () => {
             newTransform = `rotate(${newRotation}, ${cx}, ${cy}) ${currentTransform}`.trim();
         }
 
-        foreignObj.setAttribute("transform", newTransform);
+        targetElement.setAttribute("transform", newTransform);
         autosave.save();
     }
 
