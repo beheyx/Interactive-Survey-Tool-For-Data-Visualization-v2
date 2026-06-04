@@ -45,14 +45,22 @@ We need to set up the mySQL database in Docker:
 - first make sure the script is executable, run `chmod +x make_containers_NO_API.sh`
 - run the script `./make_containers_NO_API.sh`
 
-Run `docker compose up --build` to run the application. This may take a while. Visit `http://localhost:5000/` and `http://localhost:8000/` to verify.
+Run **`docker compose up --build`** to run the application. This may take a while. 
+
+After the containers finish starting, open the following URLs to verify that everything is running:
+
+- **`http://localhost:5000/` — the main application**
+- `http://localhost:8000/` — the visualization/UI service
 
 ### Troubleshoot
 - If you are having mySQL errors such as access denied or your docker is not loading API containers, try `sed -i 's/\r$//' wait-for.sh`
 - If you are having modules related errors like missing modules, try `npm install` to update and install all the dependencies needed.
 
 ### Cleaning
-Run `docker compose down` to clean up after you've tested.
+Run `docker compose down` to stop and remove Docker containers. 
+
+Run `docker compose down -v` to stop and remove the containers and delete the Docker volume containing the MySQL database data.
+
 
 # Branching and Reviews
 We follow a simple workflow to manage development and ensure code quality:
